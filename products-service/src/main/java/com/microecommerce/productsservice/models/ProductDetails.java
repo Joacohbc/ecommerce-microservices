@@ -29,7 +29,7 @@ public class ProductDetails {
     @MapsId("productId")
     private Product product;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "detail_id")
     @MapsId("detailId")
     private Detail detail;
