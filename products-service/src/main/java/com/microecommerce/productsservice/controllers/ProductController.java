@@ -1,16 +1,12 @@
 package com.microecommerce.productsservice.controllers;
 
 import com.microecommerce.productsservice.models.Product;
-import com.microecommerce.productsservice.services.ProductService;
 import com.microecommerce.productsservice.services.interfaces.IProductService;
 import com.microecommerce.productsservice.utils.JSONUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.View;
-
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/products")

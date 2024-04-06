@@ -61,4 +61,7 @@ public class Product implements Serializable {
 
     @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     private List<Tag> tags;
+
+    @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER, mappedBy = "product")
+    private List<ProductDetails> details;
 }
