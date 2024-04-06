@@ -64,5 +64,5 @@ public class Product implements Serializable {
     private List<Tag> tags;
 
     @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER, mappedBy = "product")
-    private List<ProductDetails> details;
+    private List<ProductDetails> productDetails;
 }

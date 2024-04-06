@@ -1,15 +1,9 @@
 package com.microecommerce.productsservice.services;
 
 import com.microecommerce.productsservice.exceptions.NoRelatedEntityException;
-import com.microecommerce.productsservice.models.Brand;
-import com.microecommerce.productsservice.models.Category;
-import com.microecommerce.productsservice.models.Product;
-import com.microecommerce.productsservice.models.Tag;
+import com.microecommerce.productsservice.models.*;
 import com.microecommerce.productsservice.repositories.ProductRepository;
-import com.microecommerce.productsservice.services.interfaces.IBrandService;
-import com.microecommerce.productsservice.services.interfaces.ICategoryService;
-import com.microecommerce.productsservice.services.interfaces.IProductService;
-import com.microecommerce.productsservice.services.interfaces.ITagService;
+import com.microecommerce.productsservice.services.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,14 +21,16 @@ public class ProductService implements IProductService {
     private final ICategoryService categoryService;
     private final IBrandService brandService;
     private final ITagService tagService;
+    private final IDetailService detailService;
     private final Logger logger = LoggerFactory.getLogger(ProductService.class);
 
     @Autowired
-    public ProductService(ProductRepository productRepository, ICategoryService categoryService, IBrandService brandService, ITagService tagService) {
+    public ProductService(ProductRepository productRepository, ICategoryService categoryService, IBrandService brandService, ITagService tagService, IDetailService detailService) {
         this.productRepository = productRepository;
         this.categoryService = categoryService;
         this.brandService = brandService;
         this.tagService = tagService;
+        this.detailService = detailService;
     }
 
     @Override
@@ -153,5 +149,99 @@ public class ProductService implements IProductService {
     @Override
     public void deleteById(Long id) {
         productRepository.deleteById(id);
+    }
+
+    @Override
+    public Product addTag(Long productId, Long tagId) throws NoRelatedEntityException {
+        var product = productRepository.findById(productId).orElse(null);
+        var tag = tagService.getById(tagId);
+
+        if (product == null || tag == null) {
+            throw new NoRelatedEntityException("Product or tag not found");
+        }
+
+        product.getTags().add(tag);
+        return productRepository.save(product);
+
+    }
+
+    @Override
+    public Product removeTag(Long productId, Long tagId) throws NoRelatedEntityException {
+        var product = productRepository.findById(productId).orElse(null);
+        var tag = tagService.getById(tagId);
+
+        if (product == null || tag == null) {
+            throw new NoRelatedEntityException("Product or tag not found");
+        }
+
+        product.getTags().remove(tag);
+        return productRepository.save(product);
+    }
+
+    @Override
+    public Product addCategory(Long productId, Long categoryId) throws NoRelatedEntityException {
+        var product = productRepository.findById(productId).orElse(null);
+        var category = categoryService.getById(categoryId);
+
+        if (product == null || category == null) {
+            throw new NoRelatedEntityException("Product or category not found");
+        }
+
+        product.getCategories().add(category);
+        return productRepository.save(product);
+    }
+
+    @Override
+    public Product removeCategory(Long productId, Long categoryId) throws NoRelatedEntityException {
+        var product = productRepository.findById(productId).orElse(null);
+        var category = categoryService.getById(categoryId);
+
+        if (product == null || category == null) {
+            throw new NoRelatedEntityException("Product or category not found");
+        }
+
+        product.getCategories().remove(category);
+        return productRepository.save(product);
+    }
+
+    @Override
+    public Product addDetails(Long productId, Map<Long, Object> details) throws NoRelatedEntityException {
+        var product = productRepository.findById(productId).orElse(null);
+
+        var detailsIds = details.keySet();
+        var detailsEntities = detailService.getByIds(new ArrayList<>(detailsIds));
+
+        if (product == null || detailsEntities.size() != detailsIds.size()) {
+            throw new NoRelatedEntityException("Product or details not found");
+        }
+
+        detailsEntities.forEach(detail -> {
+            var value = details.get(detail.getId());
+            var productDetail = createDetailForProduct(product, detail, value);
+            product.getProductDetails().add(productDetail);
+        });
+
+        return productRepository.save(product);
+    }
+
+    private ProductDetails createDetailForProduct(Product product, Detail detail, Object value) {
+        var productDetail = new ProductDetails();
+        productDetail.setProduct(product);
+        productDetail.setDetail(detail);
+        productDetail.setValue(value);
+        return productDetail;
+    }
+
+    @Override
+    public Product removeDetails(Long productId, List<Long> detailIds) throws NoRelatedEntityException {
+        var product = productRepository.findById(productId).orElse(null);
+        var details = detailService.getByIds(detailIds);
+
+        if (product == null || details.size() != detailIds.size()) {
+            throw new NoRelatedEntityException("Product or details not found");
+        }
+
+        product.getProductDetails().removeIf(productDetail -> details.stream().anyMatch(detail -> detail.getId().equals(productDetail.getDetail().getId())));
+        return productRepository.save(product);
     }
 }

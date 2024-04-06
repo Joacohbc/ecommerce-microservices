@@ -7,7 +7,7 @@ import com.microecommerce.productsservice.repositories.DetailRepository;
 
 import java.util.List;
 
-public class DetailService  implements IDetailService {
+public class DetailService implements IDetailService {
 
     private final DetailRepository detailRepository;
 
