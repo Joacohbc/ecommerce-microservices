@@ -7,6 +7,9 @@ import java.io.Serializable;
 
 @Entity
 @Data
+// Represents a category for a product, which can be used to have general information to group products.
+// Like a Tag, but with a more general purpose.
+// Example: "Electronics", "Clothing", "Books", etc.
 public class Category implements Serializable {
 
     public Category() {

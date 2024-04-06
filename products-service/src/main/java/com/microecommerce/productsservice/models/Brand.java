@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 @Entity
 @Data
+// Represents a brand. A brand is a company that produces products.
 public class Brand implements Serializable {
 
     public Brand() {

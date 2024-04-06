@@ -8,6 +8,7 @@ import lombok.Data;
 
 @Embeddable
 @Data
+// Is a composite key for the product details table
 public class ProductDetailsKey {
     @Column(name = "product_id")
     private Long productId;

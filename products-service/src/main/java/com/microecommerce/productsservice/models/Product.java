@@ -12,6 +12,7 @@ import java.util.List;
 
 @Entity
 @Data
+// Represents a product in the system and contains all the information about it.
 public class Product implements Serializable {
 
     public Product() {
