@@ -1,0 +1,11 @@
+spring:
+  cloud:
+    gateway:
+      mvc:
+        routes:
+          - id: products-service
+            uri: lb://products-service
+            predicates:
+              - Path=/api/products/**
+            filters:
+              - StripPrefix=2
