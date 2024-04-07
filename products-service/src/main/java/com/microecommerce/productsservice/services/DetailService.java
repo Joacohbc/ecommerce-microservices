@@ -4,9 +4,11 @@ import com.microecommerce.productsservice.exceptions.NoRelatedEntityException;
 import com.microecommerce.productsservice.models.Detail;
 import com.microecommerce.productsservice.services.interfaces.IDetailService;
 import com.microecommerce.productsservice.repositories.DetailRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class DetailService implements IDetailService {
 
     private final DetailRepository detailRepository;
