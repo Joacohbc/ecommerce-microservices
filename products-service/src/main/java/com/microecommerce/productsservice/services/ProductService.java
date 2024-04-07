@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService implements IProductService {
@@ -62,78 +63,83 @@ public class ProductService implements IProductService {
             return List.of();
         }
 
-        validateCategories(products);
-        validateBrands(products);
-        validateTags(products);
-        validateProducts(products);
-        return productRepository.saveAll(products);
-    }
+        Set<Long> tagIds = new HashSet<>();
+        Set<Long> brandIds = new HashSet<>();;
+        Set<Long> categoryIds = new HashSet<>();;
+        Set<Long> detailsIds = new HashSet<>();;
 
-    private void validateTags(List<Product> products) throws NoRelatedEntityException {
-        var tagIds = products.stream().flatMap(product -> product.getTags().stream().map(Tag::getId)).toList();
-        var tags = tagService.getByIds(tagIds);
+        // Get all related entities ids
+        for(var product : products) {
+            if(product.getTags() != null && !product.getTags().isEmpty())
+                tagIds.addAll(product.getTags().stream().map(Tag::getId).toList());
+            else product.setTags(new LinkedList<>());
 
-        if (tags.size() != new HashSet<>(tagIds).size()) {
-            throw new NoRelatedEntityException("Some tags are not found");
+            if(product.getBrands() != null && !product.getBrands().isEmpty())
+                brandIds.addAll(product.getBrands().stream().map(Brand::getId).toList());
+            else product.setBrands(new LinkedList<>());
+
+            if(product.getCategories() != null && !product.getCategories().isEmpty())
+                categoryIds.addAll(product.getCategories().stream().map(Category::getId).toList());
+            else product.setCategories(new LinkedList<>());
+
+            if(product.getProductDetails() != null && !product.getProductDetails().isEmpty())
+                detailsIds.addAll(product.getProductDetails().stream().map(productDetail -> productDetail.getDetail().getId()).toList());
+            else product.setProductDetails(new LinkedList<>());
         }
 
-        // Map attached tags to product
-        products.forEach(product -> {
+        // Get all related entities
+        var tags = tagService.getByIds(new ArrayList<>(tagIds));
+        var brands = brandService.getByIds(new ArrayList<>(brandIds));
+        var categories = categoryService.getByIds(new ArrayList<>(categoryIds));
+        var details = detailService.getByIds(new ArrayList<>(detailsIds));
+
+        if(tags.size() != tagIds.size()) throw new NoRelatedEntityException("Some tags not found");
+        if(brands.size() != brandIds.size()) throw new NoRelatedEntityException("Some brands not found");
+        if(categories.size() != categoryIds.size()) throw new NoRelatedEntityException("Some categories not found");
+        if(details.size() != detailsIds.size()) throw new NoRelatedEntityException("Some details not found");
+
+        // Map attached tags, brands, categories and details to product (to avoid detached entity exception)
+        for(Product product : products) {
             var productTags = new LinkedList<Tag>();
-            product.getTags().forEach(tag -> {
+            for(Tag tag : product.getTags()) {
                 var foundTag = tags.stream().filter(t -> t.getId().equals(tag.getId())).findFirst();
                 foundTag.ifPresent(productTags::add);
-            });
+            }
             product.setTags(productTags);
-        });
-    }
 
-    private void validateBrands(List<Product> products) throws NoRelatedEntityException {
-        var brandIds = products.stream().flatMap(product -> product.getBrands().stream().map(Brand::getId)).toList();
-        var brands = brandService.getByIds(brandIds);
-
-        if (brands.size() != new HashSet<>(brandIds).size()) {
-            throw new NoRelatedEntityException("Some brands are not found");
-        }
-
-        // Map attached brands to product
-        products.forEach(product -> {
             var productBrands = new LinkedList<Brand>();
-            product.getBrands().forEach(brand -> {
+            for(Brand brand : product.getBrands()) {
                 var foundBrand = brands.stream().filter(b -> b.getId().equals(brand.getId())).findFirst();
                 foundBrand.ifPresent(productBrands::add);
-            });
+            }
             product.setBrands(productBrands);
-        });
-    }
 
-    private void validateCategories(List<Product> products) throws NoRelatedEntityException {
-        var categoryIds = products.stream().flatMap(product -> product.getCategories().stream().map(Category::getId)).toList();
-        var categories = categoryService.getByIds(categoryIds);
-
-        if (categories.size() != new HashSet<>(categoryIds).size()) {
-            throw new NoRelatedEntityException("Some categories are not found");
-        }
-
-        // Map attached categories to product
-        products.forEach(product -> {
             var productCategories = new LinkedList<Category>();
-            product.getCategories().forEach(category -> {
+            for(Category category : product.getCategories()) {
                 var foundCategory = categories.stream().filter(c -> c.getId().equals(category.getId())).findFirst();
                 foundCategory.ifPresent(productCategories::add);
-            });
+            }
             product.setCategories(productCategories);
-        });
-    }
 
-    private void validateProducts(List<Product> products) throws NoRelatedEntityException {
-        var skus = products.stream().map(Product::getSku).toList();
+            var productDetails = new LinkedList<ProductDetails>();
+            for(ProductDetails productDetail : product.getProductDetails()) {
+                var foundDetail = details.stream().filter(d -> d.getId().equals(productDetail.getDetail().getId())).findFirst();
+                foundDetail.ifPresent(detail -> {
+                    productDetails.add(ProductDetails.createDetailForProduct(product, detail, productDetail.getValue()));
+                });
+            }
+            product.setProductDetails(productDetails);
+        }
+
+        var skus = products.stream().map(Product::getSku).collect(Collectors.toList());
         var repeatedSku = productRepository.existsProductBySkuIn(skus);
         if(repeatedSku) throw new NoRelatedEntityException("Some products have repeated SKU at database");
 
         // Check if there are repeated SKU in the request (only if there are more than one product)
         if(!products.isEmpty() && (products.size() != new HashSet<>(skus).size()))
             throw new NoRelatedEntityException("Some products have repeated SKU in the request");
+
+        return productRepository.saveAll(products);
     }
 
     @Override
@@ -217,20 +223,13 @@ public class ProductService implements IProductService {
 
         detailsEntities.forEach(detail -> {
             var value = details.get(detail.getId());
-            var productDetail = createDetailForProduct(product, detail, value);
+            var productDetail = ProductDetails.createDetailForProduct(product, detail, value);
             product.getProductDetails().add(productDetail);
         });
 
         return productRepository.save(product);
     }
 
-    private ProductDetails createDetailForProduct(Product product, Detail detail, Object value) {
-        var productDetail = new ProductDetails();
-        productDetail.setProduct(product);
-        productDetail.setDetail(detail);
-        productDetail.setValue(value);
-        return productDetail;
-    }
 
     @Override
     public Product removeDetails(Long productId, List<Long> detailIds) throws NoRelatedEntityException {

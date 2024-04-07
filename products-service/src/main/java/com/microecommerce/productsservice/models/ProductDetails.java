@@ -16,6 +16,21 @@ import java.time.LocalDateTime;
 // the Details of a specific product, and optionally additional information.
 public class ProductDetails {
 
+    public static ProductDetails createDetailForProduct(Product product, Detail detail, Object value) {
+        var productDetail = new ProductDetails();
+
+        ProductDetailsKey key = new ProductDetailsKey();
+        key.setProductId(product.getId());
+        key.setDetailId(detail.getId());
+
+        productDetail.setId(key);
+        productDetail.setProduct(product);
+        productDetail.setDetail(detail);
+        productDetail.setValue(value);
+        return productDetail;
+    }
+
+
     @Getter
     @Setter
     @EmbeddedId
@@ -24,7 +39,7 @@ public class ProductDetails {
 
     @Getter
     @Setter
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "product_id")
     @MapsId("productId")
     private Product product;
@@ -79,7 +94,7 @@ public class ProductDetails {
         DATE,
         DATETIME;
 
-        public Type getTypeFromValue(Object value) {
+        public static Type getTypeFromValue(Object value) {
             if (value instanceof String) {
                 return STRING;
             } else if (value instanceof Long) {
@@ -99,7 +114,7 @@ public class ProductDetails {
     }
 
     public void setValue(Object value) {
-        this.type = type.getTypeFromValue(value);
+        this.type = Type.getTypeFromValue(value);
         switch (type) {
             case STRING:
                 this.value = value.toString();
