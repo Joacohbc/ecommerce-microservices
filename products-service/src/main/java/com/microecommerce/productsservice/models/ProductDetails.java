@@ -19,6 +19,7 @@ public class ProductDetails {
     @Getter
     @Setter
     @EmbeddedId
+    @Column(unique = true, nullable = false)
     private ProductDetailsKey id;
 
     @Getter
