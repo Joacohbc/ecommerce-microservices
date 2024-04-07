@@ -2,7 +2,6 @@ package com.microecommerce.productsservice.controllers;
 
 import com.microecommerce.productsservice.exceptions.NoRelatedEntityException;
 import com.microecommerce.productsservice.models.Product;
-import com.microecommerce.productsservice.models.ProductDetails;
 import com.microecommerce.productsservice.services.interfaces.IProductService;
 import com.microecommerce.productsservice.utils.JSONUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 @RestController
 @RequestMapping("/products")
@@ -61,7 +59,7 @@ public class ProductController {
         return productService.updateBatch(products);
     }
 
-    @PutMapping("/{id}/tags/{tagId}")
+    @PostMapping("/{id}/tags/{tagId}")
     public ResponseEntity<Object> addTag(@PathVariable Long id, @PathVariable Long tagId) {
         try {
             return ResponseEntity.ok().body(productService.addTag(id, tagId));
@@ -70,7 +68,7 @@ public class ProductController {
         }
     }
 
-    @PutMapping("/{id}/categories/{categoryId}")
+    @PostMapping("/{id}/categories/{categoryId}")
     public Product addCategory(@PathVariable Long id, @PathVariable Long categoryId) {
         try {
             return productService.addCategory(id, categoryId);
@@ -79,7 +77,7 @@ public class ProductController {
         }
     }
 
-    @PutMapping("/{id}/details")
+    @PostMapping("/{id}/details")
     public ResponseEntity<Object> addDetails(@PathVariable Long id, @RequestBody Map<Long, Object> details) {
         try {
 
