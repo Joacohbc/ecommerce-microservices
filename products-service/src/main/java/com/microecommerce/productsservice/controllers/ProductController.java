@@ -1,5 +1,7 @@
 package com.microecommerce.productsservice.controllers;
 
+import com.microecommerce.productsservice.dtos.ProductDTO;
+import com.microecommerce.productsservice.dtos.ProductDetailsDTO;
 import com.microecommerce.productsservice.exceptions.NoRelatedEntityException;
 import com.microecommerce.productsservice.models.Product;
 import com.microecommerce.productsservice.services.interfaces.IProductService;
@@ -21,42 +23,40 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<Product> getAllProducts() {
-        return productService.getAll();
+    public List<ProductDTO> getAllProducts() {
+        return ProductDTO.fromEntities(productService.getAll());
     }
 
     @GetMapping("/{id}")
-    public Product getProductById(@PathVariable Long id) {
-        return productService.getById(id);
+    public ProductDTO getProductById(@PathVariable Long id) {
+        return ProductDTO.fromEntity(productService.getById(id));
     }
 
     @PostMapping
-    public ResponseEntity<Object> addProduct(@RequestBody Product product) {
-        try {
-            return ResponseEntity.ok().body(productService.create(product));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
-        }
+    public ResponseEntity<Object> addProduct(@RequestBody ProductDTO product) {
+        return addProducts(List.of(product));
     }
 
     @PostMapping("/batch")
-    public ResponseEntity<Object> addProducts(@RequestBody List<Product> products) {
+    public ResponseEntity<Object> addProducts(@RequestBody List<ProductDTO> products) {
         try {
-            return ResponseEntity.ok().body(productService.createBatch(products));
+            var entities = ProductDTO.toEntities(products);
+            var created = ProductDTO.fromEntities(productService.createBatch(entities));
+            return ResponseEntity.ok().body(created);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
         }
     }
 
     @PutMapping("/{id}")
-    public Product updateProduct(@PathVariable Long id, @RequestBody Product product) {
-        product.setId(id);
-        return productService.update(product);
+    public Product updateProduct(@PathVariable Long id, @RequestBody ProductDTO product) {
+        return updateProducts(List.of(product)).get(0);
     }
 
     @PutMapping("/batch")
-    public List<Product> updateProducts(@RequestBody List<Product> products) {
-        return productService.updateBatch(products);
+    public List<Product> updateProducts(@RequestBody List<ProductDTO> products) {
+        var entities = ProductDTO.toEntities(products);
+        return productService.updateBatch(entities);
     }
 
     @PostMapping("/{id}/tags/{tagId}")
@@ -78,10 +78,11 @@ public class ProductController {
     }
 
     @PostMapping("/{id}/details")
-    public ResponseEntity<Object> addDetails(@PathVariable Long id, @RequestBody Map<Long, Object> details) {
+    public ResponseEntity<Object> addDetails(@PathVariable Long id, @RequestBody List<ProductDetailsDTO> details) {
         try {
-
-            return ResponseEntity.ok().body(productService.addDetails(id, details));
+            var entities = ProductDetailsDTO.toEntities(details, id);
+            var added = productService.addDetails(id, entities);
+            return ResponseEntity.ok().body(added);
         } catch (NoRelatedEntityException e) {
             return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
         }
@@ -90,6 +91,7 @@ public class ProductController {
     @DeleteMapping("/{id}/details")
     public ResponseEntity<Object> removeDetails(@PathVariable Long id, @RequestBody List<Long> detailIds) {
         try {
+
             return ResponseEntity.ok().body(productService.removeDetails(id, detailIds));
         } catch (NoRelatedEntityException e) {
             return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));

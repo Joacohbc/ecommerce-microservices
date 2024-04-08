@@ -2,6 +2,7 @@ package com.microecommerce.productsservice.services;
 
 import com.microecommerce.productsservice.exceptions.NoRelatedEntityException;
 import com.microecommerce.productsservice.models.*;
+import com.microecommerce.productsservice.repositories.ProductDetailsRepository;
 import com.microecommerce.productsservice.repositories.ProductRepository;
 import com.microecommerce.productsservice.services.interfaces.*;
 import org.slf4j.Logger;
@@ -24,14 +25,16 @@ public class ProductService implements IProductService {
     private final ITagService tagService;
     private final IDetailService detailService;
     private final Logger logger = LoggerFactory.getLogger(ProductService.class);
+    private final ProductDetailsRepository productDetailsRepository;
 
     @Autowired
-    public ProductService(ProductRepository productRepository, ICategoryService categoryService, IBrandService brandService, ITagService tagService, IDetailService detailService) {
+    public ProductService(ProductRepository productRepository, ICategoryService categoryService, IBrandService brandService, ITagService tagService, IDetailService detailService, ProductDetailsRepository productDetailsRepository) {
         this.productRepository = productRepository;
         this.categoryService = categoryService;
         this.brandService = brandService;
         this.tagService = tagService;
         this.detailService = detailService;
+        this.productDetailsRepository = productDetailsRepository;
     }
 
     @Override
@@ -211,21 +214,27 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product addDetails(Long productId, Map<Long, Object> details) throws NoRelatedEntityException {
+    public Product addDetails(Long productId, List<ProductDetails> details) throws NoRelatedEntityException {
         var product = productRepository.findById(productId).orElse(null);
 
-        var detailsIds = details.keySet();
-        var detailsEntities = detailService.getByIds(new ArrayList<>(detailsIds));
+        var detailsIds = details.stream().map(productDetail -> productDetail.getDetail().getId()).collect(Collectors.toSet());
 
-        if (product == null || detailsEntities.size() != detailsIds.size()) {
+        var detailsEntitiesMap = detailService.getByIds(new ArrayList<>(detailsIds))
+                .stream()
+                .collect(Collectors.toMap(Detail::getId, detail -> detail));
+
+        if (product == null || detailsEntitiesMap.size() != detailsIds.size()) {
             throw new NoRelatedEntityException("Product or details not found");
         }
 
-        detailsEntities.forEach(detail -> {
-            var value = details.get(detail.getId());
-            var productDetail = ProductDetails.createDetailForProduct(product, detail, value);
-            product.getProductDetails().add(productDetail);
-        });
+        for (ProductDetails productDetail : details) {
+            var pd = ProductDetails.createDetailForProduct(
+                    product,
+                    detailsEntitiesMap.get(productDetail.getDetail().getId()),
+                    productDetail.getValue());
+
+            product.getProductDetails().add(pd);
+        }
 
         return productRepository.save(product);
     }
@@ -240,7 +249,7 @@ public class ProductService implements IProductService {
             throw new NoRelatedEntityException("Product or details not found");
         }
 
-        product.getProductDetails().removeIf(productDetail -> details.stream().anyMatch(detail -> detail.getId().equals(productDetail.getDetail().getId())));
+        product.getProductDetails().removeIf(productDetail -> detailIds.contains(productDetail.getDetail().getId()));
         return productRepository.save(product);
     }
 }
