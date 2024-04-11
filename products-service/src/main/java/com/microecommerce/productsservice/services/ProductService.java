@@ -1,6 +1,7 @@
 package com.microecommerce.productsservice.services;
 
 import com.microecommerce.productsservice.dtos.ProductDTO;
+import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
 import com.microecommerce.productsservice.exceptions.NoRelatedEntityException;
 import com.microecommerce.productsservice.models.*;
 import com.microecommerce.productsservice.repositories.ProductDetailsRepository;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,8 +52,8 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product getById(Long id) {
-        return productRepository.findById(id).orElse(null);
+    public Product getById(Long id) throws EntityNotFoundException {
+        return productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Product not found"));
     }
 
     @Override
@@ -107,6 +109,8 @@ public class ProductService implements IProductService {
 
         // Map attached tags, brands, categories and details to product (to avoid detached entity exception)
         for(Product product : products) {
+            product.setId(null);
+
             var productTagsBd = new ArrayList<Tag>();
             for(Tag tag : product.getTags()) {
                 tags.stream()
@@ -157,77 +161,63 @@ public class ProductService implements IProductService {
         return productRepository.saveAll(products);
     }
 
+    // TODO: Implement the update method
     @Override
     public Product update(Product product) {
         return productRepository.save(product);
     }
 
+    // TODO: Implement the update method
     @Override
     public List<Product> updateBatch(List<Product> products) {
         return productRepository.saveAll(products);
     }
 
     @Override
-    public void deleteById(Long id) {
-        productRepository.deleteById(id);
+    public void deleteById(Long id) throws EntityNotFoundException {
+        var product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        product.setDeletedAt(LocalDateTime.now());
+        product.setIsDeleted(true);
+        productRepository.save(product);
     }
 
     @Override
-    public Product addTag(Long productId, Long tagId) throws NoRelatedEntityException {
-        var product = productRepository.findById(productId).orElse(null);
+    public Product addTag(Long productId, Long tagId) throws EntityNotFoundException {
+        var product = getById(productId);
         var tag = tagService.getById(tagId);
-
-        if (product == null || tag == null) {
-            throw new NoRelatedEntityException("Product or tag not found");
-        }
-
         product.getTags().add(tag);
         return productRepository.save(product);
 
     }
 
     @Override
-    public Product removeTag(Long productId, Long tagId) throws NoRelatedEntityException {
-        var product = productRepository.findById(productId).orElse(null);
+    public Product removeTag(Long productId, Long tagId) throws EntityNotFoundException {
+        var product = getById(productId);
         var tag = tagService.getById(tagId);
-
-        if (product == null || tag == null) {
-            throw new NoRelatedEntityException("Product or tag not found");
-        }
 
         product.getTags().remove(tag);
         return productRepository.save(product);
     }
 
     @Override
-    public Product addCategory(Long productId, Long categoryId) throws NoRelatedEntityException {
-        var product = productRepository.findById(productId).orElse(null);
+    public Product addCategory(Long productId, Long categoryId) throws EntityNotFoundException {
+        var product = getById(productId);
         var category = categoryService.getById(categoryId);
-
-        if (product == null || category == null) {
-            throw new NoRelatedEntityException("Product or category not found");
-        }
-
         product.getCategories().add(category);
         return productRepository.save(product);
     }
 
     @Override
-    public Product removeCategory(Long productId, Long categoryId) throws NoRelatedEntityException {
-        var product = productRepository.findById(productId).orElse(null);
+    public Product removeCategory(Long productId, Long categoryId) throws EntityNotFoundException {
+        var product = getById(productId);
         var category = categoryService.getById(categoryId);
-
-        if (product == null || category == null) {
-            throw new NoRelatedEntityException("Product or category not found");
-        }
-
         product.getCategories().remove(category);
         return productRepository.save(product);
     }
 
     @Override
-    public Product addDetails(Long productId, List<ProductDetails> details) throws NoRelatedEntityException {
-        var product = productRepository.findById(productId).orElse(null);
+    public Product addDetails(Long productId, List<ProductDetails> details) throws NoRelatedEntityException, EntityNotFoundException {
+        var product = getById(productId);
 
         var detailsIds = details.stream().map(productDetail -> productDetail.getDetail().getId()).collect(Collectors.toSet());
 
@@ -235,8 +225,8 @@ public class ProductService implements IProductService {
                 .stream()
                 .collect(Collectors.toMap(Detail::getId, detail -> detail));
 
-        if (product == null || detailsEntitiesMap.size() != detailsIds.size()) {
-            throw new NoRelatedEntityException("Product or details not found");
+        if (detailsEntitiesMap.size() != detailsIds.size()) {
+            throw new NoRelatedEntityException("Some details are not found");
         }
 
         for (ProductDetails productDetail : details) {
@@ -252,12 +242,12 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product removeDetails(Long productId, List<Long> detailIds) throws NoRelatedEntityException {
-        var product = productRepository.findById(productId).orElse(null);
+    public Product removeDetails(Long productId, List<Long> detailIds) throws EntityNotFoundException, NoRelatedEntityException {
+        var product = getById(productId);
         var details = detailService.getByIds(detailIds);
 
-        if (product == null || details.size() != detailIds.size()) {
-            throw new NoRelatedEntityException("Product or details not found");
+        if (details.size() != detailIds.size()) {
+            throw new NoRelatedEntityException("Some details are not found");
         }
 
         product.getProductDetails().removeIf(productDetail -> detailIds.contains(productDetail.getDetail().getId()));

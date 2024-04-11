@@ -1,5 +1,6 @@
 package com.microecommerce.productsservice.services;
 
+import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
 import com.microecommerce.productsservice.models.Category;
 import com.microecommerce.productsservice.repositories.CategoryRepository;
 import com.microecommerce.productsservice.services.interfaces.ICategoryService;
@@ -22,8 +23,8 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
-    public Category getById(Long id) {
-        return categoryRepository.findById(id).orElse(null);
+    public Category getById(Long id) throws EntityNotFoundException {
+        return categoryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Category not found"));
     }
 
     @Override

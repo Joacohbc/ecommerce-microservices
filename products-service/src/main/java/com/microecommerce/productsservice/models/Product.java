@@ -80,6 +80,7 @@ public class Product implements Serializable {
     @UpdateTimestamp
     @Column(updatable = false)
     private LocalDateTime updatedAt;
+
     private LocalDateTime deletedAt;
 
     @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)

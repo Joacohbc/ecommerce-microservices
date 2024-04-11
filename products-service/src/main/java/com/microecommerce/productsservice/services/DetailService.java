@@ -1,5 +1,6 @@
 package com.microecommerce.productsservice.services;
 
+import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
 import com.microecommerce.productsservice.exceptions.NoRelatedEntityException;
 import com.microecommerce.productsservice.models.Detail;
 import com.microecommerce.productsservice.services.interfaces.IDetailService;
@@ -23,8 +24,8 @@ public class DetailService implements IDetailService {
     }
 
     @Override
-    public Detail getById(Long id) {
-        return detailRepository.findById(id).orElse(null);
+    public Detail getById(Long id) throws EntityNotFoundException {
+        return detailRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Detail not found"));
     }
 
     @Override

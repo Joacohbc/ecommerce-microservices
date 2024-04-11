@@ -1,5 +1,6 @@
 package com.microecommerce.productsservice.services;
 
+import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
 import com.microecommerce.productsservice.models.Brand;
 import com.microecommerce.productsservice.repositories.BrandRepository;
 import com.microecommerce.productsservice.repositories.ProductRepository;
@@ -24,8 +25,8 @@ public class BrandService implements IBrandService {
     }
 
     @Override
-    public Brand getById(Long id) {
-        return brandRepository.findById(id).orElse(null);
+    public Brand getById(Long id) throws EntityNotFoundException {
+        return brandRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Brand not found"));
     }
 
     @Override

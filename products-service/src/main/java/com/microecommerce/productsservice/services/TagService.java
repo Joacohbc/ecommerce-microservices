@@ -1,5 +1,6 @@
 package com.microecommerce.productsservice.services;
 
+import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
 import com.microecommerce.productsservice.models.Tag;
 import com.microecommerce.productsservice.repositories.TagRepository;
 import com.microecommerce.productsservice.services.interfaces.ITagService;
@@ -22,8 +23,8 @@ public class TagService implements ITagService {
     }
 
     @Override
-    public Tag getById(Long id) {
-        return tagRepository.findById(id).orElse(null);
+    public Tag getById(Long id) throws EntityNotFoundException {
+        return tagRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Tag not found"));
     }
 
     @Override
