@@ -2,7 +2,6 @@ package com.microecommerce.productsservice.controllers;
 
 import com.microecommerce.productsservice.dtos.ProductDTO;
 import com.microecommerce.productsservice.dtos.ProductDetailsDTO;
-import com.microecommerce.productsservice.exceptions.NoRelatedEntityException;
 import com.microecommerce.productsservice.models.Product;
 import com.microecommerce.productsservice.services.interfaces.IProductService;
 import com.microecommerce.productsservice.utils.JSONUtils;
@@ -30,7 +29,7 @@ public class ProductController {
         return ProductDTO.fromEntities(productService.getAll());
     }
 
-    @GetMapping
+    @GetMapping(params = {"page", "sizePerPage", "sortField", "sortDirection"})
     public Page<ProductDTO> getProducts(@RequestParam(defaultValue = "0") int page,
                                         @RequestParam(defaultValue = "2") int sizePerPage,
                                         @RequestParam(defaultValue = "name") String sortField,
@@ -42,8 +41,12 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ProductDTO getProductById(@PathVariable Long id) {
-        return ProductDTO.fromEntity(productService.getById(id));
+    public ResponseEntity<Object> getProductById(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok().body(ProductDTO.fromEntity(productService.getById(id)));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
+        }
     }
 
     @PostMapping
@@ -77,7 +80,7 @@ public class ProductController {
     public ResponseEntity<Object> addTag(@PathVariable Long id, @PathVariable Long tagId) {
         try {
             return ResponseEntity.ok().body(productService.addTag(id, tagId));
-        } catch (NoRelatedEntityException e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
         }
     }
@@ -86,7 +89,7 @@ public class ProductController {
     public Product addCategory(@PathVariable Long id, @PathVariable Long categoryId) {
         try {
             return productService.addCategory(id, categoryId);
-        } catch (NoRelatedEntityException e) {
+        } catch (Exception e) {
             return null;
         }
     }
@@ -97,7 +100,7 @@ public class ProductController {
             var entities = ProductDetailsDTO.toEntities(details, id);
             var added = productService.addDetails(id, entities);
             return ResponseEntity.ok().body(added);
-        } catch (NoRelatedEntityException e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
         }
     }
@@ -107,7 +110,7 @@ public class ProductController {
         try {
 
             return ResponseEntity.ok().body(productService.removeDetails(id, detailIds));
-        } catch (NoRelatedEntityException e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
         }
     }
@@ -116,7 +119,7 @@ public class ProductController {
     public ResponseEntity<Object> removeTag(@PathVariable Long id, @PathVariable Long tagId) {
         try {
             return ResponseEntity.ok().body(productService.removeTag(id, tagId));
-        } catch (NoRelatedEntityException e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
         }
     }
@@ -125,13 +128,18 @@ public class ProductController {
     public ResponseEntity<Object> removeCategory(@PathVariable Long id, @PathVariable Long categoryId) {
         try {
             return ResponseEntity.ok().body(productService.removeCategory(id, categoryId));
-        } catch (NoRelatedEntityException e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
         }
     }
 
     @DeleteMapping("/{id}")
-    public void deleteProduct(@PathVariable Long id) {
-        productService.deleteById(id);
+    public ResponseEntity<Object> deleteProduct(@PathVariable Long id) {
+        try {
+            productService.deleteById(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
+        }
     }
 }

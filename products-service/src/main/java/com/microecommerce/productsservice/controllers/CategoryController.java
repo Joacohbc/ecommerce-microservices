@@ -22,10 +22,10 @@ public class CategoryController {
         return categoryService.getAll();
     }
 
-    @GetMapping("/{id}")
-    public Category getCategoryById(@PathVariable Long id) {
-        return categoryService.getById(id);
-    }
+//    @GetMapping("/{id}")
+//    public Category getCategoryById(@PathVariable Long id) {
+//        return categoryService.getById(id);
+//    }
 
     @PostMapping
     public Category addCategory(@RequestBody Category category) throws NoRelatedEntityException {
@@ -48,8 +48,8 @@ public class CategoryController {
         return categoryService.updateBatch(categories);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteCategory(@PathVariable Long id) {
-        categoryService.deleteById(id);
-    }
+//    @DeleteMapping("/{id}")
+//    public void deleteCategory(@PathVariable Long id) {
+//        categoryService.deleteById(id);
+//    }
 }

@@ -22,10 +22,10 @@ public class TagController {
         return tagService.getAll();
     }
 
-    @GetMapping("/{id}")
-    public Tag getTagById(@PathVariable Long id) {
-        return tagService.getById(id);
-    }
+//    @GetMapping("/{id}")
+//    public Tag getTagById(@PathVariable Long id) {
+//        return tagService.getById(id);
+//    }
 
     @PostMapping
     public Tag addTag(@RequestBody Tag tag) throws NoRelatedEntityException {
@@ -48,8 +48,8 @@ public class TagController {
         return tagService.updateBatch(tags);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteTag(@PathVariable Long id) {
-        tagService.deleteById(id);
-    }
+//    @DeleteMapping("/{id}")
+//    public void deleteTag(@PathVariable Long id) {
+//        tagService.deleteById(id);
+//    }
 }

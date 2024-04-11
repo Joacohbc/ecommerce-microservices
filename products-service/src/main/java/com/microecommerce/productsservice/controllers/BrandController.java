@@ -23,10 +23,10 @@ public class BrandController {
         return brandService.getAll();
     }
 
-    @GetMapping("/{id}")
-    public Brand getBrandById(@PathVariable Long id) {
-        return brandService.getById(id);
-    }
+//    @GetMapping("/{id}")
+//    public Brand getBrandById(@PathVariable Long id) {
+//        return brandService.getById(id);
+//    }
 
     @PostMapping
     public Brand addBrand(@RequestBody Brand brand) throws NoRelatedEntityException {
@@ -49,8 +49,8 @@ public class BrandController {
         return brandService.updateBatch(brands);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteBrand(@PathVariable Long id) {
-        brandService.deleteById(id);
-    }
+//    @DeleteMapping("/{id}")
+//    public void deleteBrand(@PathVariable Long id) {
+//        brandService.deleteById(id);
+//    }
 }
