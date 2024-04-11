@@ -25,7 +25,6 @@ public class ProductService implements IProductService {
     private final ITagService tagService;
     private final IDetailService detailService;
     private final Logger logger = LoggerFactory.getLogger(ProductService.class);
-    private final ProductDetailsRepository productDetailsRepository;
 
     @Autowired
     public ProductService(ProductRepository productRepository, ICategoryService categoryService, IBrandService brandService, ITagService tagService, IDetailService detailService, ProductDetailsRepository productDetailsRepository) {
@@ -34,14 +33,12 @@ public class ProductService implements IProductService {
         this.brandService = brandService;
         this.tagService = tagService;
         this.detailService = detailService;
-        this.productDetailsRepository = productDetailsRepository;
     }
 
     @Override
     public List<Product> getAll() {
-        Pageable sortedByName = PageRequest.of(5, 50, Sort.by("name"));
-
-        productRepository.findAll(sortedByName);
+//        Pageable sortedByName = PageRequest.of(5, 50, Sort.by("name"));
+//        productRepository.findAll(sortedByName);
         return productRepository.findAll();
     }
 
@@ -63,31 +60,31 @@ public class ProductService implements IProductService {
     @Override
     public List<Product> createBatch(List<Product> products) throws NoRelatedEntityException {
         if (products.isEmpty()) {
-            return List.of();
+            return Collections.emptyList();
         }
 
         Set<Long> tagIds = new HashSet<>();
-        Set<Long> brandIds = new HashSet<>();;
-        Set<Long> categoryIds = new HashSet<>();;
-        Set<Long> detailsIds = new HashSet<>();;
+        Set<Long> brandIds = new HashSet<>();
+        Set<Long> categoryIds = new HashSet<>();
+        Set<Long> detailsIds = new HashSet<>();
 
-        // Get all related entities ids
+        // Get All related Entities IDs
         for(var product : products) {
             if(product.getTags() != null && !product.getTags().isEmpty())
                 tagIds.addAll(product.getTags().stream().map(Tag::getId).toList());
-            else product.setTags(new LinkedList<>());
+            else product.setTags(Collections.emptyList());
 
             if(product.getBrands() != null && !product.getBrands().isEmpty())
                 brandIds.addAll(product.getBrands().stream().map(Brand::getId).toList());
-            else product.setBrands(new LinkedList<>());
+            else product.setBrands(Collections.emptyList());
 
             if(product.getCategories() != null && !product.getCategories().isEmpty())
                 categoryIds.addAll(product.getCategories().stream().map(Category::getId).toList());
-            else product.setCategories(new LinkedList<>());
+            else product.setCategories(Collections.emptyList());
 
             if(product.getProductDetails() != null && !product.getProductDetails().isEmpty())
                 detailsIds.addAll(product.getProductDetails().stream().map(productDetail -> productDetail.getDetail().getId()).toList());
-            else product.setProductDetails(new LinkedList<>());
+            else product.setProductDetails(Collections.emptyList());
         }
 
         // Get all related entities
@@ -103,35 +100,43 @@ public class ProductService implements IProductService {
 
         // Map attached tags, brands, categories and details to product (to avoid detached entity exception)
         for(Product product : products) {
-            var productTags = new LinkedList<Tag>();
+            var productTagsBd = new ArrayList<Tag>();
             for(Tag tag : product.getTags()) {
-                var foundTag = tags.stream().filter(t -> t.getId().equals(tag.getId())).findFirst();
-                foundTag.ifPresent(productTags::add);
+                tags.stream()
+                        .filter(t -> t.getId().equals(tag.getId()))
+                        .findFirst()
+                        .ifPresent(productTagsBd::add);
             }
-            product.setTags(productTags);
+            product.setTags(productTagsBd);
 
-            var productBrands = new LinkedList<Brand>();
+            var productBrandsBd = new LinkedList<Brand>();
             for(Brand brand : product.getBrands()) {
-                var foundBrand = brands.stream().filter(b -> b.getId().equals(brand.getId())).findFirst();
-                foundBrand.ifPresent(productBrands::add);
+                brands.stream()
+                        .filter(b -> b.getId().equals(brand.getId()))
+                        .findFirst()
+                        .ifPresent(productBrandsBd::add);
             }
-            product.setBrands(productBrands);
+            product.setBrands(productBrandsBd);
 
-            var productCategories = new LinkedList<Category>();
+            var productCategoriesBd = new LinkedList<Category>();
             for(Category category : product.getCategories()) {
-                var foundCategory = categories.stream().filter(c -> c.getId().equals(category.getId())).findFirst();
-                foundCategory.ifPresent(productCategories::add);
+                categories.stream()
+                        .filter(c -> c.getId().equals(category.getId()))
+                        .findFirst()
+                        .ifPresent(productCategoriesBd::add);
             }
-            product.setCategories(productCategories);
+            product.setCategories(productCategoriesBd);
 
-            var productDetails = new LinkedList<ProductDetails>();
+            var productDetailsBd = new LinkedList<ProductDetails>();
             for(ProductDetails productDetail : product.getProductDetails()) {
-                var foundDetail = details.stream().filter(d -> d.getId().equals(productDetail.getDetail().getId())).findFirst();
-                foundDetail.ifPresent(detail -> {
-                    productDetails.add(ProductDetails.createDetailForProduct(product, detail, productDetail.getValue()));
-                });
+                details.stream()
+                        .filter(d -> d.getId().equals(productDetail.getDetail().getId()))
+                        .findFirst()
+                        .ifPresent(detail -> {
+                            productDetailsBd.add(ProductDetails.createDetailForProduct(product, detail, productDetail.getValue()));
+                        });
             }
-            product.setProductDetails(productDetails);
+            product.setProductDetails(productDetailsBd);
         }
 
         var skus = products.stream().map(Product::getSku).collect(Collectors.toList());
@@ -238,7 +243,6 @@ public class ProductService implements IProductService {
 
         return productRepository.save(product);
     }
-
 
     @Override
     public Product removeDetails(Long productId, List<Long> detailIds) throws NoRelatedEntityException {
