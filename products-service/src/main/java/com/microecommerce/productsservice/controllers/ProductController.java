@@ -7,8 +7,11 @@ import com.microecommerce.productsservice.models.Product;
 import com.microecommerce.productsservice.services.interfaces.IProductService;
 import com.microecommerce.productsservice.utils.JSONUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +28,17 @@ public class ProductController {
     @GetMapping
     public List<ProductDTO> getAllProducts() {
         return ProductDTO.fromEntities(productService.getAll());
+    }
+
+    @GetMapping
+    public Page<ProductDTO> getProducts(@RequestParam(defaultValue = "0") int page,
+                                        @RequestParam(defaultValue = "2") int sizePerPage,
+                                        @RequestParam(defaultValue = "name") String sortField,
+                                        @RequestParam(defaultValue = "ASC") Sort.Direction sortDirection) {
+
+        var sortFieldEnum = Product.ProductFields.valueOf(sortField);
+        var pageRequest = productService.getAllByPage(page, sizePerPage, sortFieldEnum, sortDirection);
+        return pageRequest.map(ProductDTO::fromEntity);
     }
 
     @GetMapping("/{id}")
@@ -115,7 +129,6 @@ public class ProductController {
             return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
         }
     }
-
 
     @DeleteMapping("/{id}")
     public void deleteProduct(@PathVariable Long id) {

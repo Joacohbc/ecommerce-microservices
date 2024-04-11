@@ -21,6 +21,34 @@ public class Product implements Serializable {
         this.categories = new LinkedList<>();
     }
 
+    public enum ProductFields {
+        SKU("sku"),
+        NAME("name"),
+        ORIGINAL_PRICE("originalPrice"),
+        IS_DELETED("isDeleted"),
+        CREATED_AT("createdAt"),
+        UPDATED_AT("updatedAt");
+
+        private final String name;
+
+        public static ProductFields fromName(String name) {
+            for (ProductFields field : ProductFields.values()) {
+                if (field.getName().equalsIgnoreCase(name)) {
+                    return field;
+                }
+            }
+            return null;
+        }
+
+        ProductFields(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

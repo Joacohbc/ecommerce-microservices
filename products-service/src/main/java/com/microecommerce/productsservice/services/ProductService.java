@@ -1,5 +1,6 @@
 package com.microecommerce.productsservice.services;
 
+import com.microecommerce.productsservice.dtos.ProductDTO;
 import com.microecommerce.productsservice.exceptions.NoRelatedEntityException;
 import com.microecommerce.productsservice.models.*;
 import com.microecommerce.productsservice.repositories.ProductDetailsRepository;
@@ -8,6 +9,7 @@ import com.microecommerce.productsservice.services.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -37,9 +39,14 @@ public class ProductService implements IProductService {
 
     @Override
     public List<Product> getAll() {
-//        Pageable sortedByName = PageRequest.of(5, 50, Sort.by("name"));
-//        productRepository.findAll(sortedByName);
         return productRepository.findAll();
+    }
+
+    @Override
+    public Page<Product> getAllByPage(int page, int size, Product.ProductFields orderBy, Sort.Direction direction) {
+        var sort = direction == Sort.Direction.ASC ? Sort.by(orderBy.getName()).ascending() : Sort.by(orderBy.getName()).descending();
+        Pageable sortedByName = PageRequest.of(page, size, sort);
+        return productRepository.findAll(sortedByName);
     }
 
     @Override

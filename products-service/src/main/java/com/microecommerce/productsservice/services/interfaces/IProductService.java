@@ -1,11 +1,11 @@
 package com.microecommerce.productsservice.services.interfaces;
-import com.microecommerce.productsservice.dtos.ProductDetailsDTO;
 import com.microecommerce.productsservice.exceptions.NoRelatedEntityException;
 import  com.microecommerce.productsservice.models.Product;
 import com.microecommerce.productsservice.models.ProductDetails;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
-import java.util.Map;
 
 public interface IProductService extends IEntityService<Product> {
     Product addTag(Long productId, Long tagId) throws NoRelatedEntityException;
@@ -14,4 +14,5 @@ public interface IProductService extends IEntityService<Product> {
     Product removeCategory(Long productId, Long categoryId) throws NoRelatedEntityException;
     Product addDetails(Long productId, List<ProductDetails> details) throws NoRelatedEntityException;
     Product removeDetails(Long productId, List<Long> detailIds) throws NoRelatedEntityException;
+    Page<Product> getAllByPage(int page, int size, Product.ProductFields orderBy, Sort.Direction direction);
 }
