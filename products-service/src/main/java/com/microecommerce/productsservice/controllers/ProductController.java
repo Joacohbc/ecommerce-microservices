@@ -92,6 +92,11 @@ public class ProductController {
         return ProductDTO.fromEntity(productService.removeDetails(id, detailIds));
     }
 
+    @PutMapping("/{id}/details/{detailId}")
+    public ProductDTO updateDetailValue(@PathVariable Long id, @PathVariable Long detailId, @RequestBody ProductDetailsDTO value) throws EntityNotFoundException, RelatedEntityNotFoundException {
+        return ProductDTO.fromEntity(productService.updateDetail(id, detailId, ProductDetailsDTO.toEntity(value, id)));
+    }
+
     @DeleteMapping("/{id}/tags/{tagId}")
     public ProductDTO removeTag(@PathVariable Long id, @PathVariable Long tagId) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException {
         return ProductDTO.fromEntity(productService.removeTag(id, tagId));

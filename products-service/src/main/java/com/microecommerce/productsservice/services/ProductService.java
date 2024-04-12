@@ -133,43 +133,48 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product addTag(Long productId, Long tagId) throws EntityNotFoundException {
+    public Product addTag(Long productId, Long tagId) throws DuplicatedRelationException, EntityNotFoundException {
         var product = getById(productId);
         var tag = tagService.getById(tagId);
+
+        if(product.getTags().contains(tag)) throw new DuplicatedRelationException("Tag already added to the product");
         product.getTags().add(tag);
         return productRepository.save(product);
-
     }
 
     @Override
-    public Product removeTag(Long productId, Long tagId) throws EntityNotFoundException {
+    public Product removeTag(Long productId, Long tagId) throws EntityNotFoundException, RelatedEntityNotFoundException {
         var product = getById(productId);
         var tag = tagService.getById(tagId);
 
+        if(!product.getTags().contains(tag)) throw new RelatedEntityNotFoundException("Tag not found in the product");
         product.getTags().remove(tag);
         return productRepository.save(product);
     }
 
     @Override
-    public Product addCategory(Long productId, Long categoryId) throws EntityNotFoundException {
+    public Product addCategory(Long productId, Long categoryId) throws EntityNotFoundException, DuplicatedRelationException {
         var product = getById(productId);
         var category = categoryService.getById(categoryId);
+
+        if(product.getCategories().contains(category)) throw new DuplicatedRelationException("Category already added to the product");
         product.getCategories().add(category);
         return productRepository.save(product);
     }
 
     @Override
-    public Product removeCategory(Long productId, Long categoryId) throws EntityNotFoundException {
+    public Product removeCategory(Long productId, Long categoryId) throws EntityNotFoundException, RelatedEntityNotFoundException {
         var product = getById(productId);
         var category = categoryService.getById(categoryId);
+
+        if(!product.getCategories().contains(category)) throw new RelatedEntityNotFoundException("Category not found in the product");
         product.getCategories().remove(category);
         return productRepository.save(product);
     }
 
     @Override
-    public Product addDetails(Long productId, List<ProductDetails> details) throws RelatedEntityNotFoundException, EntityNotFoundException {
+    public Product addDetails(Long productId, List<ProductDetails> details) throws RelatedEntityNotFoundException, EntityNotFoundException, DuplicatedRelationException {
         var product = getById(productId);
-
         var detailsIds = details.stream().map(productDetail -> productDetail.getDetail().getId()).collect(Collectors.toSet());
 
         var detailsEntitiesMap = detailService.getByIds(new ArrayList<>(detailsIds))
@@ -177,7 +182,7 @@ public class ProductService implements IProductService {
                 .collect(Collectors.toMap(Detail::getId, detail -> detail));
 
         if (detailsEntitiesMap.size() != detailsIds.size()) {
-            throw new RelatedEntityNotFoundException("Some details are not found");
+            throw new RelatedEntityNotFoundException("Some details are not found in the database");
         }
 
         for (ProductDetails productDetail : details) {
@@ -185,6 +190,15 @@ public class ProductService implements IProductService {
                     product,
                     detailsEntitiesMap.get(productDetail.getDetail().getId()),
                     productDetail.getValue());
+
+            boolean repeated = product.getProductDetails().stream()
+                    .anyMatch(productDetails ->
+                            productDetails.getDetail().getId()
+                            .equals(
+                                    pd.getDetail()
+                                            .getId()
+                            ));
+            if(repeated) throw new DuplicatedRelationException("Detail already added to the product");
 
             product.getProductDetails().add(pd);
         }
@@ -198,10 +212,27 @@ public class ProductService implements IProductService {
         var details = detailService.getByIds(detailIds);
 
         if (details.size() != detailIds.size()) {
-            throw new RelatedEntityNotFoundException("Some details are not found");
+            throw new RelatedEntityNotFoundException("Some details are not found in the database");
         }
 
-        product.getProductDetails().removeIf(productDetail -> detailIds.contains(productDetail.getDetail().getId()));
+        boolean found = product.getProductDetails().removeIf(productDetail -> detailIds.contains(productDetail.getDetail().getId()));
+        if(!found) throw new RelatedEntityNotFoundException("Some details are not found in the product");
+
+        return productRepository.save(product);
+    }
+
+    @Override
+    public Product updateDetail(Long productId, Long detailId, ProductDetails value) throws EntityNotFoundException, RelatedEntityNotFoundException {
+        var product = getById(productId);
+        var detail = detailService.getById(detailId);
+
+        var productDetailsToUpd = product.getProductDetails().stream()
+                .filter(productDetail -> productDetail.getDetail().getId().equals(detail.getId()))
+                .findFirst()
+                .orElseThrow(() -> new RelatedEntityNotFoundException("Detail not found in the product"));
+
+        productDetailsToUpd.setValue(value.getValue());
+        productDetailsToUpd.setAdditionalInfo(value.getAdditionalInfo());
         return productRepository.save(product);
     }
 

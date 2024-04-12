@@ -1,7 +1,6 @@
 package com.microecommerce.productsservice.services;
 
 import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
-import com.microecommerce.productsservice.exceptions.NoRelatedEntityException;
 import com.microecommerce.productsservice.models.Detail;
 import com.microecommerce.productsservice.services.interfaces.IDetailService;
 import com.microecommerce.productsservice.repositories.DetailRepository;
@@ -34,12 +33,12 @@ public class DetailService implements IDetailService {
     }
 
     @Override
-    public Detail create(Detail entity) throws NoRelatedEntityException {
+    public Detail create(Detail entity) {
         return detailRepository.save(entity);
     }
 
     @Override
-    public List<Detail> createBatch(List<Detail> entities) throws NoRelatedEntityException {
+    public List<Detail> createBatch(List<Detail> entities) {
         return detailRepository.saveAll(entities);
     }
 
