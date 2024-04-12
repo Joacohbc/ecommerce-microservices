@@ -2,7 +2,7 @@ package com.microecommerce.productsservice.services;
 
 import com.microecommerce.productsservice.exceptions.DuplicatedRelationException;
 import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
-import com.microecommerce.productsservice.exceptions.NoRelatedEntityException;
+import com.microecommerce.productsservice.exceptions.RelatedEntityNotFoundException;
 import com.microecommerce.productsservice.models.*;
 import com.microecommerce.productsservice.repositories.ProductRepository;
 import com.microecommerce.productsservice.services.interfaces.*;
@@ -63,12 +63,12 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product create(Product product) throws NoRelatedEntityException, DuplicatedRelationException{
+    public Product create(Product product) throws RelatedEntityNotFoundException, DuplicatedRelationException{
         return createBatch(List.of(product)).get(0);
     }
 
     @Override
-    public List<Product> createBatch(List<Product> products) throws NoRelatedEntityException, DuplicatedRelationException {
+    public List<Product> createBatch(List<Product> products) throws RelatedEntityNotFoundException, DuplicatedRelationException {
         if (products.isEmpty()) {
             return Collections.emptyList();
         }
@@ -78,7 +78,7 @@ public class ProductService implements IProductService {
         var productRelatedInfo = productServiceUtils.getProductRelatedInfo(productRelatedInfoIds);
 
         // Validate if all related entities are found
-        validateRelatedEntities(products, productRelatedInfo, productRelatedInfoIds);
+        validateRelatedEntitiesExist(products, productRelatedInfo, productRelatedInfoIds);
 
         // Validate if there are duplicated relations
         validateDuplicateRelations(products, true, productRelatedInfo);
@@ -88,15 +88,39 @@ public class ProductService implements IProductService {
         return productRepository.saveAll(products);
     }
 
-    // TODO: Implement the update method
     @Override
-    public Product update(Product product) {
-        return productRepository.save(product);
+    public Product update(Product product) throws EntityNotFoundException, RelatedEntityNotFoundException, DuplicatedRelationException {
+        return updateBatch(List.of(product)).get(0);
     }
 
-    // TODO: Implement the update method
     @Override
-    public List<Product> updateBatch(List<Product> products)  {
+    public List<Product> updateBatch(List<Product> products) throws EntityNotFoundException, RelatedEntityNotFoundException, DuplicatedRelationException  {
+        if (products.isEmpty()) throw new EntityNotFoundException("No products found");
+
+        var productIds = IGetId.getUniqueIdList(products);
+        var productsBd = getByIds(productIds);
+
+        if (productsBd.size() < products.size()) throw new EntityNotFoundException("Some products are not found");
+        if(products.size() > IGetId.getIds(products).size()) throw new RelatedEntityNotFoundException("Some products are repeated");
+
+        // Get all related entities Ids and Information for all products
+        var productRelatedInfoIds = productServiceUtils.getProductRelatedInfoIds(products);
+        var productRelatedInfo = productServiceUtils.getProductRelatedInfo(productRelatedInfoIds);
+
+        // Validate if all related entities are found
+        validateRelatedEntitiesExist(products, productRelatedInfo, productRelatedInfoIds);
+        validateDuplicateRelations(products, false, productRelatedInfo);
+
+        products.forEach(product -> {
+            var productBd = IGetId.getFirstMatch(productsBd, product.getId());
+            if(productBd == null) return;
+
+            // Overwrite the fields that can't be updated by the user
+            product.setIsDeleted(productBd.getIsDeleted());
+            product.setDeletedAt(productBd.getDeletedAt());
+            product.setSku(productBd.getSku());
+        });
+
         return productRepository.saveAll(products);
     }
 
@@ -143,7 +167,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product addDetails(Long productId, List<ProductDetails> details) throws NoRelatedEntityException, EntityNotFoundException {
+    public Product addDetails(Long productId, List<ProductDetails> details) throws RelatedEntityNotFoundException, EntityNotFoundException {
         var product = getById(productId);
 
         var detailsIds = details.stream().map(productDetail -> productDetail.getDetail().getId()).collect(Collectors.toSet());
@@ -153,7 +177,7 @@ public class ProductService implements IProductService {
                 .collect(Collectors.toMap(Detail::getId, detail -> detail));
 
         if (detailsEntitiesMap.size() != detailsIds.size()) {
-            throw new NoRelatedEntityException("Some details are not found");
+            throw new RelatedEntityNotFoundException("Some details are not found");
         }
 
         for (ProductDetails productDetail : details) {
@@ -169,33 +193,33 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product removeDetails(Long productId, List<Long> detailIds) throws EntityNotFoundException, NoRelatedEntityException {
+    public Product removeDetails(Long productId, List<Long> detailIds) throws EntityNotFoundException, RelatedEntityNotFoundException {
         var product = getById(productId);
         var details = detailService.getByIds(detailIds);
 
         if (details.size() != detailIds.size()) {
-            throw new NoRelatedEntityException("Some details are not found");
+            throw new RelatedEntityNotFoundException("Some details are not found");
         }
 
         product.getProductDetails().removeIf(productDetail -> detailIds.contains(productDetail.getDetail().getId()));
         return productRepository.save(product);
     }
 
-    private void validateDuplicatedSkus(List<Product> products) throws NoRelatedEntityException {
+    private void validateDuplicatedSkus(List<Product> products) throws RelatedEntityNotFoundException {
         var skus = products.stream().map(Product::getSku).collect(Collectors.toList());
         var repeatedSku = productRepository.existsProductBySkuIn(skus);
-        if(repeatedSku) throw new NoRelatedEntityException("Some products have repeated SKU at database");
+        if(repeatedSku) throw new RelatedEntityNotFoundException("Some products have repeated SKU at database");
 
         // Check if there are repeated SKU in the request (only if there are more than one product)
         if(!products.isEmpty() && (products.size() != new HashSet<>(skus).size()))
             // TODO: Change the exception type to new Exception type
-            throw new NoRelatedEntityException("Some products have repeated SKU in the request");
+            throw new RelatedEntityNotFoundException("Some products have repeated SKU in the request");
     }
 
 
-    public void validateRelatedEntities(List<Product> products,
-                                        ProductServiceUtils.ProductRelatedInfo productRelatedInfo,
-                                        ProductServiceUtils.ProductRelatedInfoIds productRelatedInfoIds) throws NoRelatedEntityException {
+    public void validateRelatedEntitiesExist(List<Product> products,
+                                             ProductServiceUtils.ProductRelatedInfo productRelatedInfo,
+                                             ProductServiceUtils.ProductRelatedInfoIds productRelatedInfoIds) throws RelatedEntityNotFoundException {
 
         var tags = productRelatedInfo.tags();
         var brands = productRelatedInfo.brands();
@@ -207,15 +231,15 @@ public class ProductService implements IProductService {
         var categoriesIds = productRelatedInfoIds.categoryIds();
         var detailsIds = productRelatedInfoIds.detailsIds();
 
-        if(tags.size() != tagsIds.size()) throw new NoRelatedEntityException("Some tags are not found");
-        if(brands.size() != brandsIds.size()) throw new NoRelatedEntityException("Some brands are not found");
-        if(categories.size() != categoriesIds.size()) throw new NoRelatedEntityException("Some categories are not found");
-        if(details.size() != detailsIds.size()) throw new NoRelatedEntityException("Some details are not found");
+        if(tags.size() != tagsIds.size()) throw new RelatedEntityNotFoundException("Some tags are not found");
+        if(brands.size() != brandsIds.size()) throw new RelatedEntityNotFoundException("Some brands are not found");
+        if(categories.size() != categoriesIds.size()) throw new RelatedEntityNotFoundException("Some categories are not found");
+        if(details.size() != detailsIds.size()) throw new RelatedEntityNotFoundException("Some details are not found");
     }
 
 
     public void validateDuplicateRelations(List<Product> products, boolean removeIds,
-                                           ProductServiceUtils.ProductRelatedInfo productRelatedInfo) throws NoRelatedEntityException, DuplicatedRelationException {
+                                           ProductServiceUtils.ProductRelatedInfo productRelatedInfo) throws RelatedEntityNotFoundException, DuplicatedRelationException {
 
         var tags = productRelatedInfo.tags();
         var brands = productRelatedInfo.brands();
@@ -272,7 +296,7 @@ public class ProductService implements IProductService {
             var productDetailsBd = new LinkedList<ProductDetails>();
             for(ProductDetails productDetail : product.getProductDetails()) {
                 var detail = IGetId.getFirstMatch(details, productDetail.getDetail().getId());
-                if(detail == null) throw new NoRelatedEntityException("Some details are not found");
+                if(detail == null) throw new RelatedEntityNotFoundException("Some details are not found");
 
                 // Check if the detail is already in the list
                 for (ProductDetails pd : productDetailsBd) {
