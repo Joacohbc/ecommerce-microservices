@@ -16,5 +16,6 @@ public interface IProductService extends IEntityService<Product> {
     Product removeCategory(Long productId, Long categoryId) throws EntityNotFoundException, RelatedEntityNotFoundException, DuplicatedRelationException;
     Product addDetails(Long productId, List<ProductDetails> details) throws EntityNotFoundException, RelatedEntityNotFoundException, DuplicatedRelationException;
     Product removeDetails(Long productId, List<Long> detailIds) throws EntityNotFoundException, RelatedEntityNotFoundException, DuplicatedRelationException;
+    Product updateDetail(Long productId, Long detailId, ProductDetails value) throws EntityNotFoundException, RelatedEntityNotFoundException;
     Page<Product> getAllByPage(int page, int size, Product.ProductFields orderBy, Sort.Direction direction);
 }

@@ -2,17 +2,21 @@ package com.microecommerce.productsservice.controllers;
 
 import com.microecommerce.productsservice.dtos.ProductDTO;
 import com.microecommerce.productsservice.dtos.ProductDetailsDTO;
+import com.microecommerce.productsservice.exceptions.DuplicatedRelationException;
+import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
+import com.microecommerce.productsservice.exceptions.RelatedEntityNotFoundException;
 import com.microecommerce.productsservice.models.Product;
 import com.microecommerce.productsservice.services.interfaces.IProductService;
 import com.microecommerce.productsservice.utils.JSONUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/products")
@@ -41,105 +45,66 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getProductById(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok().body(ProductDTO.fromEntity(productService.getById(id)));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
-        }
+    public ProductDTO getProductById(@PathVariable Long id) throws EntityNotFoundException {
+        return ProductDTO.fromEntity(productService.getById(id));
     }
 
     @PostMapping
-    public ResponseEntity<Object> addProduct(@RequestBody ProductDTO product) {
-        return addProducts(List.of(product));
+    public ProductDTO addProduct(@RequestBody ProductDTO product) throws DuplicatedRelationException, RelatedEntityNotFoundException {
+        return addProducts(List.of(product)).get(0);
     }
 
     @PostMapping("/batch")
-    public ResponseEntity<Object> addProducts(@RequestBody List<ProductDTO> products) {
-        try {
-            var entities = ProductDTO.toEntities(products);
-            var created = ProductDTO.fromEntities(productService.createBatch(entities));
-            return ResponseEntity.ok().body(created);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
-        }
+    public List<ProductDTO> addProducts(@RequestBody List<ProductDTO> products) throws DuplicatedRelationException, RelatedEntityNotFoundException {
+        var entities = ProductDTO.toEntities(products);
+        return ProductDTO.fromEntities(productService.createBatch(entities));
     }
 
     @PutMapping("/{id}")
-    public Product updateProduct(@PathVariable Long id, @RequestBody ProductDTO product) {
-        return updateProducts(List.of(product)).get(0);
+    public List<ProductDTO> updateProduct(@PathVariable Long id, @RequestBody ProductDTO product) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException {
+        return updateProducts(List.of(product));
     }
 
     @PutMapping("/batch")
-    public List<Product> updateProducts(@RequestBody List<ProductDTO> products) {
+    public List<ProductDTO> updateProducts(@RequestBody List<ProductDTO> products) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException {
         var entities = ProductDTO.toEntities(products);
-        return productService.updateBatch(entities);
+        return ProductDTO.fromEntities(productService.updateBatch(entities));
     }
 
     @PostMapping("/{id}/tags/{tagId}")
-    public ResponseEntity<Object> addTag(@PathVariable Long id, @PathVariable Long tagId) {
-        try {
-            return ResponseEntity.ok().body(productService.addTag(id, tagId));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
-        }
+    public ProductDTO addTag(@PathVariable Long id, @PathVariable Long tagId) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException {
+        return ProductDTO.fromEntity(productService.addTag(id, tagId));
     }
 
     @PostMapping("/{id}/categories/{categoryId}")
-    public Product addCategory(@PathVariable Long id, @PathVariable Long categoryId) {
-        try {
-            return productService.addCategory(id, categoryId);
-        } catch (Exception e) {
-            return null;
-        }
+    public ProductDTO addCategory(@PathVariable Long id, @PathVariable Long categoryId) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException {
+        return ProductDTO.fromEntity(productService.addCategory(id, categoryId));
     }
 
     @PostMapping("/{id}/details")
-    public ResponseEntity<Object> addDetails(@PathVariable Long id, @RequestBody List<ProductDetailsDTO> details) {
-        try {
-            var entities = ProductDetailsDTO.toEntities(details, id);
-            var added = productService.addDetails(id, entities);
-            return ResponseEntity.ok().body(added);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
-        }
+    public ProductDTO addDetails(@PathVariable Long id, @RequestBody List<ProductDetailsDTO> details) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException {
+        var entities = ProductDetailsDTO.toEntities(details, id);
+        return ProductDTO.fromEntity(productService.addDetails(id, entities));
     }
 
     @DeleteMapping("/{id}/details")
-    public ResponseEntity<Object> removeDetails(@PathVariable Long id, @RequestBody List<Long> detailIds) {
-        try {
-
-            return ResponseEntity.ok().body(productService.removeDetails(id, detailIds));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
-        }
+    public ProductDTO removeDetails(@PathVariable Long id, @RequestBody List<Long> detailIds) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException {
+        return ProductDTO.fromEntity(productService.removeDetails(id, detailIds));
     }
 
     @DeleteMapping("/{id}/tags/{tagId}")
-    public ResponseEntity<Object> removeTag(@PathVariable Long id, @PathVariable Long tagId) {
-        try {
-            return ResponseEntity.ok().body(productService.removeTag(id, tagId));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
-        }
+    public ProductDTO removeTag(@PathVariable Long id, @PathVariable Long tagId) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException {
+        return ProductDTO.fromEntity(productService.removeTag(id, tagId));
     }
 
     @DeleteMapping("/{id}/categories/{categoryId}")
-    public ResponseEntity<Object> removeCategory(@PathVariable Long id, @PathVariable Long categoryId) {
-        try {
-            return ResponseEntity.ok().body(productService.removeCategory(id, categoryId));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
-        }
+    public ProductDTO removeCategory(@PathVariable Long id, @PathVariable Long categoryId) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException {
+        return ProductDTO.fromEntity(productService.removeCategory(id, categoryId));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteProduct(@PathVariable Long id) {
-        try {
-            productService.deleteById(id);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
-        }
+    public ResponseEntity<Object> deleteProduct(@PathVariable Long id) throws EntityNotFoundException {
+        productService.deleteById(id);
+        return ResponseEntity.ok().build();
     }
 }
