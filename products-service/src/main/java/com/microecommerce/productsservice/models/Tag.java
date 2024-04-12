@@ -11,7 +11,7 @@ import java.util.List;
 // Represents a tag for a product, which can be used to have more-specific information to group products.
 // Like a Category, but with a more specific purpose.
 // Example: "Smartphone", "Laptop", "Fiction", etc.
-public class Tag implements Serializable {
+public class Tag implements Serializable, IGetId {
 
     public Tag() {
 

@@ -2,6 +2,8 @@ package com.microecommerce.productsservice.models;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -13,7 +15,7 @@ import java.util.List;
 @Entity
 @Data
 // Represents a product in the system and contains all the information about it.
-public class Product implements Serializable {
+public class Product implements Serializable, IGetId {
 
     public Product() {
         this.brands = new LinkedList<>();
