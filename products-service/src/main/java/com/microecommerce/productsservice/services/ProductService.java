@@ -27,15 +27,17 @@ public class ProductService implements IProductService {
     private final IBrandService brandService;
     private final ITagService tagService;
     private final IDetailService detailService;
+    private final ProductServiceUtils productServiceUtils;
     private final Logger logger = LoggerFactory.getLogger(ProductService.class);
 
     @Autowired
-    public ProductService(ProductRepository productRepository, ICategoryService categoryService, IBrandService brandService, ITagService tagService, IDetailService detailService) {
+    public ProductService(ProductRepository productRepository, ICategoryService categoryService, IBrandService brandService, ITagService tagService, IDetailService detailService, ProductServiceUtils productServiceUtils) {
         this.productRepository = productRepository;
         this.categoryService = categoryService;
         this.brandService = brandService;
         this.tagService = tagService;
         this.detailService = detailService;
+        this.productServiceUtils = productServiceUtils;
     }
 
     @Override
@@ -71,113 +73,18 @@ public class ProductService implements IProductService {
             return Collections.emptyList();
         }
 
-        Set<Long> tagIds = new HashSet<>();
-        Set<Long> brandIds = new HashSet<>();
-        Set<Long> categoryIds = new HashSet<>();
-        Set<Long> detailsIds = new HashSet<>();
+        // Get all related entities Ids and Information for all products
+        var productRelatedInfoIds = productServiceUtils.getProductRelatedInfoIds(products);
+        var productRelatedInfo = productServiceUtils.getProductRelatedInfo(productRelatedInfoIds);
 
-        // Get All related Entities IDs
-        for(var product : products) {
-            if(product.getTags() != null && !product.getTags().isEmpty()) {
-                tagIds.addAll(IGetId.getSetIds(product.getTags()));
-            }
-            else product.setTags(Collections.emptyList());
+        // Validate if all related entities are found
+        validateRelatedEntities(products, productRelatedInfo, productRelatedInfoIds);
 
-            if(product.getBrands() != null && !product.getBrands().isEmpty()) {
-                brandIds.addAll(IGetId.getSetIds(product.getBrands()));
-            }
-            else product.setBrands(Collections.emptyList());
+        // Validate if there are duplicated relations
+        validateDuplicateRelations(products, true, productRelatedInfo);
 
-            if(product.getCategories() != null && !product.getCategories().isEmpty()) {
-                categoryIds.addAll(IGetId.getSetIds(product.getCategories()));
-            }
-            else product.setCategories(Collections.emptyList());
-
-            if(product.getProductDetails() != null && !product.getProductDetails().isEmpty()) {
-                detailsIds.addAll(product.getProductDetails()
-                        .stream()
-                        .map(productDetail -> productDetail.getDetail().getId())
-                        .toList());
-            }
-            else product.setProductDetails(Collections.emptyList());
-        }
-
-        // Get all related entities
-        var tags = tagService.getByIds(new ArrayList<>(tagIds));
-        var brands = brandService.getByIds(new ArrayList<>(brandIds));
-        var categories = categoryService.getByIds(new ArrayList<>(categoryIds));
-        var details = detailService.getByIds(new ArrayList<>(detailsIds));
-
-        if(tags.size() != tagIds.size()) throw new NoRelatedEntityException("Some tags not found");
-        if(brands.size() != brandIds.size()) throw new NoRelatedEntityException("Some brands not found");
-        if(categories.size() != categoryIds.size()) throw new NoRelatedEntityException("Some categories not found");
-        if(details.size() != detailsIds.size()) throw new NoRelatedEntityException("Some details not found");
-
-        // Map attached tags, brands, categories and details to product (to avoid detached entity exception)
-        for(Product product : products) {
-            product.setId(null);
-
-            var productTagsBd = new HashSet<Tag>();
-            for(Tag tag : product.getTags()) {
-                tags.stream()
-                    .filter(t -> t.getId().equals(tag.getId()))
-                    .findFirst()
-                    .ifPresent(productTagsBd::add);
-            }
-
-            // If the product has more tags than the ones found in the database
-            if(product.getTags().size() > productTagsBd.size())
-                throw new NoRelatedEntityException("Repeated tags found in the request for the product: " + product.getSku());
-            product.setTags(new ArrayList<>(productTagsBd));
-
-            var productBrandsBd = new HashSet<Brand>();
-            for(Brand brand : product.getBrands()) {
-                brands.stream()
-                        .filter(b -> b.getId().equals(brand.getId()))
-                        .findFirst()
-                        .ifPresent(productBrandsBd::add);
-            }
-
-            if(product.getBrands().size() > productBrandsBd.size())
-                throw new DuplicatedRelationException("Repeated brands found in the request for the product: " + product.getSku());
-            product.setBrands(new ArrayList<>(productBrandsBd));
-
-            var productCategoriesBd = new HashSet<Category>();
-            for(Category category : product.getCategories()) {
-                categories.stream()
-                        .filter(c -> c.getId().equals(category.getId()))
-                        .findFirst()
-                        .ifPresent(productCategoriesBd::add);
-            }
-
-            if(product.getCategories().size() > productCategoriesBd.size())
-                throw new DuplicatedRelationException("Repeated categories found in the request for the product: " + product.getSku());
-            product.setCategories(new ArrayList<>(productCategoriesBd));
-
-            var productDetailsBd = new LinkedList<ProductDetails>();
-            for(ProductDetails productDetail : product.getProductDetails()) {
-                var detail = IGetId.getFirstMatch(details, productDetail.getDetail().getId());
-                if(detail == null) throw new NoRelatedEntityException("Detail not found for the product: " + product.getSku());
-
-                for (ProductDetails pd : productDetailsBd) {
-                    if (pd.getDetail().getId().equals(detail.getId())) {
-                        throw new DuplicatedRelationException("Repeated details found in the request for the product: " + product.getSku());
-                    }
-                }
-                productDetailsBd.add(ProductDetails.createDetailForProduct(product, detail, productDetail.getValue()));
-            }
-
-            product.setProductDetails(new ArrayList<>(productDetailsBd));
-        }
-
-        var skus = products.stream().map(Product::getSku).collect(Collectors.toList());
-        var repeatedSku = productRepository.existsProductBySkuIn(skus);
-        if(repeatedSku) throw new NoRelatedEntityException("Some products have repeated SKU at database");
-
-        // Check if there are repeated SKU in the request (only if there are more than one product)
-        if(!products.isEmpty() && (products.size() != new HashSet<>(skus).size()))
-            throw new NoRelatedEntityException("Some products have repeated SKU in the request");
-
+        // Validate if there are duplicated SKUs
+        validateDuplicatedSkus(products);
         return productRepository.saveAll(products);
     }
 
@@ -189,7 +96,7 @@ public class ProductService implements IProductService {
 
     // TODO: Implement the update method
     @Override
-    public List<Product> updateBatch(List<Product> products) {
+    public List<Product> updateBatch(List<Product> products)  {
         return productRepository.saveAll(products);
     }
 
@@ -272,5 +179,111 @@ public class ProductService implements IProductService {
 
         product.getProductDetails().removeIf(productDetail -> detailIds.contains(productDetail.getDetail().getId()));
         return productRepository.save(product);
+    }
+
+    private void validateDuplicatedSkus(List<Product> products) throws NoRelatedEntityException {
+        var skus = products.stream().map(Product::getSku).collect(Collectors.toList());
+        var repeatedSku = productRepository.existsProductBySkuIn(skus);
+        if(repeatedSku) throw new NoRelatedEntityException("Some products have repeated SKU at database");
+
+        // Check if there are repeated SKU in the request (only if there are more than one product)
+        if(!products.isEmpty() && (products.size() != new HashSet<>(skus).size()))
+            // TODO: Change the exception type to new Exception type
+            throw new NoRelatedEntityException("Some products have repeated SKU in the request");
+    }
+
+
+    public void validateRelatedEntities(List<Product> products,
+                                        ProductServiceUtils.ProductRelatedInfo productRelatedInfo,
+                                        ProductServiceUtils.ProductRelatedInfoIds productRelatedInfoIds) throws NoRelatedEntityException {
+
+        var tags = productRelatedInfo.tags();
+        var brands = productRelatedInfo.brands();
+        var categories = productRelatedInfo.categories();
+        var details = productRelatedInfo.details();
+
+        var tagsIds = productRelatedInfoIds.tagIds();
+        var brandsIds = productRelatedInfoIds.brandIds();
+        var categoriesIds = productRelatedInfoIds.categoryIds();
+        var detailsIds = productRelatedInfoIds.detailsIds();
+
+        if(tags.size() != tagsIds.size()) throw new NoRelatedEntityException("Some tags are not found");
+        if(brands.size() != brandsIds.size()) throw new NoRelatedEntityException("Some brands are not found");
+        if(categories.size() != categoriesIds.size()) throw new NoRelatedEntityException("Some categories are not found");
+        if(details.size() != detailsIds.size()) throw new NoRelatedEntityException("Some details are not found");
+    }
+
+
+    public void validateDuplicateRelations(List<Product> products, boolean removeIds,
+                                           ProductServiceUtils.ProductRelatedInfo productRelatedInfo) throws NoRelatedEntityException, DuplicatedRelationException {
+
+        var tags = productRelatedInfo.tags();
+        var brands = productRelatedInfo.brands();
+        var categories = productRelatedInfo.categories();
+        var details = productRelatedInfo.details();
+
+        // Extract the tags, brands and categories from the database and overwrite the ones in the request
+        // to avoid duplicated objects in the database. HashSet because the Tags, Brands and Categories are
+        // the same object in the database so reference to the same object at Java when are retrieved from the database
+        // For ProductDetails, the object is different because the value is different at database so in Java is a
+        // different object
+        for(Product product : products) {
+            if(removeIds) product.setId(null);
+
+            var productTagsBd = new HashSet<Tag>();
+            for(Tag tag : product.getTags()) {
+                tags.stream()
+                        .filter(t -> t.getId().equals(tag.getId()))
+                        .findFirst()
+                        .ifPresent(productTagsBd::add);
+            }
+
+            // If the product has more tags than the ones found in the database
+            if(product.getTags().size() > productTagsBd.size())
+                throw new DuplicatedRelationException("Repeated tags found in the request for the product: " + product.getSku());
+            product.setTags(new ArrayList<>(productTagsBd));
+
+            var productBrandsBd = new HashSet<Brand>();
+            for(Brand brand : product.getBrands()) {
+                brands.stream()
+                        .filter(b -> b.getId().equals(brand.getId()))
+                        .findFirst()
+                        .ifPresent(productBrandsBd::add);
+            }
+
+            // If the product has more brands than the ones found in the database
+            if(product.getBrands().size() > productBrandsBd.size())
+                throw new DuplicatedRelationException("Repeated brands found in the request for the product: " + product.getSku());
+            product.setBrands(new ArrayList<>(productBrandsBd));
+
+            var productCategoriesBd = new HashSet<Category>();
+            for(Category category : product.getCategories()) {
+                categories.stream()
+                        .filter(c -> c.getId().equals(category.getId()))
+                        .findFirst()
+                        .ifPresent(productCategoriesBd::add);
+            }
+
+            // If the product has more categories than the ones found in the database
+            if(product.getCategories().size() > productCategoriesBd.size())
+                throw new DuplicatedRelationException("Repeated categories found in the request for the product: " + product.getSku());
+            product.setCategories(new ArrayList<>(productCategoriesBd));
+
+            var productDetailsBd = new LinkedList<ProductDetails>();
+            for(ProductDetails productDetail : product.getProductDetails()) {
+                var detail = IGetId.getFirstMatch(details, productDetail.getDetail().getId());
+                if(detail == null) throw new NoRelatedEntityException("Some details are not found");
+
+                // Check if the detail is already in the list
+                for (ProductDetails pd : productDetailsBd) {
+                    if (pd.getDetail().getId().equals(detail.getId())) {
+                        throw new DuplicatedRelationException("Repeated details found in the request for the product: " + product.getSku());
+                    }
+                }
+                productDetailsBd.add(ProductDetails.createDetailForProduct(product, detail, productDetail.getValue()));
+            }
+            product.setProductDetails(productDetailsBd);
+        }
+
     }
 }
