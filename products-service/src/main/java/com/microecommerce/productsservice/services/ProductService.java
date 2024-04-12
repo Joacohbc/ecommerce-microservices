@@ -1,11 +1,9 @@
 package com.microecommerce.productsservice.services;
 
-import com.microecommerce.productsservice.dtos.ProductDTO;
 import com.microecommerce.productsservice.exceptions.DuplicatedRelationException;
 import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
 import com.microecommerce.productsservice.exceptions.NoRelatedEntityException;
 import com.microecommerce.productsservice.models.*;
-import com.microecommerce.productsservice.repositories.ProductDetailsRepository;
 import com.microecommerce.productsservice.repositories.ProductRepository;
 import com.microecommerce.productsservice.services.interfaces.*;
 import org.slf4j.Logger;
@@ -32,7 +30,7 @@ public class ProductService implements IProductService {
     private final Logger logger = LoggerFactory.getLogger(ProductService.class);
 
     @Autowired
-    public ProductService(ProductRepository productRepository, ICategoryService categoryService, IBrandService brandService, ITagService tagService, IDetailService detailService, ProductDetailsRepository productDetailsRepository) {
+    public ProductService(ProductRepository productRepository, ICategoryService categoryService, IBrandService brandService, ITagService tagService, IDetailService detailService) {
         this.productRepository = productRepository;
         this.categoryService = categoryService;
         this.brandService = brandService;
