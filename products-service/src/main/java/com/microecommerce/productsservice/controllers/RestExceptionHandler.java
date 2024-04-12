@@ -4,11 +4,13 @@ import com.microecommerce.productsservice.exceptions.DuplicatedRelationException
 import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
 import com.microecommerce.productsservice.exceptions.RelatedEntityNotFoundException;
 import com.microecommerce.productsservice.utils.JSONUtils;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -21,7 +23,7 @@ import java.util.Map;
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private ResponseEntity<Object> createResponse(String message,Object data, Exception ex, HttpHeaders headers, HttpStatus statusCode, WebRequest request) {
+    private ResponseEntity<Object> createResponse(String message, Object data, Exception ex, HttpHeaders headers, HttpStatus statusCode, WebRequest request) {
         Map<String, Object> json = new HashMap<>();
         json.put("message", message);
         json.put("data", data);
@@ -30,7 +32,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, json, headers, statusCode, request);
     }
 
-    @ExceptionHandler(value = { DuplicatedRelationException.class, EntityNotFoundException.class, RelatedEntityNotFoundException.class })
+    @ExceptionHandler
     protected ResponseEntity<Object> handleConflict(Exception ex, WebRequest request) {
 
         if(ex instanceof DuplicatedRelationException) {
@@ -43,6 +45,19 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
         if(ex instanceof RelatedEntityNotFoundException) {
             return createResponse(ex.getMessage(), null, ex, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+        }
+
+        if(ex instanceof ConstraintViolationException notValidException) {
+            return createResponse(
+                    "Fields are not valid",
+                    notValidException.getConstraintViolations()
+                            .stream()
+                            .map(v -> v.getPropertyPath() + ": " + v.getMessage())
+                            .toList(),
+                    ex,
+                    new HttpHeaders(),
+                    HttpStatus.BAD_REQUEST,
+                    request);
         }
 
         if(ex instanceof ResponseStatusException responseStatusException) {

@@ -1,7 +1,9 @@
 package com.microecommerce.productsservice.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.Data;
+import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -21,6 +23,7 @@ public class Product implements Serializable, IGetId {
         this.categories = new LinkedList<>();
     }
 
+    @Getter
     public enum ProductFields {
         SKU("sku"),
         NAME("name"),
@@ -44,9 +47,6 @@ public class Product implements Serializable, IGetId {
             this.name = name;
         }
 
-        public String getName() {
-            return name;
-        }
     }
 
     @Id
@@ -54,15 +54,24 @@ public class Product implements Serializable, IGetId {
     private Long id;
 
     @Column(nullable = false, unique = true)
+    @NotBlank
+    @Size(min = 3, max = 255)
+    @Pattern(regexp = "^[a-zA-Z0-9_]*$", message = "SKU must be alphanumeric")
     private String sku;
 
     @Column(nullable = false, length = 500)
+    @NotBlank
+    @Size(min = 3, max = 255)
     private String name;
 
     @Column(nullable = false, length = 50000)
+    @NotBlank
+    @Size(min = 3, max = 50000)
     private String description;
 
     @Column(nullable = false)
+    @NotNull
+    @Min(0)
     private Double originalPrice;
 
     @Column(nullable = false)

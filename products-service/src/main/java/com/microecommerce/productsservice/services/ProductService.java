@@ -6,6 +6,7 @@ import com.microecommerce.productsservice.exceptions.RelatedEntityNotFoundExcept
 import com.microecommerce.productsservice.models.*;
 import com.microecommerce.productsservice.repositories.ProductRepository;
 import com.microecommerce.productsservice.services.interfaces.*;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,12 +64,12 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product create(Product product) throws RelatedEntityNotFoundException, DuplicatedRelationException{
+    public Product create(@Valid Product product) throws RelatedEntityNotFoundException, DuplicatedRelationException{
         return createBatch(List.of(product)).get(0);
     }
 
     @Override
-    public List<Product> createBatch(List<Product> products) throws RelatedEntityNotFoundException, DuplicatedRelationException {
+    public List<Product> createBatch(@Valid List<Product> products) throws RelatedEntityNotFoundException, DuplicatedRelationException {
         if (products.isEmpty()) {
             return Collections.emptyList();
         }
@@ -89,12 +90,12 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product update(Product product) throws EntityNotFoundException, RelatedEntityNotFoundException, DuplicatedRelationException {
+    public Product update(@Valid Product product) throws EntityNotFoundException, RelatedEntityNotFoundException, DuplicatedRelationException {
         return updateBatch(List.of(product)).get(0);
     }
 
     @Override
-    public List<Product> updateBatch(List<Product> products) throws EntityNotFoundException, RelatedEntityNotFoundException, DuplicatedRelationException  {
+    public List<Product> updateBatch(@Valid List<Product> products) throws EntityNotFoundException, RelatedEntityNotFoundException, DuplicatedRelationException  {
         if (products.isEmpty()) throw new EntityNotFoundException("No products found");
 
         var productIds = IGetId.getUniqueIdList(products);
