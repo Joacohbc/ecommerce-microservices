@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public class ProductDetailsDTO {
     private Long detailId;
+    private String detailName;
     private Object value;
     private String additionalInfo;
 
@@ -26,6 +27,7 @@ public class ProductDetailsDTO {
                 .detailId(productDetails.getDetail().getId())
                 .value(productDetails.getValue())
                 .additionalInfo(productDetails.getAdditionalInfo())
+                .detailName(productDetails.getDetail().getName()) // Only Getters
                 .build();
     }
 

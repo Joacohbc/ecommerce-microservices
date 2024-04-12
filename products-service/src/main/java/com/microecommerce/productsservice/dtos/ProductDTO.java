@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +20,8 @@ public class ProductDTO {
     private String name;
     private String description;
     private Double originalPrice;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private List<CategoryDTO> categories;
     private List<BrandDTO> brands;
     private List<TagDTO> tags;
@@ -34,6 +38,8 @@ public class ProductDTO {
                 .brands(BrandDTO.fromEntities(product.getBrands()))
                 .tags(TagDTO.fromEntities(product.getTags()))
                 .productDetails(ProductDetailsDTO.fromEntities(product.getProductDetails()))
+                .createdAt(product.getCreatedAt()) // Only Getters
+                .updatedAt(product.getUpdatedAt()) // Only Getters
                 .build();
     }
 
