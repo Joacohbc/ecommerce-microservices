@@ -28,12 +28,14 @@ public class TagController {
 //    }
 
     @PostMapping
-    public Tag addTag(@RequestBody Tag tag) throws NoRelatedEntityException {
+    // TODO: Internally manage Exception
+    public Tag addTag(@RequestBody Tag tag) throws Exception {
         return tagService.create(tag);
     }
 
     @PostMapping("/batch")
-    public List<Tag> addTags(@RequestBody List<Tag> tags) throws NoRelatedEntityException {
+    // TODO: Internally manage Exception
+    public List<Tag> addTags(@RequestBody List<Tag> tags) throws Exception {
         return tagService.createBatch(tags);
     }
 

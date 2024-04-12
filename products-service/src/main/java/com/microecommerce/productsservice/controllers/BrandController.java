@@ -29,12 +29,14 @@ public class BrandController {
 //    }
 
     @PostMapping
-    public Brand addBrand(@RequestBody Brand brand) throws NoRelatedEntityException {
+    // TODO: Internally manage Exception
+    public Brand addBrand(@RequestBody Brand brand) throws Exception {
         return brandService.create(brand);
     }
 
     @PostMapping("/batch")
-    public List<Brand> addBrands(@RequestBody List<Brand> brands) throws NoRelatedEntityException {
+    // TODO: Internally manage Exception
+    public List<Brand> addBrands(@RequestBody List<Brand> brands) throws Exception {
         return brandService.createBatch(brands);
     }
 

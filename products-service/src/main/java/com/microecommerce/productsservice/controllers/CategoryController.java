@@ -28,12 +28,14 @@ public class CategoryController {
 //    }
 
     @PostMapping
-    public Category addCategory(@RequestBody Category category) throws NoRelatedEntityException {
+    // TODO: Internally manage Exception
+    public Category addCategory(@RequestBody Category category) throws Exception {
         return categoryService.create(category);
     }
 
     @PostMapping("/batch")
-    public List<Category> addCategories(@RequestBody List<Category> categories) throws NoRelatedEntityException {
+    // TODO: Internally manage Exception
+    public List<Category> addCategories(@RequestBody List<Category> categories) throws Exception {
         return categoryService.createBatch(categories);
     }
 
