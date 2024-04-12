@@ -22,6 +22,8 @@ public class ProductDTO {
     private Double originalPrice;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime deletedAt;
+    private Boolean isDeleted;
     private List<CategoryDTO> categories;
     private List<BrandDTO> brands;
     private List<TagDTO> tags;
@@ -38,8 +40,10 @@ public class ProductDTO {
                 .brands(BrandDTO.fromEntities(product.getBrands()))
                 .tags(TagDTO.fromEntities(product.getTags()))
                 .productDetails(ProductDetailsDTO.fromEntities(product.getProductDetails()))
-                .createdAt(product.getCreatedAt()) // Only Getters
-                .updatedAt(product.getUpdatedAt()) // Only Getters
+                .createdAt(product.getCreatedAt()) // Only Getters (not mapped to entity)
+                .updatedAt(product.getUpdatedAt()) // Only Getters (not mapped to entity)
+                .deletedAt(product.getDeletedAt()) // Only Getters (not mapped to entity)
+                .isDeleted(product.getIsDeleted()) // Only Getters (not mapped to entity)
                 .build();
     }
 
