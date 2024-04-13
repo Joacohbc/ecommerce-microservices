@@ -36,6 +36,6 @@ public class Tag implements Serializable, IGetId {
 //    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
 //    private Tag parentTag;
 
-    @OneToMany(mappedBy = "parentTag", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    private List<Tag> childTags;
+//    @OneToMany(mappedBy = "parentTag", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+//    private List<Tag> childTags;
 }
