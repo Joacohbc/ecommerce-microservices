@@ -31,7 +31,7 @@ public class ProductController {
         return ProductDTO.fromEntities(productService.getAll());
     }
 
-    @GetMapping(params = {"page", "sizePerPage", "sortField", "sortDirection"})
+    @GetMapping(params = { "page", "sizePerPage", "sortField", "sortDirection" })
     public Page<ProductDTO> getProducts(@RequestParam(defaultValue = "0") int page,
                                         @RequestParam(defaultValue = "2") int sizePerPage,
                                         @RequestParam(defaultValue = "name") String sortField,
@@ -59,8 +59,9 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public List<ProductDTO> updateProduct(@PathVariable Long id, @RequestBody ProductDTO product) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException, InvalidEntityException {
-        return updateProducts(List.of(product));
+    public ProductDTO updateProduct(@PathVariable Long id, @RequestBody ProductDTO product) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException, InvalidEntityException {
+        product.setId(id);
+        return ProductDTO.fromEntity(productService.update(ProductDTO.toEntity(product)));
     }
 
     @PutMapping("/batch")

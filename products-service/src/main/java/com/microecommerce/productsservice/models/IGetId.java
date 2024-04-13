@@ -38,7 +38,9 @@ public interface IGetId {
         return null;
     }
 
+    // Check if all items have an ID
     static <T extends IGetId> boolean allHaveId(List<T> items) {
-        return items.stream().anyMatch(i -> i.getId() == null);
+        // If all items have an ID, then none of them have a null ID
+        return items.stream().noneMatch(i -> i.getId() == null);
     }
 }

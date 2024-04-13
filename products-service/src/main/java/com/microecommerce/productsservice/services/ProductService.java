@@ -5,6 +5,7 @@ import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
 import com.microecommerce.productsservice.exceptions.InvalidEntityException;
 import com.microecommerce.productsservice.exceptions.RelatedEntityNotFoundException;
 import com.microecommerce.productsservice.models.*;
+import com.microecommerce.productsservice.repositories.ProductDetailsRepository;
 import com.microecommerce.productsservice.repositories.ProductRepository;
 import com.microecommerce.productsservice.services.interfaces.*;
 import jakarta.validation.Valid;
@@ -31,15 +32,17 @@ public class ProductService implements IProductService {
     private final IDetailService detailService;
     private final ProductServiceUtils productServiceUtils;
     private final Logger logger = LoggerFactory.getLogger(ProductService.class);
+    private final ProductDetailsRepository productDetailsRepository;
 
     @Autowired
-    public ProductService(ProductRepository productRepository, ICategoryService categoryService, IBrandService brandService, ITagService tagService, IDetailService detailService, ProductServiceUtils productServiceUtils) {
+    public ProductService(ProductRepository productRepository, ICategoryService categoryService, IBrandService brandService, ITagService tagService, IDetailService detailService, ProductServiceUtils productServiceUtils, ProductDetailsRepository productDetailsRepository) {
         this.productRepository = productRepository;
         this.categoryService = categoryService;
         this.brandService = brandService;
         this.tagService = tagService;
         this.detailService = detailService;
         this.productServiceUtils = productServiceUtils;
+        this.productDetailsRepository = productDetailsRepository;
     }
 
     @Override
@@ -193,8 +196,7 @@ public class ProductService implements IProductService {
                     .anyMatch(productDetails ->
                             productDetails.getDetail().getId()
                             .equals(
-                                    pd.getDetail()
-                                            .getId()
+                                pd.getDetail().getId()
                             ));
             if(repeated) throw new DuplicatedRelationException("Detail already added to the product");
 
@@ -213,10 +215,17 @@ public class ProductService implements IProductService {
             throw new RelatedEntityNotFoundException("Some details are not found in the database");
         }
 
-        boolean found = product.getProductDetails().removeIf(productDetail -> detailIds.contains(productDetail.getDetail().getId()));
-        if(!found) throw new RelatedEntityNotFoundException("Some details are not found in the product");
-
-        return productRepository.save(product);
+        List<ProductDetails> productDetailsToDel = new ArrayList<>();
+        for(Long detailId : detailIds) {
+            var productDetail = product.getProductDetails().stream()
+                    .filter(pd -> pd.getDetail().getId().equals(detailId))
+                    .findFirst()
+                    .orElseThrow(() -> new RelatedEntityNotFoundException("Detail not found in the product"));
+            product.getProductDetails().remove(productDetail);
+            productDetailsToDel.add(productDetail);
+        }
+        productDetailsRepository.deleteAll(productDetailsToDel);
+        return product;
     }
 
     @Override
