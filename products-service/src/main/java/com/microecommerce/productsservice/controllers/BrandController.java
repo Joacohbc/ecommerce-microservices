@@ -1,8 +1,18 @@
 package com.microecommerce.productsservice.controllers;
 
 
+import com.microecommerce.productsservice.dtos.BrandDTO;
+import com.microecommerce.productsservice.exceptions.DuplicatedRelationException;
+import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
+import com.microecommerce.productsservice.exceptions.InvalidEntityException;
+import com.microecommerce.productsservice.exceptions.RelatedEntityNotFoundException;
+import com.microecommerce.productsservice.models.Brand;
 import com.microecommerce.productsservice.services.interfaces.IBrandService;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 @RestController
 @RequestMapping("/brands")
@@ -13,41 +23,39 @@ public class BrandController {
         this.brandService = brandService;
     }
 
-//    @GetMapping
-//    public List<Brand> getAllBrands() {
-//        return brandService.getAll();
-//    }
+    @GetMapping
+    public List<BrandDTO> getAllBrands() {
+        return BrandDTO.fromEntities(brandService.getAll());
+    }
 
-//    @GetMapping("/{id}")
-//    public Brand getBrandById(@PathVariable Long id) {
-//        return brandService.getById(id);
-//    }
+    @GetMapping("/{id}")
+    public BrandDTO getBrandById(@PathVariable Long id) throws EntityNotFoundException {
+        return BrandDTO.fromEntity(brandService.getById(id));
+    }
 
-//    @PostMapping
-//    // TODO: Internally manage Exception
-//    public Brand addBrand(@RequestBody Brand brand) throws Exception {
-//        return brandService.create(brand);
-//    }
-//
-//    @PostMapping("/batch")
-//    // TODO: Internally manage Exception
-//    public List<Brand> addBrands(@RequestBody List<Brand> brands) throws Exception {
-//        return brandService.createBatch(brands);
-//    }
-//
-//    @PutMapping("/{id}")
-//    public Brand updateBrand(@PathVariable Long id, @RequestBody Brand brand) {
-//        brand.setId(id);
-//        return brandService.update(brand);
-//    }
-//
-//    @PutMapping("/batch")
-//    public List<Brand> updateBrands(@RequestBody List<Brand> brands) {
-//        return brandService.updateBatch(brands);
-//    }
+    @PostMapping
+    public BrandDTO addBrand(@RequestBody BrandDTO brand) throws DuplicatedRelationException, RelatedEntityNotFoundException, InvalidEntityException {
+        return addBrands(Collections.singletonList(brand)).get(0);
+    }
 
-//    @DeleteMapping("/{id}")
-//    public void deleteBrand(@PathVariable Long id) {
-//        brandService.deleteById(id);
-//    }
+    @PostMapping("/batch")
+    public List<BrandDTO> addBrands(@RequestBody List<BrandDTO> brands) throws DuplicatedRelationException, RelatedEntityNotFoundException, InvalidEntityException {
+        return BrandDTO.fromEntities(brandService.createBatch(BrandDTO.toEntities(brands)));
+    }
+
+    @PutMapping("/{id}")
+    public BrandDTO updateBrand(@PathVariable Long id, @RequestBody BrandDTO brand) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException, InvalidEntityException {
+        brand.setId(id);
+        return updateBrands(Collections.singletonList(brand)).get(0);
+    }
+
+    @PutMapping("/batch")
+    public List<BrandDTO> updateBrands(@RequestBody List<BrandDTO> brands) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException, InvalidEntityException {
+        return BrandDTO.fromEntities(brandService.updateBatch(BrandDTO.toEntities(brands)));
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteBrand(@PathVariable Long id) throws EntityNotFoundException {
+        brandService.deleteById(id);
+    }
 }

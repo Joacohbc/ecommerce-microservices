@@ -1,7 +1,15 @@
 package com.microecommerce.productsservice.controllers;
 
+import com.microecommerce.productsservice.dtos.TagDTO;
+import com.microecommerce.productsservice.exceptions.DuplicatedRelationException;
+import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
+import com.microecommerce.productsservice.exceptions.InvalidEntityException;
+import com.microecommerce.productsservice.exceptions.RelatedEntityNotFoundException;
 import com.microecommerce.productsservice.services.interfaces.ITagService;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
+import java.util.List;
 
 @RestController
 @RequestMapping("/tags")
@@ -11,42 +19,40 @@ public class TagController {
     public TagController(ITagService tagService) {
         this.tagService = tagService;
     }
-//
-//    @GetMapping
-//    public List<Tag> getAllTags() {
-//        return tagService.getAll();
-//    }
 
-//    @GetMapping("/{id}")
-//    public Tag getTagById(@PathVariable Long id) {
-//        return tagService.getById(id);
-//    }
+    @GetMapping
+    public List<TagDTO> getAllTags() {
+        return TagDTO.fromEntities(tagService.getAll());
+    }
 
-//    @PostMapping
-//    // TODO: Internally manage Exception
-//    public Tag addTag(@RequestBody Tag tag) throws Exception {
-//        return tagService.create(tag);
-//    }
-//
-//    @PostMapping("/batch")
-//    // TODO: Internally manage Exception
-//    public List<Tag> addTags(@RequestBody List<Tag> tags) throws Exception {
-//        return tagService.createBatch(tags);
-//    }
-//
-//    @PutMapping("/{id}")
-//    public Tag updateTag(@PathVariable Long id, @RequestBody Tag tag) {
-//        tag.setId(id);
-//        return tagService.update(tag);
-//    }
-//
-//    @PutMapping("/batch")
-//    public List<Tag> updateTags(@RequestBody List<Tag> tags) {
-//        return tagService.updateBatch(tags);
-//    }
+    @GetMapping("/{id}")
+    public TagDTO gettagById(@PathVariable Long id) throws EntityNotFoundException {
+        return TagDTO.fromEntity(tagService.getById(id));
+    }
 
-//    @DeleteMapping("/{id}")
-//    public void deleteTag(@PathVariable Long id) {
-//        tagService.deleteById(id);
-//    }
+    @PostMapping
+    public TagDTO addtag(@RequestBody TagDTO tag) throws DuplicatedRelationException, RelatedEntityNotFoundException, InvalidEntityException {
+        return addTags(Collections.singletonList(tag)).get(0);
+    }
+
+    @PostMapping("/batch")
+    public List<TagDTO> addTags(@RequestBody List<TagDTO> Tags) throws DuplicatedRelationException, RelatedEntityNotFoundException, InvalidEntityException {
+        return TagDTO.fromEntities(tagService.createBatch(TagDTO.toEntities(Tags)));
+    }
+
+    @PutMapping("/{id}")
+    public TagDTO updatetag(@PathVariable Long id, @RequestBody TagDTO tag) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException, InvalidEntityException {
+        tag.setId(id);
+        return updateTags(Collections.singletonList(tag)).get(0);
+    }
+
+    @PutMapping("/batch")
+    public List<TagDTO> updateTags(@RequestBody List<TagDTO> Tags) throws EntityNotFoundException, DuplicatedRelationException, RelatedEntityNotFoundException, InvalidEntityException {
+        return TagDTO.fromEntities(tagService.updateBatch(TagDTO.toEntities(Tags)));
+    }
+
+    @DeleteMapping("/{id}")
+    public void deletetag(@PathVariable Long id) throws EntityNotFoundException {
+        tagService.deleteById(id);
+    }
 }
