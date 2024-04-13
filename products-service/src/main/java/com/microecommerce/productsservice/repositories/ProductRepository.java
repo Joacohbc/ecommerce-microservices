@@ -11,21 +11,21 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Collection;
 
 public interface ProductRepository extends JpaRepository<Product, Long>, PagingAndSortingRepository<Product, Long> {
 
-    Page<Product> findByCategoriesAndNameContainingIgnoreCase(List<Category> categories, String name, Pageable pageable);
-    List<Product> findByBrandsAndNameContainingIgnoreCase(List<Brand> brands, String name);
-    List<Product> findByTagsAndNameContainingIgnoreCase(List<Tag> tags, String name);
-    List<Product> findByCategoriesAndBrandsAndTagsAndNameContainingIgnoreCase(List<Category> categories, List<Brand> brands, List<Tag> tags, String name);
-    List<Product> findByCategoriesOrBrandsOrTagsAndNameContainingIgnoreCase(List<Category> categories, List<Brand> brands, List<Tag> tags, String name);
-    Long countByCategoriesAndNameContainingIgnoreCase(List<Category> categories, String name);
-    Long countByBrandsAndNameContainingIgnoreCase(List<Brand> brands, String name);
-    Long countByTagsAndNameContainingIgnoreCase(List<Tag> tags, String name);
-    Long countByCategoriesAndBrandsAndTagsAndNameContainingIgnoreCase(List<Category> categories, List<Brand> brands, List<Tag> tags, String name);
-    Long countByCategoriesOrBrandsOrTagsAndNameContainingIgnoreCase(List<Category> categories, List<Brand> brands, List<Tag> tags, String name);
-    List<Product> findByNameContainingIgnoreCaseOrderByNameAsc(String name);
-    List<Product> findAllByIdIn(List<Long> ids);
-    boolean existsProductBySkuIn(List<String> skus);
+    Page<Product> findByCategoriesAndNameContainingIgnoreCase(Collection<Category> categories, String name, Pageable pageable);
+    Collection<Product> findByBrandsAndNameContainingIgnoreCase(Collection<Brand> brands, String name);
+    Collection<Product> findByTagsAndNameContainingIgnoreCase(Collection<Tag> tags, String name);
+    Collection<Product> findByCategoriesAndBrandsAndTagsAndNameContainingIgnoreCase(Collection<Category> categories, Collection<Brand> brands, Collection<Tag> tags, String name);
+    Collection<Product> findByCategoriesOrBrandsOrTagsAndNameContainingIgnoreCase(Collection<Category> categories, Collection<Brand> brands, Collection<Tag> tags, String name);
+    Long countByCategoriesAndNameContainingIgnoreCase(Collection<Category> categories, String name);
+    Long countByBrandsAndNameContainingIgnoreCase(Collection<Brand> brands, String name);
+    Long countByTagsAndNameContainingIgnoreCase(Collection<Tag> tags, String name);
+    Long countByCategoriesAndBrandsAndTagsAndNameContainingIgnoreCase(Collection<Category> categories, Collection<Brand> brands, Collection<Tag> tags, String name);
+    Long countByCategoriesOrBrandsOrTagsAndNameContainingIgnoreCase(Collection<Category> categories, Collection<Brand> brands, Collection<Tag> tags, String name);
+    Collection<Product> findByNameContainingIgnoreCaseOrderByNameAsc(String name);;
+    boolean existsProductBySkuIn(Collection<String> skus);
 }
