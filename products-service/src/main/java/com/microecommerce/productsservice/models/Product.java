@@ -56,7 +56,7 @@ public class Product implements Serializable, IGetId {
     @Column(nullable = false, unique = true)
     @NotBlank
     @Size(min = 3, max = 255)
-    @Pattern(regexp = "^[a-zA-Z0-9_]*$", message = "SKU must be alphanumeric")
+    @Pattern(regexp = "^[a-zA-Z0-9_]*$", message = "must be alphanumeric")
     private String sku;
 
     @Column(nullable = false, length = 500)
