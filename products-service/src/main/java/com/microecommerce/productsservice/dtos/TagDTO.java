@@ -17,14 +17,14 @@ public class TagDTO {
     private Long id;
     private String name;
     private String description;
-    private TagDTO parentTag;
+//    private TagDTO parentTag;
 
     public static TagDTO fromEntity(Tag tag) {
         return TagDTO.builder()
                 .id(tag.getId())
                 .name(tag.getName())
                 .description(tag.getDescription())
-                .parentTag(tag.getParentTag() != null ? fromEntity(tag.getParentTag()) : null)
+//                .parentTag(tag.getParentTag() != null ? fromEntity(tag.getParentTag()) : null)
                 .build();
     }
 
@@ -33,7 +33,7 @@ public class TagDTO {
         tag.setId(tagDTO.getId());
         tag.setName(tagDTO.getName());
         tag.setDescription(tagDTO.getDescription());
-        tag.setParentTag(tagDTO.getParentTag() != null ? TagDTO.toEntity(tagDTO) : null);
+//        tag.setParentTag(tagDTO.getParentTag() != null ? TagDTO.toEntity(tagDTO) : null);
         return tag;
     }
 
