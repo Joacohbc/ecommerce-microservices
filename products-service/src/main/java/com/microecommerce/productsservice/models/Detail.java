@@ -1,6 +1,8 @@
 package com.microecommerce.productsservice.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -17,8 +19,12 @@ public class Detail implements Serializable, IGetId {
     private Long id;
 
     @Column(nullable = false, length = 500, unique = true)
+    @NotBlank
+    @Size(max = 500)
     private String name;
 
     @Column(nullable = false, length = 5000)
+    @NotBlank
+    @Size(max = 5000)
     private String description;
 }

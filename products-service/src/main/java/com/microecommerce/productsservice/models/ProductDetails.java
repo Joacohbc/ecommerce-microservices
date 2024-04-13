@@ -1,6 +1,7 @@
 package com.microecommerce.productsservice.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -51,6 +52,8 @@ public class ProductDetails implements Serializable {
     @MapsId("detailId")
     private Detail detail;
 
+    @Column(length = 500)
+    @Size(max = 500)
     private String value;
     private Long numberValue;
     private Double doubleValue;
@@ -61,6 +64,7 @@ public class ProductDetails implements Serializable {
     @Getter
     @Setter
     @Column(length = 500)
+    @Size(max = 500)
     private String additionalInfo;
 
     @Getter

@@ -37,4 +37,8 @@ public interface IGetId {
         }
         return null;
     }
+
+    static <T extends IGetId> boolean allHaveId(List<T> items) {
+        return items.stream().anyMatch(i -> i.getId() == null);
+    }
 }

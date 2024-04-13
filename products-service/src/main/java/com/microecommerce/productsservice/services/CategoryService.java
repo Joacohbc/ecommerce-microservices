@@ -1,12 +1,19 @@
 package com.microecommerce.productsservice.services;
 
 import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
+import com.microecommerce.productsservice.exceptions.RelatedEntityNotFoundException;
 import com.microecommerce.productsservice.models.Category;
+import com.microecommerce.productsservice.models.IGetId;
+import com.microecommerce.productsservice.models.Product;
 import com.microecommerce.productsservice.repositories.CategoryRepository;
 import com.microecommerce.productsservice.services.interfaces.ICategoryService;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryService implements ICategoryService {
@@ -33,27 +40,46 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
-    public Category create(Category entity) {
-        return categoryRepository.save(entity);
+    public Category create(@Valid Category entity) throws RelatedEntityNotFoundException {
+        return createBatch(Collections.singletonList(entity)).get(0);
     }
 
     @Override
-    public List<Category> createBatch(List<Category> entities) {
+    public List<Category> createBatch(@Valid List<Category> entities) throws RelatedEntityNotFoundException {
+        if(entities.isEmpty()) return Collections.emptyList();
+        entities.forEach(category -> category.setId(null));
+        validateDuplicatedNames(entities);
         return categoryRepository.saveAll(entities);
     }
 
     @Override
-    public Category update(Category entity) {
-        return categoryRepository.save(entity);
+    public Category update(@Valid Category entity) throws RelatedEntityNotFoundException {
+        return updateBatch(Collections.singletonList(entity)).get(0);
     }
 
     @Override
-    public List<Category> updateBatch(List<Category> entities) {
+    public List<Category> updateBatch(@Valid List<Category> entities) throws RelatedEntityNotFoundException {
+        if(entities.isEmpty()) return Collections.emptyList();
+        // TODO: Change the exception type to new Exception type
+        if(!IGetId.allHaveId(entities)) throw new RelatedEntityNotFoundException("All categories must have an ID to be updated");
+
+        validateDuplicatedNames(entities);
         return categoryRepository.saveAll(entities);
     }
 
     @Override
     public void deleteById(Long id) {
         categoryRepository.deleteById(id);
+    }
+
+    private void validateDuplicatedNames(List<Category> categories) throws RelatedEntityNotFoundException {
+        var names = categories.stream().map(Category::getName).collect(Collectors.toList());
+        var repeatedName = categoryRepository.existsByNameIn(names);
+        if(repeatedName) throw new RelatedEntityNotFoundException("Some categories have repeated name at database");
+
+        // Check if there are repeated Name in the request (only if there are more than one product)
+        if(!categories.isEmpty() && (categories.size() != new HashSet<>(names).size()))
+            // TODO: Change the exception type to new Exception type
+            throw new RelatedEntityNotFoundException("Some categories have repeated name in the request");
     }
 }

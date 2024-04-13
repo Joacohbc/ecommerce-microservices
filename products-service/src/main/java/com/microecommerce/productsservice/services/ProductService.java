@@ -65,14 +65,12 @@ public class ProductService implements IProductService {
 
     @Override
     public Product create(@Valid Product product) throws RelatedEntityNotFoundException, DuplicatedRelationException{
-        return createBatch(List.of(product)).get(0);
+        return createBatch(Collections.singletonList(product)).get(0);
     }
 
     @Override
     public List<Product> createBatch(@Valid List<Product> products) throws RelatedEntityNotFoundException, DuplicatedRelationException {
-        if (products.isEmpty()) {
-            return Collections.emptyList();
-        }
+        if (products.isEmpty()) return Collections.emptyList();
 
         // Get all related entities Ids and Information for all products
         var productRelatedInfoIds = productServiceUtils.getProductRelatedInfoIds(products);
@@ -97,6 +95,8 @@ public class ProductService implements IProductService {
     @Override
     public List<Product> updateBatch(@Valid List<Product> products) throws EntityNotFoundException, RelatedEntityNotFoundException, DuplicatedRelationException  {
         if (products.isEmpty()) throw new EntityNotFoundException("No products found");
+        // TODO: Change the exception type to new Exception type
+        if(!IGetId.allHaveId(products)) throw new RelatedEntityNotFoundException("All products must have an ID to be updated");
 
         var productIds = IGetId.getUniqueIdList(products);
         var productsBd = getByIds(productIds);

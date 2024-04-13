@@ -1,6 +1,9 @@
 package com.microecommerce.productsservice.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -22,13 +25,17 @@ public class Tag implements Serializable, IGetId {
     private Long id;
 
     @Column(nullable = false, unique = true)
+    @NotBlank
+    @Size(max = 255)
     private String name;
 
     @Column(nullable = false, length = 500)
+    @NotBlank
+    @Size(max = 500)
     private String description;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-    private Tag parentTag;
+//    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+//    private Tag parentTag;
 
     @OneToMany(mappedBy = "parentTag", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Tag> childTags;

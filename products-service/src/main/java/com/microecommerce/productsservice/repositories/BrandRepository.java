@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface BrandRepository extends JpaRepository<Brand, Long> {
-    public List<Brand> findAllByIdIn(List<Long> ids);
+    boolean existsByNameIn(List<String> names);
 }
