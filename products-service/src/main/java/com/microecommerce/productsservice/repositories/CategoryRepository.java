@@ -1,6 +1,5 @@
 package com.microecommerce.productsservice.repositories;
 
-import com.microecommerce.productsservice.models.Brand;
 import com.microecommerce.productsservice.models.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 

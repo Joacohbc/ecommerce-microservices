@@ -2,8 +2,6 @@ package com.microecommerce.productsservice.services;
 
 import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
 import com.microecommerce.productsservice.exceptions.InvalidEntityException;
-import com.microecommerce.productsservice.exceptions.InvalidEntityException;
-import com.microecommerce.productsservice.models.Category;
 import com.microecommerce.productsservice.models.IGetId;
 import com.microecommerce.productsservice.models.Tag;
 import com.microecommerce.productsservice.repositories.TagRepository;

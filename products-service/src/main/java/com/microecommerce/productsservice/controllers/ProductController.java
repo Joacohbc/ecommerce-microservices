@@ -8,14 +8,11 @@ import com.microecommerce.productsservice.exceptions.InvalidEntityException;
 import com.microecommerce.productsservice.exceptions.RelatedEntityNotFoundException;
 import com.microecommerce.productsservice.models.Product;
 import com.microecommerce.productsservice.services.interfaces.IProductService;
-import com.microecommerce.productsservice.utils.JSONUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 

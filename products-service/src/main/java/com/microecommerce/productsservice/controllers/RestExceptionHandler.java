@@ -4,14 +4,10 @@ import com.microecommerce.productsservice.exceptions.DuplicatedRelationException
 import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
 import com.microecommerce.productsservice.exceptions.InvalidEntityException;
 import com.microecommerce.productsservice.exceptions.RelatedEntityNotFoundException;
-import com.microecommerce.productsservice.utils.JSONUtils;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
