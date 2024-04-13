@@ -79,7 +79,7 @@ public class ProductService implements IProductService {
         var productRelatedInfo = productServiceUtils.getProductRelatedInfo(productRelatedInfoIds);
 
         // Validate if all related entities are found
-        validateRelatedEntitiesExist(products, productRelatedInfo, productRelatedInfoIds);
+        validateRelatedEntitiesExist(productRelatedInfo, productRelatedInfoIds);
 
         // Validate if there are duplicated relations
         validateDuplicateRelations(products, true, productRelatedInfo);
@@ -109,7 +109,7 @@ public class ProductService implements IProductService {
         var productRelatedInfo = productServiceUtils.getProductRelatedInfo(productRelatedInfoIds);
 
         // Validate if all related entities are found
-        validateRelatedEntitiesExist(products, productRelatedInfo, productRelatedInfoIds);
+        validateRelatedEntitiesExist(productRelatedInfo, productRelatedInfoIds);
         validateDuplicateRelations(products, false, productRelatedInfo);
 
         products.forEach(product -> {
@@ -249,8 +249,7 @@ public class ProductService implements IProductService {
     }
 
 
-    public void validateRelatedEntitiesExist(List<Product> products,
-                                             ProductServiceUtils.ProductRelatedInfo productRelatedInfo,
+    public void validateRelatedEntitiesExist(ProductServiceUtils.ProductRelatedInfo productRelatedInfo,
                                              ProductServiceUtils.ProductRelatedInfoIds productRelatedInfoIds) throws RelatedEntityNotFoundException {
 
         var tags = productRelatedInfo.tags();
@@ -268,7 +267,6 @@ public class ProductService implements IProductService {
         if(categories.size() != categoriesIds.size()) throw new RelatedEntityNotFoundException("Some categories are not found");
         if(details.size() != detailsIds.size()) throw new RelatedEntityNotFoundException("Some details are not found");
     }
-
 
     public void validateDuplicateRelations(List<Product> products, boolean removeIds,
                                            ProductServiceUtils.ProductRelatedInfo productRelatedInfo) throws RelatedEntityNotFoundException, DuplicatedRelationException {
