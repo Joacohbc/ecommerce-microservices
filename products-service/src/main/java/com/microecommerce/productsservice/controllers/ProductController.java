@@ -4,6 +4,7 @@ import com.microecommerce.productsservice.dtos.ProductDTO;
 import com.microecommerce.productsservice.dtos.ProductDetailsDTO;
 import com.microecommerce.productsservice.exceptions.DuplicatedRelationException;
 import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
+import com.microecommerce.productsservice.exceptions.InvalidEntityException;
 import com.microecommerce.productsservice.exceptions.RelatedEntityNotFoundException;
 import com.microecommerce.productsservice.models.Product;
 import com.microecommerce.productsservice.services.interfaces.IProductService;
@@ -50,23 +51,23 @@ public class ProductController {
     }
 
     @PostMapping
-    public ProductDTO addProduct(@RequestBody ProductDTO product) throws DuplicatedRelationException, RelatedEntityNotFoundException {
+    public ProductDTO addProduct(@RequestBody ProductDTO product) throws DuplicatedRelationException, RelatedEntityNotFoundException, InvalidEntityException {
         return addProducts(List.of(product)).get(0);
     }
 
     @PostMapping("/batch")
-    public List<ProductDTO> addProducts(@RequestBody List<ProductDTO> products) throws DuplicatedRelationException, RelatedEntityNotFoundException {
+    public List<ProductDTO> addProducts(@RequestBody List<ProductDTO> products) throws DuplicatedRelationException, RelatedEntityNotFoundException, InvalidEntityException {
         var entities = ProductDTO.toEntities(products);
         return ProductDTO.fromEntities(productService.createBatch(entities));
     }
 
     @PutMapping("/{id}")
-    public List<ProductDTO> updateProduct(@PathVariable Long id, @RequestBody ProductDTO product) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException {
+    public List<ProductDTO> updateProduct(@PathVariable Long id, @RequestBody ProductDTO product) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException, InvalidEntityException {
         return updateProducts(List.of(product));
     }
 
     @PutMapping("/batch")
-    public List<ProductDTO> updateProducts(@RequestBody List<ProductDTO> products) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException {
+    public List<ProductDTO> updateProducts(@RequestBody List<ProductDTO> products) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException, InvalidEntityException {
         var entities = ProductDTO.toEntities(products);
         return ProductDTO.fromEntities(productService.updateBatch(entities));
     }

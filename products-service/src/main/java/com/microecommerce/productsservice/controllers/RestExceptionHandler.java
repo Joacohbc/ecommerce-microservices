@@ -2,6 +2,7 @@ package com.microecommerce.productsservice.controllers;
 
 import com.microecommerce.productsservice.exceptions.DuplicatedRelationException;
 import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
+import com.microecommerce.productsservice.exceptions.InvalidEntityException;
 import com.microecommerce.productsservice.exceptions.RelatedEntityNotFoundException;
 import com.microecommerce.productsservice.utils.JSONUtils;
 import jakarta.validation.ConstraintViolationException;
@@ -35,15 +36,13 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler
     protected ResponseEntity<Object> handleConflict(Exception ex, WebRequest request) {
 
-        if(ex instanceof DuplicatedRelationException) {
+        if(ex instanceof DuplicatedRelationException
+            || ex instanceof InvalidEntityException) {
             return createResponse(ex.getMessage(), null, ex, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
         }
 
-        if(ex instanceof EntityNotFoundException) {
-            return createResponse(ex.getMessage(), null, ex, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
-        }
-
-        if(ex instanceof RelatedEntityNotFoundException) {
+        if(ex instanceof EntityNotFoundException
+                || ex instanceof RelatedEntityNotFoundException) {
             return createResponse(ex.getMessage(), null, ex, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
         }
 

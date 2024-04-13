@@ -1,6 +1,8 @@
 package com.microecommerce.productsservice.services;
 
+import com.microecommerce.productsservice.exceptions.DuplicatedRelationException;
 import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
+import com.microecommerce.productsservice.exceptions.InvalidEntityException;
 import com.microecommerce.productsservice.exceptions.RelatedEntityNotFoundException;
 import com.microecommerce.productsservice.models.Brand;
 import com.microecommerce.productsservice.models.Category;
@@ -45,12 +47,12 @@ public class BrandService implements IBrandService {
     }
 
     @Override
-    public Brand create(@Valid Brand entity) throws RelatedEntityNotFoundException {
+    public Brand create(@Valid Brand entity) throws RelatedEntityNotFoundException, DuplicatedRelationException {
         return createBatch(Collections.singletonList(entity)).get(0);
     }
 
     @Override
-    public List<Brand> createBatch(@Valid List<Brand> entities) throws RelatedEntityNotFoundException {
+    public List<Brand> createBatch(@Valid List<Brand> entities) throws RelatedEntityNotFoundException, DuplicatedRelationException {
         if(entities.isEmpty()) return Collections.emptyList();
         entities.forEach(brand -> brand.setId(null));
         validateDuplicatedNames(entities);
@@ -58,15 +60,14 @@ public class BrandService implements IBrandService {
     }
 
     @Override
-    public Brand update(@Valid Brand entity) throws RelatedEntityNotFoundException {
+    public Brand update(@Valid Brand entity) throws RelatedEntityNotFoundException, DuplicatedRelationException, InvalidEntityException {
         return updateBatch(Collections.singletonList(entity)).get(0);
     }
 
     @Override
-    public List<Brand> updateBatch(@Valid List<Brand> entities) throws RelatedEntityNotFoundException {
+    public List<Brand> updateBatch(@Valid List<Brand> entities) throws RelatedEntityNotFoundException, DuplicatedRelationException, InvalidEntityException {
         if(entities.isEmpty()) return Collections.emptyList();
-        // TODO: Change the exception type to new Exception type
-        if(!IGetId.allHaveId(entities)) throw new RelatedEntityNotFoundException("All brands must have an ID to be updated");
+        if(!IGetId.allHaveId(entities)) throw new InvalidEntityException("All brands must have an ID to be updated");
         validateDuplicatedNames(entities);
 
         return brandRepository.saveAll(entities);
@@ -77,14 +78,13 @@ public class BrandService implements IBrandService {
         brandRepository.deleteById(id);
     }
 
-    private void validateDuplicatedNames(List<Brand> brands) throws RelatedEntityNotFoundException {
+    private void validateDuplicatedNames(List<Brand> brands) throws RelatedEntityNotFoundException, DuplicatedRelationException {
         var names = brands.stream().map(Brand::getName).collect(Collectors.toList());
         var repeatedName = brandRepository.existsByNameIn(names);
         if(repeatedName) throw new RelatedEntityNotFoundException("Some brands have repeated name at database");
 
         // Check if there are repeated Name in the request (only if there are more than one product)
         if(!brands.isEmpty() && (brands.size() != new HashSet<>(names).size()))
-            // TODO: Change the exception type to new Exception type
-            throw new RelatedEntityNotFoundException("Some brands have repeated name in the request");
+            throw new DuplicatedRelationException("Some brands have repeated name in the request");
     }
 }

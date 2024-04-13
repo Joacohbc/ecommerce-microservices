@@ -1,7 +1,8 @@
 package com.microecommerce.productsservice.services;
 
 import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
-import com.microecommerce.productsservice.exceptions.RelatedEntityNotFoundException;
+import com.microecommerce.productsservice.exceptions.InvalidEntityException;
+import com.microecommerce.productsservice.exceptions.InvalidEntityException;
 import com.microecommerce.productsservice.models.Category;
 import com.microecommerce.productsservice.models.IGetId;
 import com.microecommerce.productsservice.models.Tag;
@@ -40,12 +41,12 @@ public class TagService implements ITagService {
     }
 
     @Override
-    public Tag create(@Valid Tag entity) throws RelatedEntityNotFoundException {
+    public Tag create(@Valid Tag entity) throws InvalidEntityException {
         return createBatch(Collections.singletonList(entity)).get(0);
     }
 
     @Override
-    public List<Tag> createBatch(@Valid List<Tag> entities) throws RelatedEntityNotFoundException {
+    public List<Tag> createBatch(@Valid List<Tag> entities) throws InvalidEntityException {
         if(entities.isEmpty()) return Collections.emptyList();
         entities.forEach(tag -> tag.setId(null));
         validateDuplicatedNames(entities);
@@ -58,10 +59,10 @@ public class TagService implements ITagService {
     }
 
     @Override
-    public List<Tag> updateBatch(@Valid List<Tag> entities) throws RelatedEntityNotFoundException {
+    public List<Tag> updateBatch(@Valid List<Tag> entities) throws InvalidEntityException {
         if(entities.isEmpty()) return Collections.emptyList();
         // TODO: Change the exception type to new Exception type
-        if(!IGetId.allHaveId(entities)) throw new RelatedEntityNotFoundException("All tags must have an ID to be updated");
+        if(!IGetId.allHaveId(entities)) throw new InvalidEntityException("All tags must have an ID to be updated");
         validateDuplicatedNames(entities);
         return tagRepository.saveAll(entities);
     }
@@ -71,14 +72,13 @@ public class TagService implements ITagService {
         tagRepository.deleteById(id);
     }
 
-    private void validateDuplicatedNames(List<Tag> tags) throws RelatedEntityNotFoundException {
+    private void validateDuplicatedNames(List<Tag> tags) throws InvalidEntityException {
         var names = tags.stream().map(Tag::getName).collect(Collectors.toList());
         var repeatedName = tagRepository.existsByNameIn(names);
-        if(repeatedName) throw new RelatedEntityNotFoundException("Some tags have repeated name at database");
+        if(repeatedName) throw new InvalidEntityException("Some tags have repeated name at database");
 
         // Check if there are repeated Name in the request (only if there are more than one product)
         if(!tags.isEmpty() && (tags.size() != new HashSet<>(names).size()))
-            // TODO: Change the exception type to new Exception type
-            throw new RelatedEntityNotFoundException("Some tags have repeated name in the request");
+            throw new InvalidEntityException("Some tags have repeated name in the request");
     }
 }

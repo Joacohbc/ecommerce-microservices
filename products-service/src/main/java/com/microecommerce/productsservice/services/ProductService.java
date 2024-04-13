@@ -2,6 +2,7 @@ package com.microecommerce.productsservice.services;
 
 import com.microecommerce.productsservice.exceptions.DuplicatedRelationException;
 import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
+import com.microecommerce.productsservice.exceptions.InvalidEntityException;
 import com.microecommerce.productsservice.exceptions.RelatedEntityNotFoundException;
 import com.microecommerce.productsservice.models.*;
 import com.microecommerce.productsservice.repositories.ProductRepository;
@@ -64,26 +65,22 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product create(@Valid Product product) throws RelatedEntityNotFoundException, DuplicatedRelationException{
+    public Product create(@Valid Product product) throws RelatedEntityNotFoundException, DuplicatedRelationException, InvalidEntityException {
         return createBatch(Collections.singletonList(product)).get(0);
     }
 
     @Override
-    public List<Product> createBatch(@Valid List<Product> products) throws RelatedEntityNotFoundException, DuplicatedRelationException {
+    public List<Product> createBatch(@Valid List<Product> products) throws RelatedEntityNotFoundException, DuplicatedRelationException, InvalidEntityException {
         if (products.isEmpty()) return Collections.emptyList();
 
         // Get all related entities Ids and Information for all products
         var productRelatedInfoIds = productServiceUtils.getProductRelatedInfoIds(products);
         var productRelatedInfo = productServiceUtils.getProductRelatedInfo(productRelatedInfoIds);
 
-        // Validate if all related entities are found
         validateRelatedEntitiesExist(productRelatedInfo, productRelatedInfoIds);
-
-        // Validate if there are duplicated relations
         validateDuplicateRelations(products, true, productRelatedInfo);
-
-        // Validate if there are duplicated SKUs
         validateDuplicatedSkus(products);
+
         return productRepository.saveAll(products);
     }
 
@@ -237,15 +234,14 @@ public class ProductService implements IProductService {
         return productRepository.save(product);
     }
 
-    private void validateDuplicatedSkus(List<Product> products) throws RelatedEntityNotFoundException {
+    private void validateDuplicatedSkus(List<Product> products) throws RelatedEntityNotFoundException, InvalidEntityException {
         var skus = products.stream().map(Product::getSku).collect(Collectors.toList());
         var repeatedSku = productRepository.existsProductBySkuIn(skus);
         if(repeatedSku) throw new RelatedEntityNotFoundException("Some products have repeated SKU at database");
 
         // Check if there are repeated SKU in the request (only if there are more than one product)
         if(!products.isEmpty() && (products.size() != new HashSet<>(skus).size()))
-            // TODO: Change the exception type to new Exception type
-            throw new RelatedEntityNotFoundException("Some products have repeated SKU in the request");
+            throw new InvalidEntityException("Some products have repeated SKU in the request");
     }
 
 

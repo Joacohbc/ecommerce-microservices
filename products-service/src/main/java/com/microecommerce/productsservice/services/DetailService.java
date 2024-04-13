@@ -1,7 +1,7 @@
 package com.microecommerce.productsservice.services;
 
 import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
-import com.microecommerce.productsservice.exceptions.RelatedEntityNotFoundException;
+import com.microecommerce.productsservice.exceptions.InvalidEntityException;
 import com.microecommerce.productsservice.models.Detail;
 import com.microecommerce.productsservice.models.IGetId;
 import com.microecommerce.productsservice.services.interfaces.IDetailService;
@@ -39,12 +39,12 @@ public class DetailService implements IDetailService {
     }
 
     @Override
-    public Detail create(@Valid Detail entity) throws RelatedEntityNotFoundException {
+    public Detail create(@Valid Detail entity) throws InvalidEntityException {
         return createBatch(Collections.singletonList(entity)).get(0);
     }
 
     @Override
-    public List<Detail> createBatch(@Valid List<Detail> entities) throws RelatedEntityNotFoundException {
+    public List<Detail> createBatch(@Valid List<Detail> entities) throws InvalidEntityException {
         if(entities.isEmpty()) return Collections.emptyList();
         entities.forEach(detail -> detail.setId(null));
         validateDuplicatedNames(entities);
@@ -53,14 +53,14 @@ public class DetailService implements IDetailService {
     }
 
     @Override
-    public Detail update(@Valid Detail entity) throws RelatedEntityNotFoundException {
+    public Detail update(@Valid Detail entity) throws InvalidEntityException {
         return updateBatch(Collections.singletonList(entity)).get(0);
     }
 
     @Override
-    public List<Detail> updateBatch(@Valid List<Detail> entities) throws RelatedEntityNotFoundException {
+    public List<Detail> updateBatch(@Valid List<Detail> entities) throws InvalidEntityException {
         if(entities.isEmpty()) return Collections.emptyList();
-        if(!IGetId.allHaveId(entities)) throw new RelatedEntityNotFoundException("All details must have an ID to be updated");
+        if(!IGetId.allHaveId(entities)) throw new InvalidEntityException("All details must have an ID to be updated");
         validateDuplicatedNames(entities);
         return detailRepository.saveAll(entities);
     }
@@ -70,14 +70,14 @@ public class DetailService implements IDetailService {
         detailRepository.deleteById(id);
     }
 
-    private void validateDuplicatedNames(List<Detail> details) throws RelatedEntityNotFoundException {
+    private void validateDuplicatedNames(List<Detail> details) throws InvalidEntityException {
         var names = details.stream().map(Detail::getName).collect(Collectors.toList());
         var repeatedName = detailRepository.existsByNameIn(names);
-        if(repeatedName) throw new RelatedEntityNotFoundException("Some details have repeated name at database");
+        if(repeatedName) throw new InvalidEntityException("Some details have repeated name at database");
 
         // Check if there are repeated Name in the request (only if there are more than one product)
         if(!details.isEmpty() && (details.size() != new HashSet<>(names).size()))
             // TODO: Change the exception type to new Exception type
-            throw new RelatedEntityNotFoundException("Some details have repeated name in the request");
+            throw new InvalidEntityException("Some details have repeated name in the request");
     }
 }
