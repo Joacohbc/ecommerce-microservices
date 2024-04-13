@@ -26,12 +26,12 @@ public class TagController {
     }
 
     @GetMapping("/{id}")
-    public TagDTO gettagById(@PathVariable Long id) throws EntityNotFoundException {
+    public TagDTO getTagById(@PathVariable Long id) throws EntityNotFoundException {
         return TagDTO.fromEntity(tagService.getById(id));
     }
 
     @PostMapping
-    public TagDTO addtag(@RequestBody TagDTO tag) throws DuplicatedRelationException, RelatedEntityNotFoundException, InvalidEntityException {
+    public TagDTO addTag(@RequestBody TagDTO tag) throws DuplicatedRelationException, RelatedEntityNotFoundException, InvalidEntityException {
         return addTags(Collections.singletonList(tag)).get(0);
     }
 
@@ -41,7 +41,7 @@ public class TagController {
     }
 
     @PutMapping("/{id}")
-    public TagDTO updatetag(@PathVariable Long id, @RequestBody TagDTO tag) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException, InvalidEntityException {
+    public TagDTO updateTag(@PathVariable Long id, @RequestBody TagDTO tag) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException, InvalidEntityException {
         tag.setId(id);
         return updateTags(Collections.singletonList(tag)).get(0);
     }
@@ -52,7 +52,7 @@ public class TagController {
     }
 
     @DeleteMapping("/{id}")
-    public void deletetag(@PathVariable Long id) throws EntityNotFoundException {
+    public void deleteTag(@PathVariable Long id) throws EntityNotFoundException {
         tagService.deleteById(id);
     }
 }
