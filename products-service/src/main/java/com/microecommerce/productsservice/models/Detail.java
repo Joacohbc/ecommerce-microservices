@@ -18,9 +18,10 @@ public class Detail implements Serializable, IGetId {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 500, unique = true)
+    @Column(nullable = false, unique = true)
     @NotBlank
-    @Size(max = 500)
+    @Size(max = 255)
+    @Convert(converter = ToTitleCase.class)
     private String name;
 
     @Column(nullable = false, length = 5000)

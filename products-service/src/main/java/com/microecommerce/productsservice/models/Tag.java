@@ -26,6 +26,8 @@ public class Tag implements Serializable, IGetId {
     @Column(nullable = false, unique = true)
     @NotBlank
     @Size(max = 255)
+    @Convert(converter = ToTitleCase.class)
+    // TODO: Check if this should be Unique or Not (because two different tags can have the same name but different descriptions)
     private String name;
 
     @Column(nullable = false, length = 500)

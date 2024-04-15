@@ -24,6 +24,7 @@ public class Category implements Serializable, IGetId {
 
     @Column(nullable = false, unique = true)
     @NotBlank
+    @Convert(converter = ToTitleCase.class)
     private String name;
 
     @Column(nullable = false, length = 1000)
