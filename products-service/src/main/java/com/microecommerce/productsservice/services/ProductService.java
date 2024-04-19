@@ -88,15 +88,14 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product update(@Valid Product product) throws EntityNotFoundException, RelatedEntityNotFoundException, DuplicatedRelationException {
+    public Product update(@Valid Product product) throws InvalidEntityException, EntityNotFoundException, RelatedEntityNotFoundException, DuplicatedRelationException {
         return updateBatch(List.of(product)).get(0);
     }
 
     @Override
-    public List<Product> updateBatch(@Valid List<Product> products) throws EntityNotFoundException, RelatedEntityNotFoundException, DuplicatedRelationException  {
+    public List<Product> updateBatch(@Valid List<Product> products) throws InvalidEntityException, EntityNotFoundException, RelatedEntityNotFoundException, DuplicatedRelationException  {
         if (products.isEmpty()) throw new EntityNotFoundException("No products found");
-        // TODO: Change the exception type to new Exception type
-        if(!IGetId.allHaveId(products)) throw new RelatedEntityNotFoundException("All products must have an ID to be updated");
+        if(!IGetId.allHaveId(products)) throw new InvalidEntityException("All products must have an ID to be updated");
 
         var productIds = IGetId.getUniqueIdList(products);
         var productsBd = getByIds(productIds);

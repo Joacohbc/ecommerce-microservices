@@ -77,7 +77,6 @@ public class DetailService implements IDetailService {
 
         // Check if there are repeated Name in the request (only if there are more than one product)
         if(!details.isEmpty() && (details.size() != new HashSet<>(names).size()))
-            // TODO: Change the exception type to new Exception type
             throw new InvalidEntityException("Some details have repeated name in the request");
     }
 }

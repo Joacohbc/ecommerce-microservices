@@ -59,7 +59,6 @@ public class TagService implements ITagService {
     @Override
     public List<Tag> updateBatch(@Valid List<Tag> entities) throws InvalidEntityException {
         if(entities.isEmpty()) return Collections.emptyList();
-        // TODO: Change the exception type to new Exception type
         if(!IGetId.allHaveId(entities)) throw new InvalidEntityException("All tags must have an ID to be updated");
         validateDuplicatedNames(entities);
         return tagRepository.saveAll(entities);

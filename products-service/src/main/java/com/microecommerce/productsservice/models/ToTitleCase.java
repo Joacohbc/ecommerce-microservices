@@ -17,6 +17,7 @@ public class ToTitleCase implements AttributeConverter<String, String> {
         }
         return attribute.trim().toUpperCase();
     }
+
     @Override
     public String convertToEntityAttribute(String dbData) {
         return dbData;
