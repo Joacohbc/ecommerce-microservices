@@ -3,12 +3,16 @@ package com.microecommerce.productsservice.models;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.*;
 
 import java.io.Serializable;
 
-@Data
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@Builder
+@AllArgsConstructor
 // Represents details of different products, which can be used to provide more information about the product.
 // In practice, it represents a "detail type" because the value of the detail information itself is stored in the
 // ProductDetails entity separate from the Detail. In this way, the Detail entity is used to store the name and

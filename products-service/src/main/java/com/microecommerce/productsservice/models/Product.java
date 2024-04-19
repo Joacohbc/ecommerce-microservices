@@ -2,8 +2,7 @@ package com.microecommerce.productsservice.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.Data;
-import lombok.Getter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -13,7 +12,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
 // Represents a product in the system and contains all the information about it.
 public class Product implements Serializable, IGetId {
 
@@ -46,7 +48,6 @@ public class Product implements Serializable, IGetId {
         ProductFields(String name) {
             this.name = name;
         }
-
     }
 
     @Id

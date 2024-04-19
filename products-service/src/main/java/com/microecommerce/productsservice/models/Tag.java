@@ -3,21 +3,21 @@ package com.microecommerce.productsservice.models;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@Builder
+@AllArgsConstructor
 // Represents a tag for a product, which can be used to have more-specific information to group products.
 // Like a Category, but with a more specific purpose.
 // Example: "Smartphone", "Laptop", "Fiction", etc.
 public class Tag implements Serializable, IGetId {
-
-    public Tag() {
-
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

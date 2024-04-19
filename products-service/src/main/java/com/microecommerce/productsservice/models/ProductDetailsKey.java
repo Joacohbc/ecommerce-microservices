@@ -4,10 +4,14 @@ package com.microecommerce.productsservice.models;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Entity;
-import lombok.Data;
+import lombok.*;
 
 @Embeddable
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@Builder
+@AllArgsConstructor
 // Is a composite key for the product details table
 public class ProductDetailsKey {
     @Column(name = "product_id")
