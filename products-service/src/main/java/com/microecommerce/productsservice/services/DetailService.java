@@ -4,8 +4,8 @@ import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
 import com.microecommerce.productsservice.exceptions.InvalidEntityException;
 import com.microecommerce.productsservice.models.Detail;
 import com.microecommerce.productsservice.models.IGetId;
-import com.microecommerce.productsservice.services.interfaces.IDetailService;
 import com.microecommerce.productsservice.repositories.DetailRepository;
+import com.microecommerce.productsservice.services.interfaces.IDetailService;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 

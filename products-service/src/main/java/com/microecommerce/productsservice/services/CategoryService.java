@@ -2,10 +2,8 @@ package com.microecommerce.productsservice.services;
 
 import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
 import com.microecommerce.productsservice.exceptions.InvalidEntityException;
-import com.microecommerce.productsservice.exceptions.RelatedEntityNotFoundException;
 import com.microecommerce.productsservice.models.Category;
 import com.microecommerce.productsservice.models.IGetId;
-import com.microecommerce.productsservice.models.Product;
 import com.microecommerce.productsservice.repositories.CategoryRepository;
 import com.microecommerce.productsservice.services.interfaces.ICategoryService;
 import jakarta.validation.Valid;

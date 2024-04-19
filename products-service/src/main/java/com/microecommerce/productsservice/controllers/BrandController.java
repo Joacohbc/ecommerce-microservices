@@ -6,11 +6,9 @@ import com.microecommerce.productsservice.exceptions.DuplicatedRelationException
 import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
 import com.microecommerce.productsservice.exceptions.InvalidEntityException;
 import com.microecommerce.productsservice.exceptions.RelatedEntityNotFoundException;
-import com.microecommerce.productsservice.models.Brand;
 import com.microecommerce.productsservice.services.interfaces.IBrandService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 

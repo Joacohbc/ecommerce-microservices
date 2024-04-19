@@ -3,7 +3,6 @@ package com.microecommerce.productsservice.models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.Entity;
 import lombok.*;
 
 @Embeddable

@@ -1,6 +1,5 @@
 package com.microecommerce.productsservice.services;
 
-import com.microecommerce.productsservice.exceptions.DuplicatedRelationException;
 import com.microecommerce.productsservice.models.*;
 import org.springframework.stereotype.Service;
 

@@ -1,8 +1,9 @@
 package com.microecommerce.productsservice.services.interfaces;
+
 import com.microecommerce.productsservice.exceptions.DuplicatedRelationException;
 import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
 import com.microecommerce.productsservice.exceptions.RelatedEntityNotFoundException;
-import  com.microecommerce.productsservice.models.Product;
+import com.microecommerce.productsservice.models.Product;
 import com.microecommerce.productsservice.models.ProductDetails;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
