@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController("orders")
+@RestController
+@RequestMapping("/orders")
 public class OrderController {
     private final IOrderService orderService;
 
@@ -25,6 +26,11 @@ public class OrderController {
     @PostMapping("/batch")
     public List<Order> createBatch(@RequestBody List<Order> orders) {
         return orderService.createBatch(orders);
+    }
+
+    @GetMapping
+    public List<Order> getAllOrders() {
+        return orderService.getAllOrders();
     }
 
     @GetMapping("/customer/{customerId}")
