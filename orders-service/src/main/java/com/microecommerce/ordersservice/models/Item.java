@@ -1,5 +1,6 @@
 package com.microecommerce.ordersservice.models;
 
+import com.microecommerce.productsservice.dtos.ProductDTO;
 import com.microecommerce.productsservice.models.Product;
 import jakarta.persistence.Transient;
 import lombok.*;
@@ -15,7 +16,8 @@ public class Item implements Serializable {
 
     private Long productId;
     private Integer quantity;
+    private Double price;
 
     @Transient
-    private Product product;
+    private ProductDTO product;
 }
