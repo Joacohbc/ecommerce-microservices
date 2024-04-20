@@ -24,6 +24,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, PagingA
     Long countByTagsAndNameContainingIgnoreCase(Collection<Tag> tags, String name);
     Long countByCategoriesAndBrandsAndTagsAndNameContainingIgnoreCase(Collection<Category> categories, Collection<Brand> brands, Collection<Tag> tags, String name);
     Long countByCategoriesOrBrandsOrTagsAndNameContainingIgnoreCase(Collection<Category> categories, Collection<Brand> brands, Collection<Tag> tags, String name);
-    Collection<Product> findByNameContainingIgnoreCaseOrderByNameAsc(String name);;
+    Collection<Product> findByNameContainingIgnoreCaseOrderByNameAsc(String name);
+
     boolean existsProductBySkuIn(Collection<String> skus);
 }
