@@ -68,6 +68,11 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    public boolean checkProductsExistence(List<Long> productIds) {
+        return productRepository.existsProductsByIdIn(productIds);
+    }
+
+    @Override
     public Product create(@Valid Product product) throws RelatedEntityNotFoundException, DuplicatedRelationException, InvalidEntityException {
         return createBatch(Collections.singletonList(product)).get(0);
     }

@@ -27,4 +27,5 @@ public interface ProductRepository extends JpaRepository<Product, Long>, PagingA
     Collection<Product> findByNameContainingIgnoreCaseOrderByNameAsc(String name);
 
     boolean existsProductBySkuIn(Collection<String> skus);
+    boolean existsProductsByIdIn(Collection<Long> ids);
 }

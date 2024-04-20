@@ -42,6 +42,11 @@ public class ProductController {
         return pageRequest.map(ProductDTO::fromEntity);
     }
 
+    @GetMapping("/check-existence")
+    public boolean checkProductsExistence(@RequestParam List<Long> productIds) {
+        return productService.checkProductsExistence(productIds);
+    }
+
     @GetMapping("/{id}")
     public ProductDTO getProductById(@PathVariable Long id) throws EntityNotFoundException {
         return ProductDTO.fromEntity(productService.getById(id));

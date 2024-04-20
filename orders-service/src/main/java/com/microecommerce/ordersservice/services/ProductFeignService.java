@@ -1,0 +1,20 @@
+package com.microecommerce.ordersservice.services;
+
+import com.microecommerce.productsservice.dtos.ProductDTO;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+
+import java.util.List;
+
+@FeignClient(name = "products-service")
+public interface ProductFeignService {
+
+    @GetMapping("/products/{id}")
+    ProductDTO getProductById(Long id);
+
+    @GetMapping("/products")
+    List<ProductDTO> getAllProducts();
+
+    @GetMapping("/products/check-existence")
+    boolean checkProductsExistence(List<Long> productIds);
+}
