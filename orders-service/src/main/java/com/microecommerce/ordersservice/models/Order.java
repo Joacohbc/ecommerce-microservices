@@ -4,8 +4,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PreUpdate;
 import lombok.*;
 import org.bson.types.ObjectId;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;

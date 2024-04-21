@@ -1,13 +1,13 @@
 package com.microecommerce.productsservice.services;
 
-import com.microecommerce.productsservice.exceptions.DuplicatedRelationException;
-import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
-import com.microecommerce.productsservice.exceptions.InvalidEntityException;
-import com.microecommerce.productsservice.exceptions.RelatedEntityNotFoundException;
 import com.microecommerce.productsservice.models.Brand;
 import com.microecommerce.productsservice.models.IGetId;
 import com.microecommerce.productsservice.repositories.BrandRepository;
 import com.microecommerce.productsservice.services.interfaces.IBrandService;
+import com.microecommerce.utilitymodule.exceptions.DuplicatedRelationException;
+import com.microecommerce.utilitymodule.exceptions.EntityNotFoundException;
+import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
+import com.microecommerce.utilitymodule.exceptions.RelatedEntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

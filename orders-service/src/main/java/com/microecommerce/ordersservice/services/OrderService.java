@@ -4,7 +4,7 @@ import com.microecommerce.ordersservice.models.Item;
 import com.microecommerce.ordersservice.models.Order;
 import com.microecommerce.ordersservice.repositories.OrderRepository;
 import com.microecommerce.ordersservice.services.interfaces.IOrderService;
-import com.microecommerce.productsservice.exceptions.InvalidEntityException;
+import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

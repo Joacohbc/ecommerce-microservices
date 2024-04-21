@@ -1,11 +1,12 @@
 package com.microecommerce.productsservice.controllers;
 
-import com.microecommerce.productsservice.dtos.DetailDTO;
-import com.microecommerce.productsservice.exceptions.DuplicatedRelationException;
-import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
-import com.microecommerce.productsservice.exceptions.InvalidEntityException;
-import com.microecommerce.productsservice.exceptions.RelatedEntityNotFoundException;
+import com.microecommerce.dtoslibrary.products_service.DetailDTO;
+import com.microecommerce.productsservice.mappers.DetailMapper;
 import com.microecommerce.productsservice.services.interfaces.IDetailService;
+import com.microecommerce.utilitymodule.exceptions.DuplicatedRelationException;
+import com.microecommerce.utilitymodule.exceptions.EntityNotFoundException;
+import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
+import com.microecommerce.utilitymodule.exceptions.RelatedEntityNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -23,12 +24,12 @@ public class DetailController {
 
     @GetMapping
     public List<DetailDTO> getAllDetails() {
-        return DetailDTO.fromEntities(detailService.getAll());
+        return DetailMapper.fromEntities(detailService.getAll());
     }
 
     @GetMapping("/{id}")
     public DetailDTO getDetailById(@PathVariable Long id) throws EntityNotFoundException {
-        return DetailDTO.fromEntity(detailService.getById(id));
+        return DetailMapper.fromEntity(detailService.getById(id));
     }
 
     @PostMapping
@@ -38,7 +39,7 @@ public class DetailController {
 
     @PostMapping("/batch")
     public List<DetailDTO> addDetails(@RequestBody List<DetailDTO> details) throws DuplicatedRelationException, RelatedEntityNotFoundException, InvalidEntityException {
-        return DetailDTO.fromEntities(detailService.createBatch(DetailDTO.toEntities(details)));
+        return DetailMapper.fromEntities(detailService.createBatch(DetailMapper.toEntities(details)));
     }
 
     @PutMapping("/{id}")
@@ -49,7 +50,7 @@ public class DetailController {
 
     @PutMapping("/batch")
     public List<DetailDTO> updateDetails(@RequestBody List<DetailDTO> details) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException, InvalidEntityException {
-        return DetailDTO.fromEntities(detailService.updateBatch(DetailDTO.toEntities(details)));
+        return DetailMapper.fromEntities(detailService.updateBatch(DetailMapper.toEntities(details)));
     }
 
     @DeleteMapping("/{id}")

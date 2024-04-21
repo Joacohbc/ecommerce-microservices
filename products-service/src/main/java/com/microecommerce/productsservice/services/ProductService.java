@@ -1,13 +1,13 @@
 package com.microecommerce.productsservice.services;
 
-import com.microecommerce.productsservice.exceptions.DuplicatedRelationException;
-import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
-import com.microecommerce.productsservice.exceptions.InvalidEntityException;
-import com.microecommerce.productsservice.exceptions.RelatedEntityNotFoundException;
 import com.microecommerce.productsservice.models.*;
 import com.microecommerce.productsservice.repositories.ProductDetailsRepository;
 import com.microecommerce.productsservice.repositories.ProductRepository;
 import com.microecommerce.productsservice.services.interfaces.*;
+import com.microecommerce.utilitymodule.exceptions.DuplicatedRelationException;
+import com.microecommerce.utilitymodule.exceptions.EntityNotFoundException;
+import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
+import com.microecommerce.utilitymodule.exceptions.RelatedEntityNotFoundException;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

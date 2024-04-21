@@ -1,11 +1,11 @@
 package com.microecommerce.productsservice.services;
 
-import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
-import com.microecommerce.productsservice.exceptions.InvalidEntityException;
 import com.microecommerce.productsservice.models.Category;
 import com.microecommerce.productsservice.models.IGetId;
 import com.microecommerce.productsservice.repositories.CategoryRepository;
 import com.microecommerce.productsservice.services.interfaces.ICategoryService;
+import com.microecommerce.utilitymodule.exceptions.EntityNotFoundException;
+import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 

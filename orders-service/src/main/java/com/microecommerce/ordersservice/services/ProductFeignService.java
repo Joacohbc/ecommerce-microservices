@@ -1,6 +1,6 @@
 package com.microecommerce.ordersservice.services;
 
-import com.microecommerce.productsservice.dtos.ProductDTO;
+import com.microecommerce.dtoslibrary.products_service.ProductDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;

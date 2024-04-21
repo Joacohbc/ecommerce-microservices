@@ -1,6 +1,7 @@
 package com.microecommerce.productsservice.services;
 
 import com.microecommerce.productsservice.models.*;
+import com.microecommerce.utilitymodule.interfaces.IGetId;
 import org.springframework.stereotype.Service;
 
 import java.util.*;

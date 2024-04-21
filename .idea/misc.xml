@@ -8,10 +8,18 @@
         <option value="$PROJECT_DIR$/products-service/pom.xml" />
         <option value="$PROJECT_DIR$/gateway-server/pom.xml" />
         <option value="$PROJECT_DIR$/orders-service/pom.xml" />
+        <option value="$PROJECT_DIR$/utility-module/pom.xml" />
+        <option value="$PROJECT_DIR$/dtos/pom.xml" />
+        <option value="$PROJECT_DIR$/dtos-library/pom.xml" />
       </list>
     </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/dtos/pom.xml" />
+      </set>
+    </option>
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="17" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_22" project-jdk-name="17" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project>

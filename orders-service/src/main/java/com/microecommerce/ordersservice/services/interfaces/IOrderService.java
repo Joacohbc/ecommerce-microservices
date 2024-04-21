@@ -1,7 +1,7 @@
 package com.microecommerce.ordersservice.services.interfaces;
 
 import com.microecommerce.ordersservice.models.Order;
-import com.microecommerce.productsservice.exceptions.InvalidEntityException;
+import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
 
 import java.util.List;
 

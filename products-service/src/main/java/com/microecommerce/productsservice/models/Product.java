@@ -1,5 +1,7 @@
 package com.microecommerce.productsservice.models;
 
+import com.microecommerce.utilitymodule.interfaces.IGetId;
+import com.microecommerce.utilitymodule.models.ToTitleCase;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;

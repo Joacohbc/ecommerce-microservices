@@ -1,11 +1,12 @@
 package com.microecommerce.productsservice.controllers;
 
-import com.microecommerce.productsservice.dtos.CategoryDTO;
-import com.microecommerce.productsservice.exceptions.DuplicatedRelationException;
-import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
-import com.microecommerce.productsservice.exceptions.InvalidEntityException;
-import com.microecommerce.productsservice.exceptions.RelatedEntityNotFoundException;
+import com.microecommerce.dtoslibrary.products_service.CategoryDTO;
+import com.microecommerce.productsservice.mappers.CategoryMapper;
 import com.microecommerce.productsservice.services.interfaces.ICategoryService;
+import com.microecommerce.utilitymodule.exceptions.DuplicatedRelationException;
+import com.microecommerce.utilitymodule.exceptions.EntityNotFoundException;
+import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
+import com.microecommerce.utilitymodule.exceptions.RelatedEntityNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -22,12 +23,12 @@ public class CategoryController {
 
     @GetMapping
     public List<CategoryDTO> getAllCategories() {
-        return CategoryDTO.fromEntities(categoryService.getAll());
+        return CategoryMapper.fromEntities(categoryService.getAll());
     }
 
     @GetMapping("/{id}")
     public CategoryDTO getCategoryById(@PathVariable Long id) throws EntityNotFoundException {
-        return CategoryDTO.fromEntity(categoryService.getById(id));
+        return CategoryMapper.fromEntity(categoryService.getById(id));
     }
 
     @PostMapping
@@ -37,7 +38,7 @@ public class CategoryController {
 
     @PostMapping("/batch")
     public List<CategoryDTO> addCategories(@RequestBody List<CategoryDTO> categories) throws DuplicatedRelationException, RelatedEntityNotFoundException, InvalidEntityException {
-        return CategoryDTO.fromEntities(categoryService.createBatch(CategoryDTO.toEntities(categories)));
+        return CategoryMapper.fromEntities(categoryService.createBatch(CategoryMapper.toEntities(categories)));
     }
 
     @PutMapping("/{id}")
@@ -48,7 +49,7 @@ public class CategoryController {
 
     @PutMapping("/batch")
     public List<CategoryDTO> updateCategories(@RequestBody List<CategoryDTO> categories) throws EntityNotFoundException, DuplicatedRelationException, RelatedEntityNotFoundException, InvalidEntityException{
-        return CategoryDTO.fromEntities(categoryService.updateBatch(CategoryDTO.toEntities(categories)));
+        return CategoryMapper.fromEntities(categoryService.updateBatch(CategoryMapper.toEntities(categories)));
     }
 
     @DeleteMapping("/{id}")

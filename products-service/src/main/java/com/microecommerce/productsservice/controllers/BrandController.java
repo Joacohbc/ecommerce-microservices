@@ -1,12 +1,13 @@
 package com.microecommerce.productsservice.controllers;
 
 
-import com.microecommerce.productsservice.dtos.BrandDTO;
-import com.microecommerce.productsservice.exceptions.DuplicatedRelationException;
-import com.microecommerce.productsservice.exceptions.EntityNotFoundException;
-import com.microecommerce.productsservice.exceptions.InvalidEntityException;
-import com.microecommerce.productsservice.exceptions.RelatedEntityNotFoundException;
+import com.microecommerce.dtoslibrary.products_service.BrandDTO;
+import com.microecommerce.productsservice.mappers.BrandMapper;
 import com.microecommerce.productsservice.services.interfaces.IBrandService;
+import com.microecommerce.utilitymodule.exceptions.DuplicatedRelationException;
+import com.microecommerce.utilitymodule.exceptions.EntityNotFoundException;
+import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
+import com.microecommerce.utilitymodule.exceptions.RelatedEntityNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -23,12 +24,12 @@ public class BrandController {
 
     @GetMapping
     public List<BrandDTO> getAllBrands() {
-        return BrandDTO.fromEntities(brandService.getAll());
+        return BrandMapper.fromEntities(brandService.getAll());
     }
 
     @GetMapping("/{id}")
     public BrandDTO getBrandById(@PathVariable Long id) throws EntityNotFoundException {
-        return BrandDTO.fromEntity(brandService.getById(id));
+        return BrandMapper.fromEntity(brandService.getById(id));
     }
 
     @PostMapping
@@ -38,7 +39,7 @@ public class BrandController {
 
     @PostMapping("/batch")
     public List<BrandDTO> addBrands(@RequestBody List<BrandDTO> brands) throws DuplicatedRelationException, RelatedEntityNotFoundException, InvalidEntityException {
-        return BrandDTO.fromEntities(brandService.createBatch(BrandDTO.toEntities(brands)));
+        return BrandMapper.fromEntities(brandService.createBatch(BrandMapper.toEntities(brands)));
     }
 
     @PutMapping("/{id}")
@@ -49,7 +50,7 @@ public class BrandController {
 
     @PutMapping("/batch")
     public List<BrandDTO> updateBrands(@RequestBody List<BrandDTO> brands) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException, InvalidEntityException {
-        return BrandDTO.fromEntities(brandService.updateBatch(BrandDTO.toEntities(brands)));
+        return BrandMapper.fromEntities(brandService.updateBatch(BrandMapper.toEntities(brands)));
     }
 
     @DeleteMapping("/{id}")
