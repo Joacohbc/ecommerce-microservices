@@ -1,6 +1,6 @@
 package com.microecommerce.ordersservice.models;
 
-import com.microecommerce.productsservice.dtos.ProductDTO;
+import com.microecommerce.dtoslibrary.products_service.ProductDTO;
 import jakarta.persistence.Transient;
 import lombok.*;
 

@@ -35,7 +35,7 @@ public class ProductMapper {
         product.setOriginalPrice(productDTO.getOriginalPrice());
         product.setCategories(CategoryMapper.toEntities(productDTO.getCategories()));
         product.setBrands(BrandMapper.toEntities(productDTO.getBrands()));
-        product.setTags(TagDTO.toEntities(productDTO.getTags()));
+        product.setTags(TagMapper.toEntities(productDTO.getTags()));
         product.setProductDetails(ProductDetailsMapper.toEntities(productDTO.getProductDetails(), productDTO.getId()));
         return product;
     }

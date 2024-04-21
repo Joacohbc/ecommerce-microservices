@@ -1,6 +1,7 @@
 package com.microecommerce.productsservice.controllers;
 
-import com.microecommerce.productsservice.dtos.TagDTO;
+import com.microecommerce.dtoslibrary.products_service.TagDTO;
+import com.microecommerce.productsservice.mappers.TagMapper;
 import com.microecommerce.productsservice.services.interfaces.ITagService;
 import com.microecommerce.utilitymodule.exceptions.DuplicatedRelationException;
 import com.microecommerce.utilitymodule.exceptions.EntityNotFoundException;
@@ -22,12 +23,12 @@ public class TagController {
 
     @GetMapping
     public List<TagDTO> getAllTags() {
-        return TagDTO.fromEntities(tagService.getAll());
+        return TagMapper.fromEntities(tagService.getAll());
     }
 
     @GetMapping("/{id}")
     public TagDTO getTagById(@PathVariable Long id) throws EntityNotFoundException {
-        return TagDTO.fromEntity(tagService.getById(id));
+        return TagMapper.fromEntity(tagService.getById(id));
     }
 
     @PostMapping
@@ -37,7 +38,7 @@ public class TagController {
 
     @PostMapping("/batch")
     public List<TagDTO> addTags(@RequestBody List<TagDTO> Tags) throws DuplicatedRelationException, RelatedEntityNotFoundException, InvalidEntityException {
-        return TagDTO.fromEntities(tagService.createBatch(TagDTO.toEntities(Tags)));
+        return TagMapper.fromEntities(tagService.createBatch(TagMapper.toEntities(Tags)));
     }
 
     @PutMapping("/{id}")
@@ -48,7 +49,7 @@ public class TagController {
 
     @PutMapping("/batch")
     public List<TagDTO> updateTags(@RequestBody List<TagDTO> Tags) throws EntityNotFoundException, DuplicatedRelationException, RelatedEntityNotFoundException, InvalidEntityException {
-        return TagDTO.fromEntities(tagService.updateBatch(TagDTO.toEntities(Tags)));
+        return TagMapper.fromEntities(tagService.updateBatch(TagMapper.toEntities(Tags)));
     }
 
     @DeleteMapping("/{id}")
