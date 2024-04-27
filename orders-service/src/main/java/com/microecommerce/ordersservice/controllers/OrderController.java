@@ -1,6 +1,7 @@
 package com.microecommerce.ordersservice.controllers;
 
 import com.microecommerce.ordersservice.models.Order;
+import com.microecommerce.ordersservice.models.OrderProgressRequest;
 import com.microecommerce.ordersservice.models.OrderStatus;
 import com.microecommerce.ordersservice.services.interfaces.IOrderService;
 import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
@@ -55,6 +56,11 @@ public class OrderController {
     @PutMapping("/{orderId}/finish")
     public Order finishOrder(@PathVariable String orderId, @RequestParam OrderStatus status) throws InvalidEntityException {
         return orderService.finishOrder(orderId, status);
+    }
+
+    @PutMapping("/in-progress")
+    public List<Order> putInProgress(@RequestBody List<OrderProgressRequest> requests) throws InvalidEntityException {
+        return orderService.putInProgress(requests);
     }
 
     @GetMapping("/{orderId}/checkStatus")

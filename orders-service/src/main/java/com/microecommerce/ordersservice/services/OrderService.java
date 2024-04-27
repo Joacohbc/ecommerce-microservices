@@ -1,19 +1,16 @@
 package com.microecommerce.ordersservice.services;
 
-import com.microecommerce.ordersservice.models.OrderHistory;
-import com.microecommerce.ordersservice.models.OrderItem;
-import com.microecommerce.ordersservice.models.Order;
-import com.microecommerce.ordersservice.models.OrderStatus;
+import com.microecommerce.ordersservice.models.*;
 import com.microecommerce.ordersservice.repositories.OrderHistoryRepository;
 import com.microecommerce.ordersservice.repositories.OrderRepository;
 import com.microecommerce.ordersservice.services.interfaces.IOrderService;
 import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 
 @Service
@@ -30,7 +27,7 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public List<Order> createBatch(List<Order> orders, Long customerId) throws InvalidEntityException {
+    public List<Order> createBatch(@Valid List<Order> orders, Long customerId) throws InvalidEntityException {
         boolean productsExistence = productService.checkProductsExistence(orders
                 .stream()
                 .flatMap(order -> order.getItems().stream().map(OrderItem::getProductId))
@@ -73,7 +70,8 @@ public class OrderService implements IOrderService {
     public Order finishOrder(String orderId, OrderStatus status) throws InvalidEntityException {
         if(status != OrderStatus.INVOICE_ISSUED
                 && status != OrderStatus.RETURN_RECEIVED
-                && status != OrderStatus.REFUND_COMPLETED) {
+                && status != OrderStatus.REFUND_COMPLETED
+                && status != OrderStatus.CANCELLED) {
             throw new InvalidEntityException("The status " + status + " is not allowed for finishing an order");
         }
 
@@ -88,6 +86,49 @@ public class OrderService implements IOrderService {
         orderHistoryRepository.save(createOrderHistory(order, status, "Finished"));
 
         return order;
+    }
+
+    @Override
+    public List<Order> putInProgress(@Valid List<OrderProgressRequest> requests) throws InvalidEntityException {
+        List<Order> orders = orderRepository.findAllById(requests.stream().map(OrderProgressRequest::getOrderId).toList());
+
+        // TODO: Implement the logic for processing the order (payment, picking, packing, etc.)
+
+        List<OrderHistory> orderHistories = new LinkedList<>();
+        for (Order order : orders) {
+
+            // Validate the order
+            validateOrderItems(order);
+            validateStatusChange(order.getStatus(), OrderStatus.IN_PROGRESS);
+
+            // Update the order status
+            order.setStatus(OrderStatus.IN_PROGRESS);
+            order.setProcessedAt(LocalDateTime.now());
+
+            // Get the progress request for the order
+            OrderProgressRequest progressRequest = requests.stream()
+                    .filter(request -> request.getOrderId().equals(order.getId()))
+                    .findFirst()
+                    .get();
+
+            // Set the payment ids
+            order.setPaymentId(Optional.of(progressRequest.getPaymentId())
+                    .orElseThrow(() -> new InvalidEntityException("Payment IDs are required")));
+
+            if(progressRequest.getShippingId() != null)
+                order.setShippingId(progressRequest.getShippingId());
+
+            if(progressRequest.getDiscountId() != null)
+                order.setDiscountId(progressRequest.getDiscountId());
+
+            // TODO: Call async services for payment, shipping, and discount processing
+            // Create an order history entry
+            orderHistories.add(createOrderHistory(order, OrderStatus.IN_PROGRESS, progressRequest.getMessage()));
+        }
+
+        orderRepository.saveAll(orders);
+        orderHistoryRepository.saveAll(orderHistories);
+        return orders;
     }
 
     @Override
