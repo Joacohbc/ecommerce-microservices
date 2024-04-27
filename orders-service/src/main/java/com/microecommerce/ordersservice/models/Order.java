@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -28,6 +27,8 @@ public class Order implements Serializable {
     @NotNull
     private Long customerId;
 
+    private Long discountId;
+
     private Long paymentId;
 
     private Long shippingId;
@@ -35,17 +36,13 @@ public class Order implements Serializable {
     @NotEmpty
     private List<OrderItem> items;
 
-    @NotEmpty
+    @NotNull
     private OrderStatus status;
 
     private Double total;
 
     private LocalDateTime processedAt;
     private LocalDateTime finishedAt;
-    private LocalDateTime cancelledAt;
-    private LocalDateTime returnedAt;
-    private LocalDateTime refundedAt;
-    private LocalDateTime invoicedAt;
 
     @Setter(AccessLevel.NONE)
     private LocalDateTime updatedAt;

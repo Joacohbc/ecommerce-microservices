@@ -7,7 +7,7 @@ public enum OrderStatus {
     CREATED("Created", "Order submitted by customer, awaiting further processing"),
 //    PAYMENT_PENDING("Payment Pending", "Order placed, awaiting authorization for the payment"),
 //    PAYMENT_CONFIRMED("Payment Confirmed", "Payment has been authorized successfully"),
-    IN_PROGRESS("In Progress", "Order processing initiated (picking, packing)"),
+    IN_PROGRESS("In Progress", "Order processing initiated"),
 //    READY_FOR_SHIPMENT("Ready for Shipment", "Order prepared and awaiting carrier pickup"),
 //    SHIPPED("Shipped", "Order shipped with carrier"),
 //    OUT_FOR_DELIVERY("Out for Delivery", "Order in transit with the delivery carrier"),
