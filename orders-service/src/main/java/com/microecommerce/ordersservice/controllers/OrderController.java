@@ -50,7 +50,7 @@ public class OrderController {
 
     @PutMapping("/{orderId}/cancel")
     public Order askForCancellation(@PathVariable String orderId) throws InvalidEntityException {
-        return orderService.askForCancellation(orderId);
+        return orderService.cancelOrder(orderId);
     }
 
     @PutMapping("/{orderId}/finish")
@@ -60,7 +60,7 @@ public class OrderController {
 
     @PutMapping("/in-progress")
     public List<Order> putInProgress(@RequestBody List<OrderProgressRequest> requests) throws InvalidEntityException {
-        return orderService.putInProgress(requests);
+        return orderService.startProcessingOrder(requests);
     }
 
     @GetMapping("/{orderId}/checkStatus")

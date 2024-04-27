@@ -61,7 +61,7 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public Order askForCancellation(String orderId) throws InvalidEntityException {
+    public Order cancelOrder(String orderId) throws InvalidEntityException {
         // TODO: Implement the logic for asking for a cancellation
         return updateStatus(orderId, OrderStatus.CANCELLED);
     }
@@ -89,7 +89,7 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public List<Order> putInProgress(@Valid List<OrderProgressRequest> requests) throws InvalidEntityException {
+    public List<Order> startProcessingOrder(@Valid List<OrderProgressRequest> requests) throws InvalidEntityException {
         List<Order> orders = orderRepository.findAllById(requests.stream().map(OrderProgressRequest::getOrderId).toList());
 
         // TODO: Implement the logic for processing the order (payment, picking, packing, etc.)
