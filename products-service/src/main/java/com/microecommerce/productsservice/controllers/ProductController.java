@@ -1,16 +1,22 @@
 package com.microecommerce.productsservice.controllers;
 
-import com.microecommerce.productsservice.dtos.ProductDTO;
-import com.microecommerce.productsservice.dtos.ProductDetailsDTO;
-import com.microecommerce.productsservice.exceptions.NoRelatedEntityException;
+import com.microecommerce.dtoslibrary.products_service.ProductDTO;
+import com.microecommerce.dtoslibrary.products_service.ProductDetailsDTO;
+import com.microecommerce.productsservice.mappers.ProductDetailsMapper;
+import com.microecommerce.productsservice.mappers.ProductMapper;
 import com.microecommerce.productsservice.models.Product;
 import com.microecommerce.productsservice.services.interfaces.IProductService;
-import com.microecommerce.productsservice.utils.JSONUtils;
+import com.microecommerce.utilitymodule.exceptions.DuplicatedRelationException;
+import com.microecommerce.utilitymodule.exceptions.EntityNotFoundException;
+import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
+import com.microecommerce.utilitymodule.exceptions.RelatedEntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/products")
@@ -24,101 +30,92 @@ public class ProductController {
 
     @GetMapping
     public List<ProductDTO> getAllProducts() {
-        return ProductDTO.fromEntities(productService.getAll());
+        return ProductMapper.fromEntities(productService.getAll());
+    }
+
+    @GetMapping(params = { "page", "sizePerPage", "sortField", "sortDirection" })
+    public Page<ProductDTO> getProducts(@RequestParam(defaultValue = "0") int page,
+                                        @RequestParam(defaultValue = "2") int sizePerPage,
+                                        @RequestParam(defaultValue = "name") String sortField,
+                                        @RequestParam(defaultValue = "ASC") Sort.Direction sortDirection) {
+
+        var sortFieldEnum = Product.ProductFields.valueOf(sortField);
+        var pageRequest = productService.getAllByPage(page, sizePerPage, sortFieldEnum, sortDirection);
+        return pageRequest.map(ProductMapper::fromEntity);
+    }
+
+    @GetMapping("/check-existence")
+    public boolean checkProductsExistence(@RequestParam List<Long> productIds) {
+        return productService.checkProductsExistence(productIds);
     }
 
     @GetMapping("/{id}")
-    public ProductDTO getProductById(@PathVariable Long id) {
-        return ProductDTO.fromEntity(productService.getById(id));
+    public ProductDTO getProductById(@PathVariable Long id) throws EntityNotFoundException {
+        return ProductMapper.fromEntity(productService.getById(id));
     }
 
     @PostMapping
-    public ResponseEntity<Object> addProduct(@RequestBody ProductDTO product) {
-        return addProducts(List.of(product));
+    public ProductDTO addProduct(@RequestBody ProductDTO product) throws DuplicatedRelationException, RelatedEntityNotFoundException, InvalidEntityException {
+        return addProducts(List.of(product)).get(0);
     }
 
     @PostMapping("/batch")
-    public ResponseEntity<Object> addProducts(@RequestBody List<ProductDTO> products) {
-        try {
-            var entities = ProductDTO.toEntities(products);
-            var created = ProductDTO.fromEntities(productService.createBatch(entities));
-            return ResponseEntity.ok().body(created);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
-        }
+    public List<ProductDTO> addProducts(@RequestBody List<ProductDTO> products) throws DuplicatedRelationException, RelatedEntityNotFoundException, InvalidEntityException {
+        var entities = ProductMapper.toEntities(products);
+        return ProductMapper.fromEntities(productService.createBatch(entities));
     }
 
     @PutMapping("/{id}")
-    public Product updateProduct(@PathVariable Long id, @RequestBody ProductDTO product) {
-        return updateProducts(List.of(product)).get(0);
+    public ProductDTO updateProduct(@PathVariable Long id, @RequestBody ProductDTO product) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException, InvalidEntityException {
+        product.setId(id);
+        return ProductMapper.fromEntity(productService.update(ProductMapper.toEntity(product)));
     }
 
     @PutMapping("/batch")
-    public List<Product> updateProducts(@RequestBody List<ProductDTO> products) {
-        var entities = ProductDTO.toEntities(products);
-        return productService.updateBatch(entities);
+    public List<ProductDTO> updateProducts(@RequestBody List<ProductDTO> products) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException, InvalidEntityException {
+        var entities = ProductMapper.toEntities(products);
+        return ProductMapper.fromEntities(productService.updateBatch(entities));
     }
 
     @PostMapping("/{id}/tags/{tagId}")
-    public ResponseEntity<Object> addTag(@PathVariable Long id, @PathVariable Long tagId) {
-        try {
-            return ResponseEntity.ok().body(productService.addTag(id, tagId));
-        } catch (NoRelatedEntityException e) {
-            return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
-        }
+    public ProductDTO addTag(@PathVariable Long id, @PathVariable Long tagId) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException {
+        return ProductMapper.fromEntity(productService.addTag(id, tagId));
     }
 
     @PostMapping("/{id}/categories/{categoryId}")
-    public Product addCategory(@PathVariable Long id, @PathVariable Long categoryId) {
-        try {
-            return productService.addCategory(id, categoryId);
-        } catch (NoRelatedEntityException e) {
-            return null;
-        }
+    public ProductDTO addCategory(@PathVariable Long id, @PathVariable Long categoryId) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException {
+        return ProductMapper.fromEntity(productService.addCategory(id, categoryId));
     }
 
     @PostMapping("/{id}/details")
-    public ResponseEntity<Object> addDetails(@PathVariable Long id, @RequestBody List<ProductDetailsDTO> details) {
-        try {
-            var entities = ProductDetailsDTO.toEntities(details, id);
-            var added = productService.addDetails(id, entities);
-            return ResponseEntity.ok().body(added);
-        } catch (NoRelatedEntityException e) {
-            return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
-        }
+    public ProductDTO addDetails(@PathVariable Long id, @RequestBody List<ProductDetailsDTO> details) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException {
+        var entities = ProductDetailsMapper.toEntities(details, id);
+        return ProductMapper.fromEntity(productService.addDetails(id, entities));
     }
 
     @DeleteMapping("/{id}/details")
-    public ResponseEntity<Object> removeDetails(@PathVariable Long id, @RequestBody List<Long> detailIds) {
-        try {
+    public ProductDTO removeDetails(@PathVariable Long id, @RequestBody List<Long> detailIds) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException {
+        return ProductMapper.fromEntity(productService.removeDetails(id, detailIds));
+    }
 
-            return ResponseEntity.ok().body(productService.removeDetails(id, detailIds));
-        } catch (NoRelatedEntityException e) {
-            return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
-        }
+    @PutMapping("/{id}/details/{detailId}")
+    public ProductDTO updateDetailValue(@PathVariable Long id, @PathVariable Long detailId, @RequestBody ProductDetailsDTO value) throws EntityNotFoundException, RelatedEntityNotFoundException {
+        return ProductMapper.fromEntity(productService.updateDetail(id, detailId, ProductDetailsMapper.toEntity(value, id)));
     }
 
     @DeleteMapping("/{id}/tags/{tagId}")
-    public ResponseEntity<Object> removeTag(@PathVariable Long id, @PathVariable Long tagId) {
-        try {
-            return ResponseEntity.ok().body(productService.removeTag(id, tagId));
-        } catch (NoRelatedEntityException e) {
-            return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
-        }
+    public ProductDTO removeTag(@PathVariable Long id, @PathVariable Long tagId) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException {
+        return ProductMapper.fromEntity(productService.removeTag(id, tagId));
     }
 
     @DeleteMapping("/{id}/categories/{categoryId}")
-    public ResponseEntity<Object> removeCategory(@PathVariable Long id, @PathVariable Long categoryId) {
-        try {
-            return ResponseEntity.ok().body(productService.removeCategory(id, categoryId));
-        } catch (NoRelatedEntityException e) {
-            return ResponseEntity.badRequest().body(JSONUtils.createResponse(e.getMessage()));
-        }
+    public ProductDTO removeCategory(@PathVariable Long id, @PathVariable Long categoryId) throws DuplicatedRelationException, RelatedEntityNotFoundException, EntityNotFoundException {
+        return ProductMapper.fromEntity(productService.removeCategory(id, categoryId));
     }
 
-
     @DeleteMapping("/{id}")
-    public void deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<Object> deleteProduct(@PathVariable Long id) throws EntityNotFoundException {
         productService.deleteById(id);
+        return ResponseEntity.ok().build();
     }
 }

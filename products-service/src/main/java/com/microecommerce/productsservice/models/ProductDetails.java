@@ -1,12 +1,13 @@
 package com.microecommerce.productsservice.models;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 // The ProductDetails entity have a composite key to join the Product with the Detail information
 // and represents details from a products in the system. Have the objective to store the value of
 // the Details of a specific product, and optionally additional information.
-public class ProductDetails {
+public class ProductDetails implements Serializable {
 
     public static ProductDetails createDetailForProduct(Product product, Detail detail, Object value) {
         var productDetail = new ProductDetails();
@@ -29,7 +30,6 @@ public class ProductDetails {
         productDetail.setValue(value);
         return productDetail;
     }
-
 
     @Getter
     @Setter
@@ -51,6 +51,8 @@ public class ProductDetails {
     @MapsId("detailId")
     private Detail detail;
 
+    @Column(length = 500)
+    @Size(max = 500)
     private String value;
     private Long numberValue;
     private Double doubleValue;
@@ -61,6 +63,7 @@ public class ProductDetails {
     @Getter
     @Setter
     @Column(length = 500)
+    @Size(max = 500)
     private String additionalInfo;
 
     @Getter

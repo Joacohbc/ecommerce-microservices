@@ -7,17 +7,27 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="eureka-server" />
+        <module name="orders-service" />
         <module name="gateway-server" />
         <module name="products-service" />
+        <module name="dtos-library" />
+        <module name="eureka-server" />
+        <module name="utility-module" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="dtos" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="dtos" options="-parameters" />
+      <module name="dtos-library" options="-parameters" />
       <module name="eureka-server" options="-parameters" />
       <module name="gateway-server" options="-parameters" />
+      <module name="orders-service" options="-parameters" />
       <module name="products-service" options="-parameters" />
+      <module name="utility-module" options="-parameters" />
     </option>
   </component>
 </project>
