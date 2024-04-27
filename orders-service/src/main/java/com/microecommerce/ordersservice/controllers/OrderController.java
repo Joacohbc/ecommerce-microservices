@@ -31,27 +31,28 @@ public class OrderController {
         return orderService.createBatch(orders, 0L);
     }
 
+    // TODO: ONLY FOR TESTING PURPOSES
     @GetMapping
     public List<Order> getAllOrders() {
         return orderService.getAllOrders();
     }
 
-    @PostMapping("/{orderId}/return")
+    @PutMapping("/{orderId}/return")
     public Order askForReturn(@PathVariable String orderId) throws InvalidEntityException {
         return orderService.askForReturn(orderId);
     }
 
-    @PostMapping("/{orderId}/refund")
+    @PutMapping("/{orderId}/refund")
     public Order askForRefund(@PathVariable String orderId) throws InvalidEntityException {
         return orderService.askForRefund(orderId);
     }
 
-    @PostMapping("/{orderId}/cancel")
+    @PutMapping("/{orderId}/cancel")
     public Order askForCancellation(@PathVariable String orderId) throws InvalidEntityException {
         return orderService.askForCancellation(orderId);
     }
 
-    @PostMapping("/{orderId}/finish")
+    @PutMapping("/{orderId}/finish")
     public Order finishOrder(@PathVariable String orderId, @RequestParam OrderStatus status) throws InvalidEntityException {
         return orderService.finishOrder(orderId, status);
     }
