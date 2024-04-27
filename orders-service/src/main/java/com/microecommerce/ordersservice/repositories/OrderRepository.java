@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface OrderRepository extends MongoRepository<Order, Long> {
+public interface OrderRepository extends MongoRepository<Order, String> {
     List<Order> findAllByCustomerId(Long customerId);
     List<Order> findAllByCreatedAtBefore(LocalDateTime date);
 }
