@@ -1,6 +1,6 @@
 package com.microecommerce.ordersservice.services;
 
-import com.microecommerce.ordersservice.models.Item;
+import com.microecommerce.ordersservice.models.OrderItem;
 import com.microecommerce.ordersservice.models.Order;
 import com.microecommerce.ordersservice.repositories.OrderRepository;
 import com.microecommerce.ordersservice.services.interfaces.IOrderService;
@@ -26,7 +26,7 @@ public class OrderService implements IOrderService {
         boolean productsExistence = productService.checkProductsExistence(order
                 .getItems()
                 .stream()
-                .map(Item::getProductId)
+                .map(OrderItem::getProductId)
                 .toList());
 
         if (!productsExistence) throw new InvalidEntityException("Some products do not exist");

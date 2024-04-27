@@ -13,6 +13,7 @@ import java.util.List;
 
 @Document("orders")
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -21,21 +22,17 @@ public class Order implements Serializable {
     @Id
     private String id;
 
-    @Setter
     private Long customerId;
 
-    @Setter
-    private List<Item> items;
+    private List<OrderItem> items;
 
-    @Setter
-    private OrderStatus status;
+    private OrderItemStatus status;
 
-    @Setter
     private Double total;
 
-    @Setter
     private LocalDateTime finishedAt;
 
+    @Setter(AccessLevel.NONE)
     private LocalDateTime updatedAt;
 
     @PreUpdate

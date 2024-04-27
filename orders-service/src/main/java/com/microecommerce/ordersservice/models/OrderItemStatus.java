@@ -1,6 +1,6 @@
 package com.microecommerce.ordersservice.models;
 
-public enum OrderStatus {
+public enum OrderItemStatus {
     CREATED("Created"),
     PROCESSING("Processing"),
     COMPLETED("Completed"),
@@ -8,12 +8,12 @@ public enum OrderStatus {
 
     private final String status;
 
-    OrderStatus(String status) {
+    OrderItemStatus(String status) {
         this.status = status;
     }
 
-    public static OrderStatus fromString(String status) {
-        for (OrderStatus orderStatus : OrderStatus.values()) {
+    public static OrderItemStatus fromString(String status) {
+        for (OrderItemStatus orderStatus : OrderItemStatus.values()) {
             if (orderStatus.name().equalsIgnoreCase(status)) {
                 return orderStatus;
             }
