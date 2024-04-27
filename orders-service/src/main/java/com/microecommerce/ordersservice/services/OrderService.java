@@ -179,9 +179,10 @@ public class OrderService implements IOrderService {
     // Validate the status change
     // If the current status is CREATED, the only valid next statuses are IN_PROGRESS and CANCELLED
     // If the current status is IN_PROGRESS, the only valid next statuses are CANCELLED, INVOICE_ISSUED, RETURN_REQUESTED, and REFUND_PENDING
-    // If the current status is REFUND_PENDING, the only valid next status is REFUND_COMPLETED
-    // If the current status is RETURN_REQUESTED, the only valid next status is RETURN_RECEIVED
+    // If the current status is REFUND_PENDING, the only valid next status is REFUND_COMPLETED or CANCELLED
+    // If the current status is RETURN_REQUESTED, the only valid next status is RETURN_RECEIVED or CANCELLED
     // If the current status is CANCELLED, REFUND_COMPLETED, RETURN_RECEIVED, or INVOICE_ISSUED, no status change is allowed
+    // NOTE: A rollback to IN_PROGRESS status is not allowed in this validation
     private void validateStatusChange(OrderStatus currentStatus, OrderStatus nextStatus) throws InvalidEntityException {
         if(currentStatus == OrderStatus.CANCELLED) {
             throw new InvalidEntityException("Order is already cancelled");
@@ -215,11 +216,15 @@ public class OrderService implements IOrderService {
             throw new InvalidEntityException("Order processing is still in progress");
         }
 
-        if(currentStatus == OrderStatus.REFUND_PENDING && nextStatus != OrderStatus.REFUND_COMPLETED) {
+        if(currentStatus == OrderStatus.REFUND_PENDING) {
+            if(nextStatus == OrderStatus.REFUND_COMPLETED
+                || nextStatus == OrderStatus.CANCELLED) return;
             throw new InvalidEntityException("Order refund is still pending");
         }
 
-        if(currentStatus == OrderStatus.RETURN_REQUESTED && nextStatus != OrderStatus.RETURN_RECEIVED) {
+        if(currentStatus == OrderStatus.RETURN_REQUESTED) {
+            if(nextStatus == OrderStatus.RETURN_RECEIVED
+                || nextStatus == OrderStatus.CANCELLED) return;
             throw new InvalidEntityException("Order return is still pending");
         }
     }
