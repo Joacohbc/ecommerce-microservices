@@ -1429,22 +1429,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base}}/api/orders/orders/:id/checkStatus",
+							"raw": "{{base}}/api/orders/orders",
 							"host": [
 								"{{base}}"
 							],
 							"path": [
 								"api",
 								"orders",
-								"orders",
-								":id",
-								"checkStatus"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "662d2a478bb30b1f9fca2808"
-								}
+								"orders"
 							]
 						}
 					},
@@ -1588,6 +1580,33 @@
 								"orders",
 								"orders",
 								"in-progress"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Order History",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base}}/api/orders/orders/:orderId/history",
+							"host": [
+								"{{base}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"orders",
+								":orderId",
+								"history"
+							],
+							"variable": [
+								{
+									"key": "orderId",
+									"value": ""
+								}
 							]
 						}
 					},

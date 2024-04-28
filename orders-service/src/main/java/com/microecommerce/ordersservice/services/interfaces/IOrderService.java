@@ -1,6 +1,7 @@
 package com.microecommerce.ordersservice.services.interfaces;
 
 import com.microecommerce.ordersservice.models.Order;
+import com.microecommerce.ordersservice.models.OrderHistory;
 import com.microecommerce.ordersservice.models.OrderProgressRequest;
 import com.microecommerce.ordersservice.models.OrderStatus;
 import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
@@ -17,6 +18,7 @@ public interface IOrderService {
     List<Order> startProcessingOrder(List<OrderProgressRequest> requests) throws InvalidEntityException;
 
     Order getById(String orderId) throws InvalidEntityException;
+    List<OrderHistory> getOrderHistory(String orderId);
     List<Order> getAllCustomerOrders(Long customerId);
     List<Order> getAllOrders();
 }
