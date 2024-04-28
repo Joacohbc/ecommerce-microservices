@@ -23,14 +23,12 @@ public class OrderController {
 
     @PostMapping
     public Order createOrder(@RequestBody Order order) throws InvalidEntityException {
-        // TODO: Implement customer id extraction from security context
-        return orderService.createBatch(List.of(order), 0L).get(0);
+        return orderService.createBatch(List.of(order)).get(0);
     }
 
     @PostMapping("/batch")
     public List<Order> createBatch(@RequestBody List<Order> orders) throws InvalidEntityException {
-        // TODO: Implement customer id extraction from security context
-        return orderService.createBatch(orders, 0L);
+        return orderService.createBatch(orders);
     }
 
     // TODO: ONLY FOR TESTING PURPOSES

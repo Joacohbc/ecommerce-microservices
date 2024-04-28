@@ -9,7 +9,7 @@ import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
 import java.util.List;
 
 public interface IOrderService {
-    List<Order> createBatch(List<Order> orders, Long customerId) throws InvalidEntityException;
+    List<Order> createBatch(List<Order> orders) throws InvalidEntityException;
 
     Order askForReturn(String orderId) throws InvalidEntityException;
     Order askForRefund(String orderId) throws InvalidEntityException;

@@ -11,6 +11,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -30,7 +31,7 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public List<Order> createBatch(@Valid List<Order> orders, Long customerId) throws InvalidEntityException {
+    public List<Order> createBatch(@Valid List<Order> orders) throws InvalidEntityException {
         boolean productsExistence = productService.checkProductsExistence(orders
                 .stream()
                 .flatMap(order -> order.getItems().stream().map(OrderItem::getProductId))
@@ -42,7 +43,6 @@ public class OrderService implements IOrderService {
         for(Order order : orders) {
             validateOrderItems(order);
             order.setStatus(OrderStatus.CREATED);
-            order.setCustomerId(customerId);
             orderHistories.add(createOrderHistory(order, null, ""));
         }
         orderHistoryRepository.saveAll(orderHistories);
