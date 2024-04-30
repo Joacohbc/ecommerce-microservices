@@ -4,6 +4,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import org.springframework.stereotype.Component;
@@ -12,14 +14,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-// TODO: Implement better implementation of JWT service
 @Component
 public class JwtService {
 
-    // TODO: Do a better job of storing this secret key
-    private final String SECRET = "mySecretKeyergjhsgeriuohertsuihretuooiuertuohretwuoiuoirhwretuoirtweuiuhwetriuhwruiwrt";
-    private final long EXPIRATION_TIME = 1000 * 60 * 60 * 10;
+    @Value("${jwt.secret}")
+    private String SECRET;
 
+    @Value("${jwt.expiration}")
+    private long EXPIRATION_TIME;
 
     public void validateToken(final String token) {
         Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token);
