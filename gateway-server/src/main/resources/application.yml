@@ -9,9 +9,17 @@ spring:
               - Path=/api/products/**
             filters:
               - StripPrefix=2
+
           - id: orders-service
             uri: lb://orders-service
             predicates:
               - Path=/api/orders/**
+            filters:
+              - StripPrefix=2
+
+          - id: users-auth-service
+            uri: lb://users-auth-service
+            predicates:
+              - Path=/api/user/**
             filters:
               - StripPrefix=2

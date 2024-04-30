@@ -12,6 +12,7 @@
         <module name="utility-module" />
         <module name="gateway-server" />
         <module name="dtos-library" />
+        <module name="users-auth-service" />
         <module name="eureka-server" />
       </profile>
     </annotationProcessing>
@@ -29,6 +30,7 @@
       <module name="orders-service" options="-parameters" />
       <module name="products-service" options="-parameters" />
       <module name="user-service" options="-parameters" />
+      <module name="users-auth-service" options="-parameters" />
       <module name="utility-module" options="-parameters" />
     </option>
   </component>
