@@ -31,7 +31,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return json;
     }
 
-    private ResponseEntity<Object> createJsonResponse(String message, Object data, Exception ex, HttpHeaders headers, HttpStatus statusCode, WebRequest request) {
+    protected ResponseEntity<Object> createJsonResponse(String message, Object data, Exception ex, HttpHeaders headers, HttpStatus statusCode, WebRequest request) {
         Map<String, Object> json = createJsonResponse(message, data, statusCode);
         return handleExceptionInternal(ex, json, headers, statusCode, request);
     }
@@ -49,7 +49,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     protected ResponseEntity<Object> handleRelatedEntityNotFound(RelatedEntityNotFoundException ex, WebRequest request) {
-        return createJsonResponse(ex.getMessage(), null, ex, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+        return createJsonResponse(ex.getMessage(), null, ex, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
     protected ResponseEntity<Object> handleConstraintViolation(ConstraintViolationException ex, WebRequest request) {
