@@ -2,13 +2,11 @@ package com.microecommerce.usersauthservice.service;
 
 import com.microecommerce.usersauthservice.exceptions.AuthenticationException;
 import com.microecommerce.usersauthservice.repository.UserCredentialsRepository;
+import com.microecommerce.utilitymodule.exceptions.EntityNotFoundException;
 import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
 import com.microecommerce.utilitymodule.models.users.UserCredentials;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -21,6 +19,15 @@ public class AuthService {
         this.repository = userCredentialsRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+    }
+
+    public UserCredentials getUser(Long id) throws EntityNotFoundException {
+        return repository.findById(id).
+                map(u -> {
+                    u.setPassword("");
+                    return u;
+                })
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
     }
 
     public String saveUser(UserCredentials userCredentials) throws InvalidEntityException {

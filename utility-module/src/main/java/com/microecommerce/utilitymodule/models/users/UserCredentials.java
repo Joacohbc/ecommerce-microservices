@@ -4,8 +4,11 @@ import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
@@ -15,7 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserCredentials implements Serializable  {
+public class UserCredentials implements Serializable, UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -27,6 +30,45 @@ public class UserCredentials implements Serializable  {
     @Lob
     @Column(nullable = false)
     private String password;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
+    // TODO: Implement the following methods
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    // TODO: Implement the following methods
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    // TODO: Implement the following methods
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    // TODO: Implement the following methods
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 
     public static void validateCredentials(UserCredentials userCredentials) throws InvalidEntityException {
         // Validate username and password

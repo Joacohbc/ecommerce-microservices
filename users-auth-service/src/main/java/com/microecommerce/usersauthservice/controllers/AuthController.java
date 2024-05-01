@@ -1,7 +1,8 @@
-package com.microecommerce.usersauthservice;
+package com.microecommerce.usersauthservice.controllers;
 
 import com.microecommerce.usersauthservice.exceptions.AuthenticationException;
 import com.microecommerce.usersauthservice.service.AuthService;
+import com.microecommerce.utilitymodule.exceptions.EntityNotFoundException;
 import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
 import com.microecommerce.utilitymodule.exceptions.RestExceptionHandler;
 import com.microecommerce.utilitymodule.models.users.UserCredentials;
@@ -24,6 +25,21 @@ public class AuthController {
     public AuthController(AuthService authService, AuthenticationManager authenticationManager) {
         this.authService = authService;
         this.authenticationManager = authenticationManager;
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> getUser(@PathVariable Long id) {
+        try {
+            Map<String, Object> response = RestExceptionHandler.createJsonResponse(
+                    "User found successfully",
+                    authService.getUser(id),
+                    HttpStatus.OK);
+
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            Map<String, Object> response = RestExceptionHandler.createJsonResponse(e.getMessage(), null, HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
     }
 
     @PostMapping("/register")
@@ -70,5 +86,4 @@ public class AuthController {
                     .body(RestExceptionHandler.createJsonResponse("Invalid token", null, HttpStatus.UNAUTHORIZED));
         }
     }
-
 }
