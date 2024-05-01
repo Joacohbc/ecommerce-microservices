@@ -7,5 +7,5 @@ import java.util.Optional;
 
 @Repository
 public interface UserCredentialsRepository extends CustomJPARepository<UserCredentials, Long> {
-    Optional<UserCredentials> findByUsername(String username);
+    Optional<UserCredentials> findByUsernameIgnoreCase(String username);
 }

@@ -1,11 +1,18 @@
 package com.microecommerce.usersauthservice;
 
+import com.microecommerce.usersauthservice.exceptions.AuthenticationException;
 import com.microecommerce.usersauthservice.service.AuthService;
+import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
+import com.microecommerce.utilitymodule.exceptions.RestExceptionHandler;
 import com.microecommerce.utilitymodule.models.users.UserCredentials;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/auth")
@@ -19,33 +26,48 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
     }
 
-    // TODO: Implement return JSON
     @PostMapping("/register")
-    public String addUser(@RequestBody UserCredentials userCredentials) {
-        return authService.saveUser(userCredentials);
-    }
-
-    // TODO: Implement return JSON
-    @PostMapping("/login")
-    public String getToken(@RequestBody UserCredentials userCredentials) {
-        UsernamePasswordAuthenticationToken user = new UsernamePasswordAuthenticationToken(userCredentials.getUsername(), userCredentials.getPassword());
-        Authentication auth = authenticationManager.authenticate(user);
-
-        if(auth.isAuthenticated()) {
-            return authService.generateToken(userCredentials);
-        } else {
-            return "Invalid credentials";
+    public ResponseEntity<Object> addUser(@RequestBody UserCredentials userCredentials) {
+        try {
+            Map<String, Object> response = RestExceptionHandler.createJsonResponse(
+                    authService.saveUser(userCredentials),
+                    null,
+                    HttpStatus.OK);
+            return ResponseEntity.ok(response);
+        } catch (InvalidEntityException e) {
+            Map<String, Object> response = RestExceptionHandler.createJsonResponse(e.getMessage(), null, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(response);
         }
     }
 
-    // TODO: Implement return JSON
+    @PostMapping("/login")
+    public ResponseEntity<Object> getToken(@RequestBody UserCredentials userCredentials) {
+        try {
+            UsernamePasswordAuthenticationToken user = new UsernamePasswordAuthenticationToken(userCredentials.getUsername(), userCredentials.getPassword());
+            Authentication auth = authenticationManager.authenticate(user);
+
+            if(auth.isAuthenticated()) {
+                String token = authService.generateToken(userCredentials);
+                Map<String, Object> response = RestExceptionHandler.createJsonResponse("Token generated successfully", token, HttpStatus.OK);
+                return ResponseEntity.ok(response);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(RestExceptionHandler.createJsonResponse("Invalid credentials",null, HttpStatus.UNAUTHORIZED));
+            }
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(RestExceptionHandler.createJsonResponse("Invalid credentials", null, HttpStatus.UNAUTHORIZED));
+        }
+    }
+
     @GetMapping("/validate")
-    public String validateToken(@RequestParam("token") String token) {
+    public ResponseEntity<Object> validateToken(@RequestParam("token") String token) {
         try {
             authService.validateToken(token);
-            return "Token is valid";
-        } catch (Exception e) {
-            return e.getMessage();
+            return ResponseEntity.ok(RestExceptionHandler.createJsonResponse("Token is valid", null, HttpStatus.OK));
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(RestExceptionHandler.createJsonResponse("Invalid token", null, HttpStatus.UNAUTHORIZED));
         }
     }
 

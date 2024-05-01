@@ -22,12 +22,17 @@ import java.util.Map;
 // - ResponseStatusException (Generic)
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private ResponseEntity<Object> createJsonResponse(String message, Object data, Exception ex, HttpHeaders headers, HttpStatus statusCode, WebRequest request) {
+    public static Map<String, Object> createJsonResponse(String message, Object data, HttpStatus statusCode) {
         Map<String, Object> json = new HashMap<>();
         json.put("message", message);
         json.put("data", data);
         json.put("status", statusCode.value());
         json.put("statusText", statusCode.getReasonPhrase());
+        return json;
+    }
+
+    private ResponseEntity<Object> createJsonResponse(String message, Object data, Exception ex, HttpHeaders headers, HttpStatus statusCode, WebRequest request) {
+        Map<String, Object> json = createJsonResponse(message, data, statusCode);
         return handleExceptionInternal(ex, json, headers, statusCode, request);
     }
 
