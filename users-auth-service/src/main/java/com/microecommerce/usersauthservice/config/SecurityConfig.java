@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -34,13 +33,8 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
-                        // TODO: This is a temporary solution to allow all requests. Change this to a more secure configuration.
-                        authorizationManagerRequestMatcherRegistry
-                        .requestMatchers("/auth/register", "/auth/login", "/auth/validate").permitAll()
-                        .anyRequest().permitAll()
-                )
-//                .formLogin(Customizer.withDefaults())
+                // All requests are allowed because the service only for create/validate token
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .build();
