@@ -3,13 +3,16 @@ package com.microecommerce.gatewayserver.filter;
 import org.apache.http.HttpHeaders;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 @Component
@@ -21,21 +24,30 @@ public class AuthFilter implements GlobalFilter {
         this.jwtService = jwtService;
     }
 
+
+    private record AuthPath(String path, List<HttpMethod> methods) {}
+
     // Auth paths that don't require authentication
     // TODO: Update this list with the correct paths
-    public final List<String> freeAuthPaths = List.of(
-            "/auth/register",
-            "/auth/login",
-            "/products",
-            "/stores",
-            "/shipping/tracking");
+    private final List<AuthPath> freeAuthPaths =
+    List.of(
+            new AuthPath("/auth/register", List.of(HttpMethod.POST)),
+            new AuthPath("/auth/login", List.of(HttpMethod.POST)),
+            new AuthPath("/products", List.of(HttpMethod.GET)),
+            new AuthPath("/stores", List.of(HttpMethod.GET)),
+            new AuthPath("/shipping/tracking", List.of(HttpMethod.GET))
+    );
+
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         // TODO: Apply authentication logic here
 
         // Exclude auth paths from authentication
-        boolean isWithoutAuth = freeAuthPaths.stream().anyMatch(uri -> exchange.getRequest().getURI().getPath().startsWith(uri));
+        boolean isWithoutAuth = freeAuthPaths.stream().anyMatch(authsPaths ->
+            exchange.getRequest().getURI().getPath().startsWith(authsPaths.path())
+                    && authsPaths.methods().contains(exchange.getRequest().getMethod())
+        );
 
         if(isWithoutAuth) {
             return chain.filter(exchange);
