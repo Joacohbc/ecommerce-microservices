@@ -13,6 +13,7 @@
         <option value="$PROJECT_DIR$/dtos-library/pom.xml" />
         <option value="$PROJECT_DIR$/user-service/pom.xml" />
         <option value="$PROJECT_DIR$/users-auth-service/pom.xml" />
+        <option value="$PROJECT_DIR$/customer-service/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
