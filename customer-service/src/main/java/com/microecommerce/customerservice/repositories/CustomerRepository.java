@@ -1,4 +1,4 @@
-package com.microecommerce.customerservice;
+package com.microecommerce.customerservice.repositories;
 
 import com.microecommerce.customerservice.models.Customer;
 import com.microecommerce.utilitymodule.interfaces.CustomJPARepository;
