@@ -1,11 +1,11 @@
 package com.microecommerce.usersauthservice.repository;
 
 import com.microecommerce.utilitymodule.interfaces.CustomJPARepository;
-import com.microecommerce.utilitymodule.models.users.UserCredentials;
+import com.microecommerce.utilitymodule.models.users.CUserCredentials;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface UserCredentialsRepository extends CustomJPARepository<UserCredentials, Long> {
-    Optional<UserCredentials> findByUsernameIgnoreCase(String username);
+public interface UserCredentialsRepository extends CustomJPARepository<CUserCredentials, Long> {
+    Optional<CUserCredentials> findByUsernameIgnoreCase(String username);
 }

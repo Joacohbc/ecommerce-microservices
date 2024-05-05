@@ -4,7 +4,7 @@ import com.microecommerce.usersauthservice.exceptions.AuthenticationException;
 import com.microecommerce.usersauthservice.repository.UserCredentialsRepository;
 import com.microecommerce.utilitymodule.exceptions.EntityNotFoundException;
 import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
-import com.microecommerce.utilitymodule.models.users.UserCredentials;
+import com.microecommerce.utilitymodule.models.users.CUserCredentials;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +21,7 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-    public UserCredentials getUser(Long id) throws EntityNotFoundException {
+    public CUserCredentials getUser(Long id) throws EntityNotFoundException {
         return repository.findById(id).
                 map(u -> {
                     u.setPassword("");
@@ -30,23 +30,23 @@ public class AuthService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
     }
 
-    public String saveUser(UserCredentials userCredentials) throws InvalidEntityException {
-        if (repository.findByUsernameIgnoreCase(userCredentials.getUsername()).isPresent()) {
+    public String saveUser(CUserCredentials CUserCredentials) throws InvalidEntityException {
+        if (repository.findByUsernameIgnoreCase(CUserCredentials.getUsername()).isPresent()) {
             throw new InvalidEntityException("A user with that username already exists");
         }
 
-        UserCredentials.validateCredentials(userCredentials);
-        userCredentials.setPassword(passwordEncoder.encode(userCredentials.getPassword()));
+        CUserCredentials.validateCredentials(CUserCredentials);
+        CUserCredentials.setPassword(passwordEncoder.encode(CUserCredentials.getPassword()));
 
-        repository.save(userCredentials);
+        repository.save(CUserCredentials);
         return "User saved successfully";
     }
 
-    public String generateToken(UserCredentials userCredentials) throws AuthenticationException {
-        UserCredentials user = repository.findByUsernameIgnoreCase(userCredentials.getUsername())
+    public String generateToken(CUserCredentials CUserCredentials) throws AuthenticationException {
+        CUserCredentials user = repository.findByUsernameIgnoreCase(CUserCredentials.getUsername())
                 .orElseThrow(() -> new AuthenticationException("User not found"));
 
-        if (passwordEncoder.matches(userCredentials.getPassword(), user.getPassword())) {
+        if (passwordEncoder.matches(CUserCredentials.getPassword(), user.getPassword())) {
             return jwtService.generateToken(user.getUsername());
         }
 

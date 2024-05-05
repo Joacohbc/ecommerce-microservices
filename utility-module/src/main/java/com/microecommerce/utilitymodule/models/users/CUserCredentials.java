@@ -1,8 +1,8 @@
 package com.microecommerce.utilitymodule.models.users;
 
 import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
+import com.microecommerce.utilitymodule.models.TimeStamped;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,7 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserCredentials implements Serializable, UserDetails {
+public class CUserCredentials implements Serializable, UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -26,6 +26,9 @@ public class UserCredentials implements Serializable, UserDetails {
 
     @Column(unique = true, nullable = false)
     private String username;
+
+    @Embedded
+    private TimeStamped timeStamp;
 
     @Lob
     @Column(nullable = false)
@@ -70,29 +73,29 @@ public class UserCredentials implements Serializable, UserDetails {
         return true;
     }
 
-    public static void validateCredentials(UserCredentials userCredentials) throws InvalidEntityException {
+    public static void validateCredentials(CUserCredentials CUserCredentials) throws InvalidEntityException {
         // Validate username and password
-        if (userCredentials.getUsername() == null || userCredentials.getUsername().isEmpty()) {
+        if (CUserCredentials.getUsername() == null || CUserCredentials.getUsername().isEmpty()) {
             throw new InvalidEntityException("Username is required");
         }
 
-        if (userCredentials.getPassword() == null || userCredentials.getPassword().isEmpty()) {
+        if (CUserCredentials.getPassword() == null || CUserCredentials.getPassword().isEmpty()) {
             throw new InvalidEntityException("Password is required");
         }
 
-        if(userCredentials.getUsername().length() < 4 || userCredentials.getUsername().length() > 50) {
+        if(CUserCredentials.getUsername().length() < 4 || CUserCredentials.getUsername().length() > 50) {
             throw new InvalidEntityException("Username must be between 4 and 50 characters long");
         }
 
-        if(userCredentials.getPassword().length() < 8 || userCredentials.getPassword().length() > 50) {
+        if(CUserCredentials.getPassword().length() < 8 || CUserCredentials.getPassword().length() > 50) {
             throw new InvalidEntityException("Password must be between 8 and 50 characters long");
         }
 
-        if(!userCredentials.getUsername().matches("^[a-zA-Z0-9]*$")) {
+        if(!CUserCredentials.getUsername().matches("^[a-zA-Z0-9]*$")) {
             throw new InvalidEntityException("Username must contain only letters and numbers");
         }
 
-        if(!userCredentials.getPassword().matches("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$")) {
+        if(!CUserCredentials.getPassword().matches("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$")) {
             throw new InvalidEntityException("Password must contain at least one uppercase letter (A-Z), one lowercase letter (a-z), one number (1-9), and one special character (#?!@$%^&*-])");
         }
     }

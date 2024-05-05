@@ -5,7 +5,7 @@ import com.microecommerce.usersauthservice.service.AuthService;
 import com.microecommerce.utilitymodule.exceptions.EntityNotFoundException;
 import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
 import com.microecommerce.utilitymodule.exceptions.RestExceptionHandler;
-import com.microecommerce.utilitymodule.models.users.UserCredentials;
+import com.microecommerce.utilitymodule.models.users.CUserCredentials;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -43,10 +43,10 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Object> addUser(@RequestBody UserCredentials userCredentials) {
+    public ResponseEntity<Object> addUser(@RequestBody CUserCredentials CUserCredentials) {
         try {
             Map<String, Object> response = RestExceptionHandler.createJsonResponse(
-                    authService.saveUser(userCredentials),
+                    authService.saveUser(CUserCredentials),
                     null,
                     HttpStatus.OK);
             return ResponseEntity.ok(response);
@@ -57,13 +57,13 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Object> getToken(@RequestBody UserCredentials userCredentials) {
+    public ResponseEntity<Object> getToken(@RequestBody CUserCredentials CUserCredentials) {
         try {
-            UsernamePasswordAuthenticationToken user = new UsernamePasswordAuthenticationToken(userCredentials.getUsername(), userCredentials.getPassword());
+            UsernamePasswordAuthenticationToken user = new UsernamePasswordAuthenticationToken(CUserCredentials.getUsername(), CUserCredentials.getPassword());
             Authentication auth = authenticationManager.authenticate(user);
 
             if(auth.isAuthenticated()) {
-                String token = authService.generateToken(userCredentials);
+                String token = authService.generateToken(CUserCredentials);
                 Map<String, Object> response = RestExceptionHandler.createJsonResponse("Token generated successfully", token, HttpStatus.OK);
                 return ResponseEntity.ok(response);
             } else {

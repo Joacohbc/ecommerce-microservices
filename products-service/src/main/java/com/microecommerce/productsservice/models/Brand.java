@@ -1,6 +1,7 @@
 package com.microecommerce.productsservice.models;
 
 import com.microecommerce.utilitymodule.interfaces.IGetId;
+import com.microecommerce.utilitymodule.models.TimeStamped;
 import com.microecommerce.utilitymodule.models.ToTitleCase;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -28,4 +29,7 @@ public class Brand implements Serializable, IGetId {
     @Convert(converter = ToTitleCase.class)
     // TODO: Check if this should be Unique or Not (because two companies can have the same name)
     private String name;
+
+    @Embedded
+    private TimeStamped timeStamp;
 }
