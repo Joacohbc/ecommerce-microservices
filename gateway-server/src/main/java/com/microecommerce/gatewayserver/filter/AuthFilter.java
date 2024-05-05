@@ -29,6 +29,7 @@ public class AuthFilter implements GlobalFilter {
 
     // Auth paths that don't require authentication
     // TODO: Update this list with the correct paths
+    // TODO: Use regex to match paths
     private final List<AuthPath> freeAuthPaths =
     List.of(
             new AuthPath("/auth/register", List.of(HttpMethod.POST)),
@@ -41,7 +42,6 @@ public class AuthFilter implements GlobalFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        // TODO: Apply authentication logic here
 
         // Exclude auth paths from authentication
         boolean isWithoutAuth = freeAuthPaths.stream().anyMatch(authsPaths ->
