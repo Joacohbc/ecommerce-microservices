@@ -1,5 +1,6 @@
 package com.microecommerce.ordersservice.models;
 
+import com.microecommerce.utilitymodule.models.TimeStamped;
 import jakarta.persistence.Id;
 import jakarta.persistence.PreUpdate;
 import jakarta.validation.constraints.NotEmpty;
@@ -44,13 +45,7 @@ public class Order implements Serializable {
     private LocalDateTime processedAt;
     private LocalDateTime finishedAt;
 
-    @Setter(AccessLevel.NONE)
-    private LocalDateTime updatedAt;
-
-    @PreUpdate
-    public void preUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    private TimeStamped timeStamp;
 
     public LocalDateTime getCreatedAt() {
         return new ObjectId(id).
