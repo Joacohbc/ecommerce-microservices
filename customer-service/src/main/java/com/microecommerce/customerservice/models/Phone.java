@@ -13,13 +13,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CustomerPhone {
-    // TODO: Add country code as a separate field
+public class Phone {
+    // TODO: Add country code as a Enum
     private Long number;
     private String countryCode;
 
     @Enumerated(EnumType.ORDINAL)
     private PhoneType type;
 
-    public enum PhoneType { HOME, WORK, MOBILE }
+    public enum PhoneType { HOME, MOBILE }
 }

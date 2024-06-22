@@ -12,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Customer implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,11 +32,5 @@ public class Customer implements Serializable {
     private String email;
 
     @ElementCollection(fetch = FetchType.LAZY)
-    private List<CustomerPhone> phone;
-
-    @ElementCollection(fetch = FetchType.LAZY)
-    private List<CustomerAddress> address;
-
-    @Column(nullable = false)
-    private String city;
+    private List<Phone> phone;
 }

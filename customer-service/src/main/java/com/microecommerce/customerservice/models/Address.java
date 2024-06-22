@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomerAddress {
+public class Address {
     // TODO: Validate address format, e.g. no special characters
     // and address, city, postal code, country, and state from a list of valid values
 
