@@ -16,6 +16,13 @@ spring:
           filters:
             - StripPrefix=2
 
+        - id: customers-service
+          uri: lb://customers-service
+          predicates:
+            - Path=/api/customers/**
+          filters:
+            - StripPrefix=2
+
         - id: users-auth-service
           uri: lb://users-auth-service
           predicates:
