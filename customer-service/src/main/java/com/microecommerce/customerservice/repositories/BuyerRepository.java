@@ -6,7 +6,7 @@ import com.microecommerce.utilitymodule.interfaces.CustomJPARepository;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.stereotype.Repository;
 
-@RestResource // TODO: only testing propose (to avoid create a service and controller layer)
+@RestResource(path = "buyers") // TODO: only testing propose (to avoid create a service and controller layer)
 @Repository
 public interface BuyerRepository extends CustomJPARepository<Buyer, Long> {
 }

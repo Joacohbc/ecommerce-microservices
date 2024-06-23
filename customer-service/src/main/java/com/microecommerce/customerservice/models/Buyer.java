@@ -10,9 +10,6 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 public class Buyer extends Customer {
     @ElementCollection(fetch = FetchType.LAZY)
     private List<Address> address;
