@@ -7,7 +7,11 @@ import com.microecommerce.ordersservice.services.interfaces.IOrderService;
 import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -27,7 +31,7 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public List<Order> createBatch(@Valid List<Order> orders, Long customerId) throws InvalidEntityException {
+    public List<Order> createBatch(@Valid List<Order> orders) throws InvalidEntityException {
         boolean productsExistence = productService.checkProductsExistence(orders
                 .stream()
                 .flatMap(order -> order.getItems().stream().map(OrderItem::getProductId))
@@ -35,12 +39,10 @@ public class OrderService implements IOrderService {
 
         if(!productsExistence) throw new InvalidEntityException("Some products do not exist");
 
-
         List<OrderHistory> orderHistories = new ArrayList<>(orders.size());
         for(Order order : orders) {
             validateOrderItems(order);
             order.setStatus(OrderStatus.CREATED);
-            order.setCustomerId(customerId);
             orderHistories.add(createOrderHistory(order, null, ""));
         }
         orderHistoryRepository.saveAll(orderHistories);
@@ -139,6 +141,17 @@ public class OrderService implements IOrderService {
     }
 
     @Override
+    public List<OrderHistory> getOrderHistory(String orderId) {
+        ExampleMatcher matcher = ExampleMatcher.matching()
+                .withMatcher("orderId", ExampleMatcher.GenericPropertyMatcher::exact);
+
+        Example<OrderHistory> example = Example.of(OrderHistory.builder().orderId(orderId).build(), matcher);
+        Sort sort = Sort.by(Sort.Order.asc("createdAt"));
+
+        return orderHistoryRepository.findAll(example, sort);
+    }
+
+    @Override
     public List<Order> getAllCustomerOrders(Long customerId) {
         return orderRepository.findAllByCustomerId(customerId);
     }
@@ -182,7 +195,7 @@ public class OrderService implements IOrderService {
     // If the current status is REFUND_PENDING, the only valid next status is REFUND_COMPLETED or CANCELLED
     // If the current status is RETURN_REQUESTED, the only valid next status is RETURN_RECEIVED or CANCELLED
     // If the current status is CANCELLED, REFUND_COMPLETED, RETURN_RECEIVED, or INVOICE_ISSUED, no status change is allowed
-    // NOTE: A rollback to IN_PROGRESS status is not allowed in this validation
+    // NOTE: A rollback to IN_PROGRESS status is not allowed in this validation (except for CANCELLED status)
     private void validateStatusChange(OrderStatus currentStatus, OrderStatus nextStatus) throws InvalidEntityException {
         if(currentStatus == OrderStatus.CANCELLED) {
             throw new InvalidEntityException("Order is already cancelled");

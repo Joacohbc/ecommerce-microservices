@@ -8,5 +8,6 @@
 
 ## general
 - Implementar un LoggerUtils para hacer Logs con mensajes mas adelante (para hacer logs de errores, info, debug, etc)
-- Mover ExceptionHandler y las CustomException a un paquete de excepciones
-- Mover Entidades a un paquete de entidades
+- User @RepositoryRestResource para Testing de otro servicios
+- Implementar CustomJPARepository para como Repositorio de los servicios
+- Mover DTOs a un paquete de entidades

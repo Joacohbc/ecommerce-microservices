@@ -1,6 +1,7 @@
 package com.microecommerce.ordersservice.controllers;
 
 import com.microecommerce.ordersservice.models.Order;
+import com.microecommerce.ordersservice.models.OrderHistory;
 import com.microecommerce.ordersservice.models.OrderProgressRequest;
 import com.microecommerce.ordersservice.models.OrderStatus;
 import com.microecommerce.ordersservice.services.interfaces.IOrderService;
@@ -22,14 +23,12 @@ public class OrderController {
 
     @PostMapping
     public Order createOrder(@RequestBody Order order) throws InvalidEntityException {
-        // TODO: Implement customer id extraction from security context
-        return orderService.createBatch(List.of(order), 0L).get(0);
+        return orderService.createBatch(List.of(order)).get(0);
     }
 
     @PostMapping("/batch")
     public List<Order> createBatch(@RequestBody List<Order> orders) throws InvalidEntityException {
-        // TODO: Implement customer id extraction from security context
-        return orderService.createBatch(orders, 0L);
+        return orderService.createBatch(orders);
     }
 
     // TODO: ONLY FOR TESTING PURPOSES
@@ -61,6 +60,11 @@ public class OrderController {
     @PutMapping("/in-progress")
     public List<Order> putInProgress(@RequestBody List<OrderProgressRequest> requests) throws InvalidEntityException {
         return orderService.startProcessingOrder(requests);
+    }
+
+    @GetMapping("/{orderId}/history")
+    public List<OrderHistory> getOrderHistory(@PathVariable String orderId) {
+        return orderService.getOrderHistory(orderId);
     }
 
     @GetMapping("/{orderId}/checkStatus")

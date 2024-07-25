@@ -1,5 +1,6 @@
 package com.microecommerce.productsservice.models;
 
+import com.microecommerce.utilitymodule.models.TimeStamped;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -71,13 +72,9 @@ public class ProductDetails implements Serializable {
     @Column(nullable = false)
     private Type type;
 
+    @Embedded
     @Getter
-    @CreationTimestamp
-    private LocalDateTime createdAt;
-
-    @Getter
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
+    private TimeStamped timeStamp;
 
     // Fast access to detail name
     public String getDetailName() {

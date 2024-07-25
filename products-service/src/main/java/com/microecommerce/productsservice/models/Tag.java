@@ -1,6 +1,7 @@
 package com.microecommerce.productsservice.models;
 
 import com.microecommerce.utilitymodule.interfaces.IGetId;
+import com.microecommerce.utilitymodule.models.TimeStamped;
 import com.microecommerce.utilitymodule.models.ToTitleCase;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -35,6 +36,9 @@ public class Tag implements Serializable, IGetId {
     @NotBlank
     @Size(max = 500)
     private String description;
+
+    @Embedded
+    private TimeStamped timeStamp;
 
 //    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
 //    private Tag parentTag;

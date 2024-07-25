@@ -22,12 +22,17 @@ import java.util.Map;
 // - ResponseStatusException (Generic)
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private ResponseEntity<Object> createJsonResponse(String message, Object data, Exception ex, HttpHeaders headers, HttpStatus statusCode, WebRequest request) {
+    public static Map<String, Object> createJsonResponse(String message, Object data, HttpStatus statusCode) {
         Map<String, Object> json = new HashMap<>();
         json.put("message", message);
         json.put("data", data);
         json.put("status", statusCode.value());
         json.put("statusText", statusCode.getReasonPhrase());
+        return json;
+    }
+
+    protected ResponseEntity<Object> createJsonResponse(String message, Object data, Exception ex, HttpHeaders headers, HttpStatus statusCode, WebRequest request) {
+        Map<String, Object> json = createJsonResponse(message, data, statusCode);
         return handleExceptionInternal(ex, json, headers, statusCode, request);
     }
 
@@ -44,7 +49,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     protected ResponseEntity<Object> handleRelatedEntityNotFound(RelatedEntityNotFoundException ex, WebRequest request) {
-        return createJsonResponse(ex.getMessage(), null, ex, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+        return createJsonResponse(ex.getMessage(), null, ex, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
     protected ResponseEntity<Object> handleConstraintViolation(ConstraintViolationException ex, WebRequest request) {

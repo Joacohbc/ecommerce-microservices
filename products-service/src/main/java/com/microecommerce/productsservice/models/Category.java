@@ -1,6 +1,7 @@
 package com.microecommerce.productsservice.models;
 
 import com.microecommerce.utilitymodule.interfaces.IGetId;
+import com.microecommerce.utilitymodule.models.TimeStamped;
 import com.microecommerce.utilitymodule.models.ToTitleCase;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -33,4 +34,7 @@ public class Category implements Serializable, IGetId {
     @NotBlank
     @Size(max = 1000)
     private String description;
+
+    @Embedded
+    private TimeStamped timeStamp;
 }

@@ -19,8 +19,8 @@ public class ProductMapper {
                 .brands(BrandMapper.fromEntities(product.getBrands()))
                 .tags(TagMapper.fromEntities(product.getTags()))
                 .productDetails(ProductDetailsMapper.fromEntities(product.getProductDetails()))
-                .createdAt(product.getCreatedAt()) // Only Getters (not mapped to entity)
-                .updatedAt(product.getUpdatedAt()) // Only Getters (not mapped to entity)
+                .createdAt(product.getTimeStamp().getCreatedAt()) // Only Getters (not mapped to entity)
+                .updatedAt(product.getTimeStamp().getUpdatedAt()) // Only Getters (not mapped to entity)
                 .deletedAt(product.getDeletedAt()) // Only Getters (not mapped to entity)
                 .isDeleted(product.getIsDeleted()) // Only Getters (not mapped to entity)
                 .build();

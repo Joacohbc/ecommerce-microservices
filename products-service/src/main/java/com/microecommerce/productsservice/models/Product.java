@@ -1,6 +1,7 @@
 package com.microecommerce.productsservice.models;
 
 import com.microecommerce.utilitymodule.interfaces.IGetId;
+import com.microecommerce.utilitymodule.models.TimeStamped;
 import com.microecommerce.utilitymodule.models.ToTitleCase;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -89,14 +90,6 @@ public class Product implements Serializable, IGetId {
         if (this.isDeleted == null) this.isDeleted = false;
     }
 
-    @CreationTimestamp
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(updatable = false)
-    private LocalDateTime updatedAt;
-
     private LocalDateTime deletedAt;
 
     @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
@@ -110,4 +103,7 @@ public class Product implements Serializable, IGetId {
 
     @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER, mappedBy = "product")
     private List<ProductDetails> productDetails;
+
+    @Embedded
+    private TimeStamped timeStamp;
 }
