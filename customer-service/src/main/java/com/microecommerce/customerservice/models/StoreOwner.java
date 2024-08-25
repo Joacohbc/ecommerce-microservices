@@ -1,5 +1,6 @@
 package com.microecommerce.customerservice.models;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.*;
 
@@ -7,5 +8,6 @@ import lombok.*;
 @Getter
 @Setter
 public class StoreOwner extends Customer {
-    // private List<StoreDTO> stores;
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private Boolean isActive;
 }

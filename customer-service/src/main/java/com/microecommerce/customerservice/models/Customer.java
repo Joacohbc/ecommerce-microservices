@@ -11,7 +11,6 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Inheritance(strategy = InheritanceType.JOINED)
 public class Customer implements Serializable {
     @Id
@@ -19,10 +18,11 @@ public class Customer implements Serializable {
     private Long customerId;
 
     @Column(nullable = false, unique = true)
-    private Long credencialsId;
+    private Long credentialsId;
 
     @Column(nullable = false)
     private String firstName;
+
     private String middleName;
 
     @Column(nullable = false)
@@ -33,4 +33,7 @@ public class Customer implements Serializable {
 
     @ElementCollection(fetch = FetchType.LAZY)
     private List<Phone> phone;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    private List<Address> address;
 }
