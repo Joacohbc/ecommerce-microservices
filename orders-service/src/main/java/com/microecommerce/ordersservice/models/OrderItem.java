@@ -2,7 +2,6 @@ package com.microecommerce.ordersservice.models;
 
 import com.microecommerce.dtoslibrary.products_service.ProductDTO;
 import jakarta.persistence.Transient;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 

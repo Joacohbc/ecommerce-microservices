@@ -6,12 +6,10 @@ import com.microecommerce.ordersservice.repositories.OrderRepository;
 import com.microecommerce.ordersservice.services.interfaces.IOrderService;
 import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -23,7 +21,6 @@ public class OrderService implements IOrderService {
     private final OrderHistoryRepository orderHistoryRepository;
     private final ProductFeignService productService;
 
-    @Autowired
     public OrderService(OrderRepository orderRepository, OrderHistoryRepository orderHistoryRepository, ProductFeignService productService) {
         this.orderRepository = orderRepository;
         this.orderHistoryRepository = orderHistoryRepository;
@@ -31,7 +28,7 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public List<Order> createBatch(@Valid List<Order> orders) throws InvalidEntityException {
+    public List<Order> createBatch(@Valid List<Order> orders) throws InvalidEntityException  {
         boolean productsExistence = productService.checkProductsExistence(orders
                 .stream()
                 .flatMap(order -> order.getItems().stream().map(OrderItem::getProductId))
@@ -114,8 +111,10 @@ public class OrderService implements IOrderService {
                     .get();
 
             // Set the payment ids
-            order.setPaymentId(Optional.of(progressRequest.getPaymentId())
-                    .orElseThrow(() -> new InvalidEntityException("Payment IDs are required")));
+            order.setPaymentId(
+                    Optional.of(progressRequest.getPaymentId())
+                    .orElseThrow(() -> new InvalidEntityException("Payment IDs are required"))
+            );
 
             if(progressRequest.getShippingId() != null)
                 order.setShippingId(progressRequest.getShippingId());
@@ -178,6 +177,8 @@ public class OrderService implements IOrderService {
     // If the order has no items, throw an InvalidEntityException with the message "Order {orderId} has no items"
     // If any item in the order has a quantity less than or equal to 0, throw an InvalidEntityException with the message "Order {orderId} has invalid quantity for item {productId}"
     private void validateOrderItems(Order order) throws InvalidEntityException {
+        if(order == null) throw new InvalidEntityException("Order is null");
+
         if(order.getItems().isEmpty()) {
             throw new InvalidEntityException("Order " + order.getId() + " has no items");
         }
