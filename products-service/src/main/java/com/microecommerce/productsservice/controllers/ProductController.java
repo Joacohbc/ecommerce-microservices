@@ -10,7 +10,6 @@ import com.microecommerce.utilitymodule.exceptions.DuplicatedRelationException;
 import com.microecommerce.utilitymodule.exceptions.EntityNotFoundException;
 import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
 import com.microecommerce.utilitymodule.exceptions.RelatedEntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +21,7 @@ import java.util.List;
 @RequestMapping("/products")
 public class ProductController {
     private final IProductService productService;
-
-    @Autowired
+    
     public ProductController(IProductService productService) {
         this.productService = productService;
     }

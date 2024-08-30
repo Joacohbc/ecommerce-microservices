@@ -6,7 +6,6 @@ import com.microecommerce.ordersservice.models.OrderProgressRequest;
 import com.microecommerce.ordersservice.models.OrderStatus;
 import com.microecommerce.ordersservice.services.interfaces.IOrderService;
 import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,7 +15,6 @@ import java.util.List;
 public class OrderController {
     private final IOrderService orderService;
 
-    @Autowired
     public OrderController(IOrderService orderService) {
         this.orderService = orderService;
     }

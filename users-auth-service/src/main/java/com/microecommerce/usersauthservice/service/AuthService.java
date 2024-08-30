@@ -30,15 +30,15 @@ public class AuthService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
     }
 
-    public String saveUser(CUserCredentials CUserCredentials) throws InvalidEntityException {
-        if (repository.findByUsernameIgnoreCase(CUserCredentials.getUsername()).isPresent()) {
+    public String saveUser(CUserCredentials credentials) throws InvalidEntityException {
+        if (repository.findByUsernameIgnoreCase(credentials.getUsername()).isPresent()) {
             throw new InvalidEntityException("A user with that username already exists");
         }
 
-        CUserCredentials.validateCredentials(CUserCredentials);
-        CUserCredentials.setPassword(passwordEncoder.encode(CUserCredentials.getPassword()));
+        CUserCredentials.validateCredentials(credentials);
+        credentials.setPassword(passwordEncoder.encode(credentials.getPassword()));
 
-        repository.save(CUserCredentials);
+        repository.save(credentials);
         return "User saved successfully";
     }
 

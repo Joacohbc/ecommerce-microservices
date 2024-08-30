@@ -9,7 +9,6 @@ import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
 import com.microecommerce.utilitymodule.exceptions.RelatedEntityNotFoundException;
 import com.microecommerce.utilitymodule.interfaces.IGetId;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -21,7 +20,6 @@ import java.util.stream.Collectors;
 public class BrandService implements IBrandService {
     private final BrandRepository brandRepository;
 
-    @Autowired
     public BrandService(BrandRepository brandRepository) {
         this.brandRepository = brandRepository;
     }

@@ -81,7 +81,7 @@ public class CustomerService implements ICustomerService {
     @Override
     public StoreOwner updateStoreOwner(Long customerId, StoreOwner storeOwner) {
         Optional<StoreOwner> existingStoreOwner = storeOwnerRepository.findById(customerId);
-        if (!existingStoreOwner.isPresent()) return null;
+        if (existingStoreOwner.isEmpty()) return null;
         
         StoreOwner updatedStoreOwner = existingStoreOwner.get();
         updatedStoreOwner.setFirstName(storeOwner.getFirstName());

@@ -2,7 +2,8 @@ package com.microecommerce.customerservice.models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Getter
