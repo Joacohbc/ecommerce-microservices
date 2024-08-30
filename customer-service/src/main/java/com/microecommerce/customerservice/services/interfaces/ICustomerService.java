@@ -19,6 +19,6 @@ public interface ICustomerService {
     void activateCustomer(Long customerId);
     void deactivateCustomer(Long customerId);
 
-    Buyer createExistingCustomerAsBuyer(Long customerId, Buyer buyer);
-    StoreOwner createExistingCustomerAsStoreOwner(Long customerId, StoreOwner storeOwner);
+    Buyer createExistingCustomerAsBuyer(Long customerId, Buyer buyerInfo);
+    StoreOwner createExistingCustomerAsStoreOwner(Long customerId, StoreOwner storeOwnerInfo);
 }

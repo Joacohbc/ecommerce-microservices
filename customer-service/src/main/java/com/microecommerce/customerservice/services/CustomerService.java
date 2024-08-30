@@ -26,6 +26,7 @@ public class CustomerService implements ICustomerService {
 
     @Override
     public Buyer createBuyer(Buyer buyer) {
+        buyer.setIsActive(false);
         return buyerRepository.save(buyer);
     }
 
@@ -63,6 +64,7 @@ public class CustomerService implements ICustomerService {
 
     @Override
     public StoreOwner createStoreOwner(StoreOwner storeOwner) {
+        storeOwner.setIsActive(false);
         return storeOwnerRepository.save(storeOwner);
     }
 
@@ -111,6 +113,7 @@ public class CustomerService implements ICustomerService {
         if (storeOwner.isPresent()) {
             storeOwner.get().setIsActive(true);
             storeOwnerRepository.save(storeOwner.get());
+            return;
         }
     }
 
@@ -128,6 +131,7 @@ public class CustomerService implements ICustomerService {
         if (storeOwner.isPresent()) {
             storeOwner.get().setIsActive(false);
             storeOwnerRepository.save(storeOwner.get());
+            return;
         }
     }
 
@@ -135,14 +139,18 @@ public class CustomerService implements ICustomerService {
     public Buyer createExistingCustomerAsBuyer(Long customerId, Buyer buyer) {
         Optional<Customer> existingCustomer = customerRepository.findById(customerId);
         if (existingCustomer.isPresent()) {
-            buyer.setCustomerId(existingCustomer.get().getCustomerId());
-            buyer.setCredentialsId(existingCustomer.get().getCredentialsId());
-            buyer.setFirstName(existingCustomer.get().getFirstName());
-            buyer.setMiddleName(existingCustomer.get().getMiddleName());
-            buyer.setLastName(existingCustomer.get().getLastName());
-            buyer.setEmail(existingCustomer.get().getEmail());
-            buyer.setPhone(existingCustomer.get().getPhone());
-            buyer.setAddress(existingCustomer.get().getAddress());
+            Buyer newBuyer = new Buyer();
+            newBuyer.setCustomerId(existingCustomer.get().getCustomerId());
+            newBuyer.setCredentialsId(existingCustomer.get().getCredentialsId());
+            newBuyer.setFirstName(existingCustomer.get().getFirstName());
+            newBuyer.setMiddleName(existingCustomer.get().getMiddleName());
+            newBuyer.setLastName(existingCustomer.get().getLastName());
+            newBuyer.setEmail(existingCustomer.get().getEmail());
+            newBuyer.setPhone(existingCustomer.get().getPhone());
+            newBuyer.setAddress(existingCustomer.get().getAddress());
+
+            // Specific fields of Buyer
+            newBuyer.setIsActive(true);
             return buyerRepository.save(buyer);
         }
         return null;
@@ -152,14 +160,18 @@ public class CustomerService implements ICustomerService {
     public StoreOwner createExistingCustomerAsStoreOwner(Long customerId, StoreOwner storeOwner) {
         Optional<Customer> existingCustomer = customerRepository.findById(customerId);
         if (existingCustomer.isPresent()) {
-            storeOwner.setCustomerId(existingCustomer.get().getCustomerId());
-            storeOwner.setCredentialsId(existingCustomer.get().getCredentialsId());
-            storeOwner.setFirstName(existingCustomer.get().getFirstName());
-            storeOwner.setMiddleName(existingCustomer.get().getMiddleName());
-            storeOwner.setLastName(existingCustomer.get().getLastName());
-            storeOwner.setEmail(existingCustomer.get().getEmail());
-            storeOwner.setPhone(existingCustomer.get().getPhone());
-            storeOwner.setAddress(existingCustomer.get().getAddress());
+            StoreOwner newStoreOwner = new StoreOwner();
+            newStoreOwner.setCustomerId(existingCustomer.get().getCustomerId());
+            newStoreOwner.setCredentialsId(existingCustomer.get().getCredentialsId());
+            newStoreOwner.setFirstName(existingCustomer.get().getFirstName());
+            newStoreOwner.setMiddleName(existingCustomer.get().getMiddleName());
+            newStoreOwner.setLastName(existingCustomer.get().getLastName());
+            newStoreOwner.setEmail(existingCustomer.get().getEmail());
+            newStoreOwner.setPhone(existingCustomer.get().getPhone());
+            newStoreOwner.setAddress(existingCustomer.get().getAddress());
+            
+            // Specific fields of StoreOwner
+            newStoreOwner.setIsActive(true);
             return storeOwnerRepository.save(storeOwner);
         }
         return null;
