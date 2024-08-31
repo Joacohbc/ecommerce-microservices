@@ -57,12 +57,6 @@ public class CustomerController {
         return updatedStoreOwner != null ? new ResponseEntity<>(updatedStoreOwner, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("/store-owner/{customerId}")
-    public ResponseEntity<Void> deleteStoreOwner(@PathVariable Long customerId) {
-        customerService.deleteStoreOwner(customerId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
     // Customer Activation/Deactivation Endpoints
 
     @PutMapping("/buyer/{customerId}/activate")
