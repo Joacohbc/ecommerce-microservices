@@ -8,16 +8,15 @@ public interface ICustomerService {
     Buyer getBuyerByEmail(String email);
     Buyer getBuyerById(Long customerId);
     Buyer updateBuyer(Long customerId, Buyer buyer);
-    void deleteBuyer(Long customerId);
+    void deactivateBuyer(Long customerId);
+    void activateBuyer(Long customerId);
 
     StoreOwner createStoreOwner(StoreOwner storeOwner);
     StoreOwner getStoreOwnerByEmail(String email);
     StoreOwner getStoreOwnerById(Long customerId);
     StoreOwner updateStoreOwner(Long id, StoreOwner storeOwner);
-    void deleteStoreOwner(Long customerId);
-
-    void activateCustomer(Long customerId);
-    void deactivateCustomer(Long customerId);
+    void deactivateStoreOwner(Long customerId);
+    void activateStoreOwner(Long customerId);
 
     Buyer createExistingCustomerAsBuyer(Long customerId, Buyer buyerInfo);
     StoreOwner createExistingCustomerAsStoreOwner(Long customerId, StoreOwner storeOwnerInfo);

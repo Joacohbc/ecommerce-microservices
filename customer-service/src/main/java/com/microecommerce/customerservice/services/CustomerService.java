@@ -58,8 +58,23 @@ public class CustomerService implements ICustomerService {
     }
 
     @Override
-    public void deleteBuyer(Long customerId) {
-        buyerRepository.deleteById(customerId);
+    public void activateBuyer(Long customerId) {
+        Optional<Buyer> buyer = buyerRepository.findById(customerId);
+        if (buyer.isPresent()) {
+            buyer.get().setIsActive(true);
+            buyerRepository.save(buyer.get());
+            return;
+        }
+    }
+
+    @Override
+    public void deactivateBuyer(Long customerId) {
+        Optional<Buyer> buyer = buyerRepository.findById(customerId);
+        if (buyer.isPresent()) {
+            buyer.get().setIsActive(false);
+            buyerRepository.save(buyer.get());
+            return;
+        }
     }
 
     @Override
@@ -67,6 +82,9 @@ public class CustomerService implements ICustomerService {
         storeOwner.setIsActive(false);
         return storeOwnerRepository.save(storeOwner);
     }
+
+
+
 
     @Override
     public StoreOwner getStoreOwnerByEmail(String email) {
@@ -95,42 +113,21 @@ public class CustomerService implements ICustomerService {
     }
 
     @Override
-    public void deleteStoreOwner(Long customerId) {
-        storeOwnerRepository.deleteById(customerId);
-    }
-
-    @Override
-    public void activateCustomer(Long customerId) {
-        // Assuming Buyer and StoreOwner have the isActive field
-        Optional<Buyer> buyer = buyerRepository.findById(customerId);
+    public void activateStoreOwner(Long customerId) {
+        Optional<StoreOwner> buyer = storeOwnerRepository.findById(customerId);
         if (buyer.isPresent()) {
             buyer.get().setIsActive(true);
-            buyerRepository.save(buyer.get());
-            return;
-        }
-
-        Optional<StoreOwner> storeOwner = storeOwnerRepository.findById(customerId);
-        if (storeOwner.isPresent()) {
-            storeOwner.get().setIsActive(true);
-            storeOwnerRepository.save(storeOwner.get());
+            storeOwnerRepository.save(buyer.get());
             return;
         }
     }
 
     @Override
-    public void deactivateCustomer(Long customerId) {
-        // Assuming Buyer and StoreOwner have the isActive field
-        Optional<Buyer> buyer = buyerRepository.findById(customerId);
+    public void deactivateStoreOwner(Long customerId) {
+        Optional<StoreOwner> buyer = storeOwnerRepository.findById(customerId);
         if (buyer.isPresent()) {
             buyer.get().setIsActive(false);
-            buyerRepository.save(buyer.get());
-            return;
-        }
-
-        Optional<StoreOwner> storeOwner = storeOwnerRepository.findById(customerId);
-        if (storeOwner.isPresent()) {
-            storeOwner.get().setIsActive(false);
-            storeOwnerRepository.save(storeOwner.get());
+            storeOwnerRepository.save(buyer.get());
             return;
         }
     }
