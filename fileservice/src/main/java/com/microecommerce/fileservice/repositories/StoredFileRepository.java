@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.microecommerce.fileservice.models.StoredFile;
 
 @Repository
-public interface FileRepository extends JpaRepository<StoredFile, Long> {
+public interface StoredFileRepository extends JpaRepository<StoredFile, String> {
     Optional<StoredFile> findByHash(String hash);
 }

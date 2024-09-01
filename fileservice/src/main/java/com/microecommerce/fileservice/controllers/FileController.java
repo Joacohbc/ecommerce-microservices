@@ -17,9 +17,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.microecommerce.fileservice.models.StoredFile;
+import com.microecommerce.fileservice.models.MetadataFile;
 import com.microecommerce.fileservice.service.FileService;
 import com.microecommerce.utilitymodule.exceptions.EntityNotFoundException;
+import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
 
 @RestController
 @RequestMapping("/files")
@@ -38,11 +39,11 @@ public class FileController {
      * @throws NoSuchAlgorithmException If the SHA-256 algorithm is not available.
      */
     @PostMapping
-    public ResponseEntity<StoredFile> uploadFile(
+    public ResponseEntity<MetadataFile> uploadFile(
         @RequestParam("file") MultipartFile file,
         @RequestParam(value = "name", required = true) String name) throws IOException, NoSuchAlgorithmException {
         
-        StoredFile savedFile = fileService.storeFile(file, name);
+        MetadataFile savedFile = fileService.storeFile(file, name);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedFile);
     }
 
@@ -57,8 +58,8 @@ public class FileController {
      * @throws EntityNotFoundException If no file with the given ID is found.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<StoredFile> uploadFile(@PathVariable Long id, @RequestParam("file") MultipartFile file) throws IOException, NoSuchAlgorithmException, EntityNotFoundException {
-        StoredFile savedFile = fileService.updateFile(id, file);
+    public ResponseEntity<MetadataFile> uploadFile(@PathVariable Long id, @RequestParam("file") MultipartFile file) throws IOException, NoSuchAlgorithmException, EntityNotFoundException {
+        MetadataFile savedFile = fileService.updateFile(id, file);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedFile);
     }
 
@@ -73,8 +74,8 @@ public class FileController {
      * @throws EntityNotFoundException If no file with the given ID is found.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<StoredFile> uploadFile(@PathVariable Long id, @RequestBody Map<String, String> file) throws IOException, NoSuchAlgorithmException, EntityNotFoundException {
-        StoredFile savedFile = fileService.renameFile(id, file.get("name"));
+    public ResponseEntity<MetadataFile> uploadFile(@PathVariable Long id, @RequestBody Map<String, String> file) throws IOException, InvalidEntityException, NoSuchAlgorithmException, EntityNotFoundException {
+        MetadataFile savedFile = fileService.renameFile(id, file.get("name"));
         return ResponseEntity.status(HttpStatus.CREATED).body(savedFile);
     }
 
@@ -86,8 +87,7 @@ public class FileController {
      * @throws EntityNotFoundException If no file with the given ID is found.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<StoredFile> getFile(@PathVariable Long id) throws EntityNotFoundException {
-        StoredFile storedFile = fileService.getFileById(id);
-        return ResponseEntity.ok(storedFile);
+    public ResponseEntity<MetadataFile> getFile(@PathVariable Long id) throws EntityNotFoundException {
+        return ResponseEntity.ok(fileService.getFileById(id));
     }
 }

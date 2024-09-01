@@ -10,29 +10,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.microecommerce.fileservice.models.MetadataFile;
 import com.microecommerce.fileservice.models.StoredFile;
-import com.microecommerce.fileservice.repositories.FileRepository;
+import com.microecommerce.fileservice.repositories.MetadataFileRepository;
+import com.microecommerce.fileservice.repositories.StoredFileRepository;
 
 import com.microecommerce.utilitymodule.exceptions.EntityNotFoundException;
+import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
 
 @Service
 public class FileService {
 
     @Autowired
-    private FileRepository fileRepository;
+    private StoredFileRepository fileRepository;
+
+    @Autowired
+    private MetadataFileRepository metadataFileRepository;
 
     @Autowired
     private HashService hashService;
 
     /**
-     * Loads file data from a MultipartFile.
+     * Loads file data from a MultipartFile. Don't calculate the hash.
      *
      * @param multipartFile The MultipartFile to load data from.
      * @return A StoredFile object populated with data from the MultipartFile.
      * @throws NoSuchAlgorithmException If the SHA-256 algorithm is not available.
      * @throws IOException If an I/O error occurs while reading from the MultipartFile.
      */
-    private StoredFile loadFileData(MultipartFile multipartFile) throws NoSuchAlgorithmException, IOException {
+    private StoredFile createStoredFile(MultipartFile multipartFile) throws NoSuchAlgorithmException, IOException {
         StoredFile file = new StoredFile();
         file.setOriginalFilename(multipartFile.getOriginalFilename());
         file.setContentType(ContentType.parse(multipartFile.getContentType()));
@@ -51,116 +57,61 @@ public class FileService {
         return file;
     }
 
-    /**
-     * Creates a dummy StoredFile instance.
-     *
-     * A dummy file is a file that doesn't store the actual file content, but instead
-     * references another StoredFile (the original file) using its ID and hash.
-     *
-     * @param originalId The ID of the original StoredFile that this dummy file references.
-     * @param name The desired filename for the dummy file.
-     * @param fileHash The hash of the original file content.
-     * @param insertDummy Whether to directly insert the created dummy file into the database.
-     * @return The created StoredFile instance, marked as a dummy file.
-     */
-    private StoredFile createDummy(Long originalId, String name, String fileHash, boolean insertDummy) {
-        StoredFile file = new StoredFile();
-        file.setFileName(name);
-        file.markAsDummy(originalId, fileHash);
-        return insertDummy ? fileRepository.save(file) : file;
-    }
-
-    /**
-     * Stores a file or creates a dummy reference if an identical file already exists.
-     *
-     * This method first calculates the SHA-256 hash of the provided MultipartFile. 
-     * It then checks if a file with the same hash already exists in the database.
-     * 
-     * If an identical file is found:
-     *   - A new "dummy" StoredFile is created. This dummy file references the existing file 
-     *     using its ID and hash, but doesn't store the actual file content again.
-     *   - The dummy file is saved to the database.
-     * 
-     * If no identical file is found:
-     *   - A new StoredFile is created and populated with data from the MultipartFile.
-     *   - The file hash is calculated and stored in the StoredFile.
-     *   - The new StoredFile is saved to the database.
-     *
-     * @param multipartFile The MultipartFile containing the file data to store.
-     * @param name The desired filename for the stored file.
-     * @return The StoredFile object representing the stored file (either a new file or a dummy reference).
-     * @throws IOException If an I/O error occurs while reading from the MultipartFile.
-     * @throws NoSuchAlgorithmException If the SHA-256 algorithm is not available.
-     */
-    public StoredFile storeFile(MultipartFile multipartFile, String name) throws IOException, NoSuchAlgorithmException {
+    public MetadataFile storeFile(MultipartFile multipartFile, String name) throws IOException, NoSuchAlgorithmException {
         String fileHash = hashService.calculateFileHash(multipartFile);
         Optional<StoredFile> existingFile = fileRepository.findByHash(fileHash);
 
         if (existingFile.isPresent()) {
-            return createDummy(existingFile.get().getId(), name, fileHash, true);
-        } else {
-            StoredFile file = loadFileData(multipartFile);
+            MetadataFile file = new MetadataFile();
+            file.setFile(existingFile.get());
             file.setFileName(name);
+            return metadataFileRepository.save(file);
+        } else {
+            StoredFile file = createStoredFile(multipartFile);
             file.setHash(fileHash);
-            return fileRepository.save(file);
+            fileRepository.save(file);
+
+            MetadataFile metadataFile = new MetadataFile();
+            metadataFile.setFile(file);
+            metadataFile.setFileName(name);
+            return metadataFileRepository.save(metadataFile); 
         }
     }
 
-
-    /**
-     * Updates an existing StoredFile with new data from a MultipartFile.
-     *
-     * If the provided MultipartFile has the same hash as an existing file in the database,
-     * the existing file's information will be used to update the file with the given ID.
-     * Otherwise, the file with the given ID will be updated with the new data from the MultipartFile.
-     *
-     * The FileName can't be update in this method.
-     * 
-     * @param id The ID of the StoredFile to update.
-     * @param multipartFile The MultipartFile containing the new file data.
-     * @return The updated StoredFile object.
-     * @throws IOException If an I/O error occurs while reading from the MultipartFile.
-     * @throws NoSuchAlgorithmException If the SHA-256 algorithm is not available.
-     * @throws EntityNotFoundException If no StoredFile with the given ID is found.
-     */
-    public StoredFile updateFile(Long id, MultipartFile multipartFile) throws IOException, NoSuchAlgorithmException, EntityNotFoundException {
+    public MetadataFile updateFile(Long id, MultipartFile multipartFile) throws IOException, NoSuchAlgorithmException, EntityNotFoundException {
         if(multipartFile == null || multipartFile.isEmpty()) return null;
 
+        MetadataFile metadataFile = metadataFileRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("File not found"));
+        
+        // Check if have a file identical already saved (so change the reference to that file)
         String fileHash = hashService.calculateFileHash(multipartFile);
         Optional<StoredFile> existingFile = fileRepository.findByHash(fileHash);
         if(existingFile.isPresent()) {
-            return fileRepository.save(createDummy(id, fileHash, existingFile.get().getFileName(), false));
+            metadataFile.setFile(existingFile.get());
+            return metadataFileRepository.save(metadataFile); 
         }
-
-        StoredFile savedFile = fileRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("File not found"));
         
-        StoredFile newInfo = loadFileData(multipartFile);
+        StoredFile newInfo = createStoredFile(multipartFile); 
+        newInfo.setOriginalFilename(newInfo.getOriginalFilename());
+        newInfo.setExtension(newInfo.getExtension());
+        newInfo.setContentType(newInfo.getContentType());
+        newInfo.setSize(newInfo.getSize());
+        newInfo.setBytes(newInfo.getBytes());
+        newInfo.setBase64Content(newInfo.getBase64Content());
+        newInfo.setHash(fileHash);
+        fileRepository.save(newInfo);
 
-        // Override the specific info 
-        savedFile.setOriginalFilename(newInfo.getOriginalFilename());
-        savedFile.setExtension(newInfo.getExtension());
-        savedFile.setContentType(newInfo.getContentType());
-        savedFile.setSize(newInfo.getSize());
-        savedFile.setBytes(newInfo.getBytes());
-        savedFile.setBase64Content(newInfo.getBase64Content());
-        savedFile.setHash(fileHash);
-
-        return fileRepository.save(savedFile);
+        metadataFile.setFile(newInfo);
+        return metadataFileRepository.save(metadataFile);
     }
 
-    /**
-     * Renames an existing StoredFile.
-     *
-     * @param id The ID of the StoredFile to rename.
-     * @param name The new filename for the StoredFile.
-     * @return The updated StoredFile object.
-     * @throws EntityNotFoundException If no StoredFile with the given ID is found.
-     */
-    public StoredFile renameFile(Long id, String name) throws EntityNotFoundException {
-        StoredFile file = fileRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("File not found"));
+
+    public MetadataFile renameFile(Long id, String name) throws EntityNotFoundException, InvalidEntityException {
+        if(name.isEmpty()) throw new InvalidEntityException("Name cannot be empty"); 
+        MetadataFile file = metadataFileRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("File not found"));
         file.setFileName(name);
-        return fileRepository.save(file);
+        return metadataFileRepository.save(file);
     }
     
     /**
@@ -170,8 +121,7 @@ public class FileService {
      * @return The StoredFile object with the given ID.
      * @throws EntityNotFoundException If no StoredFile with the given ID is found.
      */
-    public StoredFile getFileById(Long id) throws EntityNotFoundException {
-        return fileRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("File not found"));
+    public MetadataFile getFileById(Long id) throws EntityNotFoundException {
+        return metadataFileRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("File not found"));
     }
 }
