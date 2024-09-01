@@ -32,7 +32,6 @@ public class StoredFile implements Serializable, Video, Image, Document {
     String base64Content;
     String hash;
 
-
     // Identify the File as "Dummy", because is reference to other file (have the same hash
     // so are the same file)
     @Setter(AccessLevel.NONE)
