@@ -26,6 +26,11 @@ import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
 @RequestMapping("/files")
 public class FileController {
 
+    // TODO: Sutituir el Endpoitns de subir archivos por mas de uno
+    // Uno para subir el archivo POST /files
+    // Otro para subir la metadata POST /files/{id}/metadata
+    // Lo mismo PUT
+
     @Autowired
     private FileService fileService;
 
@@ -40,8 +45,8 @@ public class FileController {
      */
     @PostMapping
     public ResponseEntity<MetadataFile> uploadFile(
-        @RequestParam("file") MultipartFile file,
-        @RequestParam(value = "name", required = true) String name) throws IOException, NoSuchAlgorithmException {
+        @RequestBody MultipartFile file,
+        @RequestBody String name) throws IOException, NoSuchAlgorithmException {
         
         MetadataFile savedFile = fileService.storeFile(file, name);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedFile);
@@ -73,7 +78,7 @@ public class FileController {
      * @throws NoSuchAlgorithmException If the SHA-256 algorithm is not available.
      * @throws EntityNotFoundException If no file with the given ID is found.
      */
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/rename")
     public ResponseEntity<MetadataFile> uploadFile(@PathVariable Long id, @RequestBody Map<String, String> file) throws IOException, InvalidEntityException, NoSuchAlgorithmException, EntityNotFoundException {
         MetadataFile savedFile = fileService.renameFile(id, file.get("name"));
         return ResponseEntity.status(HttpStatus.CREATED).body(savedFile);
