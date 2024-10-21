@@ -34,13 +34,16 @@ public class FileMapper {
         storedFile.setOriginalFilename(fileDTO.getOriginalFilename());
         storedFile.setContentType(ContentType.parse(fileDTO.getContentType()));
         storedFile.setSize(fileDTO.getSize());
-        storedFile.setBase64Content(fileDTO.getBase64Content());
-        storedFile.setBytes(fileDTO.getBytes());
+        // storedFile.setBase64Content(fileDTO.getBase64Content());
+        // storedFile.setBytes(fileDTO.getBytes());
 
         return new MetadataFile(
             fileDTO.getId(),
             fileDTO.getFileName(),
-            storedFile
+            storedFile, 
+            null, //! TODO: Add parent file to FileDTO
+            null, //! TODO: Add parent file to FileDTO
+            false //! TODO: Add parent file to FileDTO
         );
     }
 }

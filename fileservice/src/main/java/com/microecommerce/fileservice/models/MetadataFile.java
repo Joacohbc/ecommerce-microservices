@@ -1,12 +1,15 @@
 package com.microecommerce.fileservice.models;
 
 import java.io.Serializable;
+import java.util.List;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,17 +24,19 @@ public class MetadataFile implements Serializable, Video, Image, Document {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
-    String fileName;
+    private Long id;
+    private String fileName;
 
-    @ManyToOne
-    StoredFile file;
-    
-    @Override
-    public Double getDuration() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getDuration'");
-    }
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    private StoredFile file;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private MetadataFile parentFile;
+
+    @OneToMany(mappedBy = "parentFile")
+    private List<MetadataFile> children;
+
+    private boolean isDir;
 
     @Override
     public String getAltText() {
@@ -73,6 +78,12 @@ public class MetadataFile implements Serializable, Video, Image, Document {
     public int getHeight() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getHeight'");
+    }
+
+    @Override
+    public Double getDuration() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getDuration'");
     }
     
 }

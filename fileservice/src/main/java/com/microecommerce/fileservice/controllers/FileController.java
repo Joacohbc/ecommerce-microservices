@@ -25,12 +25,7 @@ import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
 @RestController
 @RequestMapping("/files")
 public class FileController {
-
-    // TODO: Sutituir el Endpoitns de subir archivos por mas de uno
-    // Uno para subir el archivo POST /files
-    // Otro para subir la metadata POST /files/{id}/metadata
-    // Lo mismo PUT
-
+    
     @Autowired
     private FileService fileService;
 
@@ -44,12 +39,18 @@ public class FileController {
      * @throws NoSuchAlgorithmException If the SHA-256 algorithm is not available.
      */
     @PostMapping
-    public ResponseEntity<MetadataFile> uploadFile(
-        @RequestBody MultipartFile file,
-        @RequestBody String name) throws IOException, NoSuchAlgorithmException {
+    public ResponseEntity<Object> uploadFile(
+        @RequestParam(value = "file", required = true) MultipartFile file,
+        @RequestParam(value = "name", required = true) String name) throws IOException, NoSuchAlgorithmException {
         
-        MetadataFile savedFile = fileService.storeFile(file, name);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedFile);
+        try {
+            MetadataFile savedFile = fileService.createFile(file, name);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedFile);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IOException | NoSuchAlgorithmException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
     /**
@@ -62,26 +63,36 @@ public class FileController {
      * @throws NoSuchAlgorithmException If the SHA-256 algorithm is not available.
      * @throws EntityNotFoundException If no file with the given ID is found.
      */
-    @PutMapping("/{id}")
-    public ResponseEntity<MetadataFile> uploadFile(@PathVariable Long id, @RequestParam("file") MultipartFile file) throws IOException, NoSuchAlgorithmException, EntityNotFoundException {
-        MetadataFile savedFile = fileService.updateFile(id, file);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedFile);
+    @PutMapping("/{id}/binary")
+    public ResponseEntity<Object> updateFile(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        try {
+            MetadataFile savedFile = fileService.updateFile(id, file);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedFile);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IOException | NoSuchAlgorithmException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
     /**
      * Renames an existing file.
      *
      * @param id The ID of the file to rename.
-     * @param file The new filename for the file.
+     * @param updatedFileInfo The new filename for the file.
      * @return The updated StoredFile object.
      * @throws IOException If an I/O error occurs while reading the file.
      * @throws NoSuchAlgorithmException If the SHA-256 algorithm is not available.
      * @throws EntityNotFoundException If no file with the given ID is found.
      */
-    @PutMapping("/{id}/rename")
-    public ResponseEntity<MetadataFile> uploadFile(@PathVariable Long id, @RequestBody Map<String, String> file) throws IOException, InvalidEntityException, NoSuchAlgorithmException, EntityNotFoundException {
-        MetadataFile savedFile = fileService.renameFile(id, file.get("name"));
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedFile);
+    @PutMapping("/{id}/metadata")
+    public ResponseEntity<Object> uploadFile(@PathVariable Long id, @RequestBody Map<String, String> updatedFileInfo) {
+        try {
+            MetadataFile savedFile = fileService.renameFile(id, updatedFileInfo.get("name"));
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedFile);
+        } catch (EntityNotFoundException | InvalidEntityException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     /**
@@ -91,8 +102,30 @@ public class FileController {
      * @return The StoredFile object with the given ID.
      * @throws EntityNotFoundException If no file with the given ID is found.
      */
-    @GetMapping("/{id}")
-    public ResponseEntity<MetadataFile> getFile(@PathVariable Long id) throws EntityNotFoundException {
-        return ResponseEntity.ok(fileService.getFileById(id));
+    @GetMapping("/{id}/metadata")
+    public ResponseEntity<Object> getFileInfo(@PathVariable Long id)  {
+        try {
+            return ResponseEntity.ok(fileService.getFileById(id));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{id}/binary")
+    public ResponseEntity<Object> getFileBinary(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(fileService.getFileById(id).getFile().getBytes());
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{id}/base64")
+    public ResponseEntity<Object> getFileBase64(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(fileService.getFileById(id).getFile().getBase64Content());
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 }

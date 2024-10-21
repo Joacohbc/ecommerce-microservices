@@ -18,6 +18,8 @@ import com.microecommerce.fileservice.repositories.StoredFileRepository;
 import com.microecommerce.utilitymodule.exceptions.EntityNotFoundException;
 import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class FileService {
 
@@ -31,14 +33,16 @@ public class FileService {
     private HashService hashService;
 
     /**
-     * Loads file data from a MultipartFile. Don't calculate the hash.
+     * Loads file data from a MultipartFile. 
+     * - Don't calculate the hash. 
+     * - Don't insert the StoredFile into the database. 
      *
      * @param multipartFile The MultipartFile to load data from.
      * @return A StoredFile object populated with data from the MultipartFile.
      * @throws NoSuchAlgorithmException If the SHA-256 algorithm is not available.
      * @throws IOException If an I/O error occurs while reading from the MultipartFile.
      */
-    private StoredFile createStoredFile(MultipartFile multipartFile) throws NoSuchAlgorithmException, IOException {
+    private StoredFile loadStoredFile(MultipartFile multipartFile) throws NoSuchAlgorithmException, IOException {
         StoredFile file = new StoredFile();
         file.setOriginalFilename(multipartFile.getOriginalFilename());
         file.setContentType(ContentType.parse(multipartFile.getContentType()));
@@ -56,56 +60,78 @@ public class FileService {
 
         return file;
     }
-
-    public MetadataFile storeFile(MultipartFile multipartFile, String name) throws IOException, NoSuchAlgorithmException {
-        String fileHash = hashService.calculateFileHash(multipartFile);
-        Optional<StoredFile> existingFile = fileRepository.findByHash(fileHash);
-
-        if (existingFile.isPresent()) {
-            MetadataFile file = new MetadataFile();
-            file.setFile(existingFile.get());
-            file.setFileName(name);
-            return metadataFileRepository.save(file);
-        } else {
-            StoredFile file = createStoredFile(multipartFile);
-            file.setHash(fileHash);
-            fileRepository.save(file);
-
-            MetadataFile metadataFile = new MetadataFile();
-            metadataFile.setFile(file);
-            metadataFile.setFileName(name);
-            return metadataFileRepository.save(metadataFile); 
+    
+    /**
+     * Creates a MetadataFile object from a StoredFile object.
+     * @param storeId The ID of the StoredFile object to create the MetadataFile from.
+     * @param name The name of the file.
+     * @param parentId The ID of the parent MetadataFile object.
+     * @param insert Whether to insert the MetadataFile object into the database.
+     * @return The MetadataFile object created from the StoredFile object.
+     * @throws EntityNotFoundException If no file with the given ID is found.
+     * @throws EntityNotFoundException If no parent file with the given ID is found.
+     */
+    private MetadataFile loadMetadataInfo(Long storeId, String name, Long parentId) throws EntityNotFoundException {
+        MetadataFile metadata = new MetadataFile();
+        metadata.setFile(fileRepository.findById(storeId).orElseThrow(() -> new EntityNotFoundException("File not found")));
+        metadata.setFileName(name);
+        if (parentId != null) {
+            metadata.setParentFile(metadataFileRepository.findById(parentId).orElseThrow(() -> new EntityNotFoundException("Parent file not found")));
         }
+        metadata.setDir(false);
+        return metadata;
+    }
+
+    /**
+     * Creates a new MetadataFile object representing a directory.
+     * @param name The name of the directory.
+     * @param parentId The ID of the parent MetadataFile object.
+     * @return The MetadataFile object representing the new directory.
+     * @throws EntityNotFoundException If no parent file with the given ID is found.
+     */
+    public MetadataFile createDir(String name, Long parentId) throws EntityNotFoundException {
+        MetadataFile metadata = new MetadataFile();
+        metadata.setFileName(name);
+        metadata.setParentFile(metadataFileRepository.findById(parentId).orElseThrow(() -> new EntityNotFoundException("Parent file not found")));
+        metadata.setDir(true);
+        return metadataFileRepository.save(metadata);
+    }
+
+    /**
+     * Stores a temporary file in the database. If the file already exists, it will be returned.
+     * @param multipartFile The MultipartFile to store.
+     * @return The StoredFile object representing the stored file.
+     * @throws IOException If an I/O error occurs while reading from the MultipartFile.
+     * @throws NoSuchAlgorithmException If the SHA-256 algorithm is not available.
+     */
+    public StoredFile createStoreFile(MultipartFile multipartFile) throws IOException, NoSuchAlgorithmException {
+        String fileHash = hashService.calculateFileHash(multipartFile.getBytes());
+        Optional<StoredFile> existingFile = fileRepository.findByHash(fileHash);
+        if (existingFile.isPresent()) {
+            return existingFile.get();
+        }
+
+        StoredFile file = loadStoredFile(multipartFile);
+        file.setHash(fileHash);
+        return fileRepository.save(file);
+    }
+
+    public MetadataFile createFile(MultipartFile multipartFile, String name) throws IOException, NoSuchAlgorithmException, EntityNotFoundException {
+        StoredFile storedFile = createStoreFile(multipartFile);
+        MetadataFile metadataFile = loadMetadataInfo(
+            storedFile.getId(), 
+            name, 
+            null
+        );
+        return metadataFileRepository.save(metadataFile);
     }
 
     public MetadataFile updateFile(Long id, MultipartFile multipartFile) throws IOException, NoSuchAlgorithmException, EntityNotFoundException {
         if(multipartFile == null || multipartFile.isEmpty()) return null;
-
-        MetadataFile metadataFile = metadataFileRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("File not found"));
-        
-        // Check if have a file identical already saved (so change the reference to that file)
-        String fileHash = hashService.calculateFileHash(multipartFile);
-        Optional<StoredFile> existingFile = fileRepository.findByHash(fileHash);
-        if(existingFile.isPresent()) {
-            metadataFile.setFile(existingFile.get());
-            return metadataFileRepository.save(metadataFile); 
-        }
-        
-        StoredFile newInfo = createStoredFile(multipartFile); 
-        newInfo.setOriginalFilename(newInfo.getOriginalFilename());
-        newInfo.setExtension(newInfo.getExtension());
-        newInfo.setContentType(newInfo.getContentType());
-        newInfo.setSize(newInfo.getSize());
-        newInfo.setBytes(newInfo.getBytes());
-        newInfo.setBase64Content(newInfo.getBase64Content());
-        newInfo.setHash(fileHash);
-        fileRepository.save(newInfo);
-
-        metadataFile.setFile(newInfo);
+        MetadataFile metadataFile = metadataFileRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("File not found"));
+        metadataFile.setFile(createStoreFile(multipartFile));
         return metadataFileRepository.save(metadataFile);
     }
-
 
     public MetadataFile renameFile(Long id, String name) throws EntityNotFoundException, InvalidEntityException {
         if(name.isEmpty()) throw new InvalidEntityException("Name cannot be empty"); 

@@ -5,8 +5,11 @@ import java.io.Serializable;
 import org.apache.http.entity.ContentType;
 
 import jakarta.persistence.Basic;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import lombok.AllArgsConstructor;
@@ -21,17 +24,24 @@ import lombok.Setter;
 @AllArgsConstructor
 public class StoredFile implements Serializable {
     @Id
-    String hash;
-    String extension;
-    String filePath;
-    String originalFilename;
-    ContentType contentType;
-    Long size;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Basic(fetch = FetchType.LAZY)
-    String base64Content;
+    @Column(nullable = false, unique = true)
+    private String hash;
+    private String extension;
+    private String filePath;
+    private String originalFilename;
+    private ContentType contentType;
+    private Long size;
 
     @Lob
     @Basic(fetch = FetchType.LAZY)
-    byte[] bytes;
+    @Column(name = "base64Content", columnDefinition = "LONGBLOB")
+    private String base64Content;
+
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "bytes", columnDefinition = "LONGBLOB")
+    private byte[] bytes;
 }
