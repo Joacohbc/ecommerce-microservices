@@ -16,6 +16,7 @@ import com.microecommerce.fileservice.repositories.MetadataFileRepository;
 import com.microecommerce.fileservice.repositories.StoredFileRepository;
 
 import com.microecommerce.utilitymodule.exceptions.EntityNotFoundException;
+import com.microecommerce.utilitymodule.exceptions.InvalidActionException;
 import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
 
 
@@ -82,21 +83,6 @@ public class FileService {
     }
 
     /**
-     * Creates a new MetadataFile object representing a directory.
-     * @param name The name of the directory.
-     * @param parentId The ID of the parent MetadataFile object.
-     * @return The MetadataFile object representing the new directory.
-     * @throws EntityNotFoundException If no parent file with the given ID is found.
-     */
-    public MetadataFile createDir(String name, Long parentId) throws EntityNotFoundException {
-        MetadataFile metadata = new MetadataFile();
-        metadata.setFileName(name);
-        metadata.setParent(metadataFileRepository.findById(parentId).orElseThrow(() -> new EntityNotFoundException("Parent file not found")));
-        metadata.setDir(true);
-        return metadataFileRepository.save(metadata);
-    }
-
-    /**
      * Stores a temporary file in the database. If the file already exists, it will be returned.
      * @param multipartFile The MultipartFile to store.
      * @return The StoredFile object representing the stored file.
@@ -139,6 +125,48 @@ public class FileService {
         return metadataFileRepository.save(file);
     }
     
+    public MetadataFile deleteFileOrDir(Long id) throws EntityNotFoundException, InvalidActionException {
+        MetadataFile file = metadataFileRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("File not found"));
+        
+        if(file.isDir() && file.getChildren().size() > 0) {
+            throw new InvalidActionException("Directory is not empty");
+        }
+
+        metadataFileRepository.delete(file);
+        return file;
+    }
+
+    /**
+     * Creates a new MetadataFile object representing a directory.
+     * @param name The name of the directory.
+     * @param parentId The ID of the parent MetadataFile object.
+     * @return The MetadataFile object representing the new directory.
+     * @throws EntityNotFoundException If no parent file with the given ID is found.
+     */
+    public MetadataFile createDir(String name, Long parentId) throws EntityNotFoundException {
+        MetadataFile metadata = new MetadataFile();
+        metadata.setFileName(name);
+        metadata.setParent(metadataFileRepository.findById(parentId).orElseThrow(() -> new EntityNotFoundException("Parent file not found")));
+        metadata.setDir(true);
+        return metadataFileRepository.save(metadata);
+    }
+
+    public MetadataFile setDir(Long id, Long parentId) throws EntityNotFoundException, InvalidActionException {
+        MetadataFile file = metadataFileRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("File not found"));
+        MetadataFile parent = metadataFileRepository.findById(parentId).orElseThrow(() -> new EntityNotFoundException("Parent not found"));
+
+        if(file.isDir()) {
+            throw new InvalidActionException("Cannot move a directory");
+        }
+        
+        if(!parent.isDir()) {
+            throw new InvalidActionException("Parent must be a directory");
+        }
+        
+        metadataFileRepository.save(file);
+        return file;
+    }
+
     /**
      * Retrieves a StoredFile by its ID.
      *
