@@ -31,9 +31,9 @@ public class MetadataFile implements Serializable, Video, Image, Document {
     private StoredFile file;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private MetadataFile parentFile;
+    private MetadataFile parent;
 
-    @OneToMany(mappedBy = "parentFile")
+    @OneToMany(mappedBy = "parent")
     private List<MetadataFile> children;
 
     private boolean isDir;

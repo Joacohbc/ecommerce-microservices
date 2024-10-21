@@ -18,7 +18,6 @@ import com.microecommerce.fileservice.repositories.StoredFileRepository;
 import com.microecommerce.utilitymodule.exceptions.EntityNotFoundException;
 import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
 
-import jakarta.transaction.Transactional;
 
 @Service
 public class FileService {
@@ -76,7 +75,7 @@ public class FileService {
         metadata.setFile(fileRepository.findById(storeId).orElseThrow(() -> new EntityNotFoundException("File not found")));
         metadata.setFileName(name);
         if (parentId != null) {
-            metadata.setParentFile(metadataFileRepository.findById(parentId).orElseThrow(() -> new EntityNotFoundException("Parent file not found")));
+            metadata.setParent(metadataFileRepository.findById(parentId).orElseThrow(() -> new EntityNotFoundException("Parent file not found")));
         }
         metadata.setDir(false);
         return metadata;
@@ -92,7 +91,7 @@ public class FileService {
     public MetadataFile createDir(String name, Long parentId) throws EntityNotFoundException {
         MetadataFile metadata = new MetadataFile();
         metadata.setFileName(name);
-        metadata.setParentFile(metadataFileRepository.findById(parentId).orElseThrow(() -> new EntityNotFoundException("Parent file not found")));
+        metadata.setParent(metadataFileRepository.findById(parentId).orElseThrow(() -> new EntityNotFoundException("Parent file not found")));
         metadata.setDir(true);
         return metadataFileRepository.save(metadata);
     }

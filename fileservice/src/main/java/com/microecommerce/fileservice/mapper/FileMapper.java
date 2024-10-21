@@ -15,35 +15,35 @@ public class FileMapper {
         return FileDTO.builder()
             .id(file.getId())
             .fileName(file.getFileName())
-            .hash(storedFile.getHash())
             .extension(storedFile.getExtension())
-            .filePath(storedFile.getFilePath())
-            .originalFilename(storedFile.getOriginalFilename())
             .contentType(storedFile.getContentType().toString())
             .size(storedFile.getSize())
-            .base64Content(storedFile.getBase64Content())
-            .bytes(storedFile.getBytes())
+            .parentId(file.getParent() != null ? file.getParent().getId() : null)
+            .parentFileName(file.getParent() != null ? file.getParent().getFileName() : null)
+            .isDir(file.isDir())
             .build();
     }
 
     public MetadataFile toEntity(FileDTO fileDTO) {
         StoredFile storedFile = new StoredFile();
-        storedFile.setHash(fileDTO.getHash());
+        storedFile.setId(fileDTO.getId());
         storedFile.setExtension(fileDTO.getExtension());
-        storedFile.setFilePath(fileDTO.getFilePath());
-        storedFile.setOriginalFilename(fileDTO.getOriginalFilename());
         storedFile.setContentType(ContentType.parse(fileDTO.getContentType()));
         storedFile.setSize(fileDTO.getSize());
-        // storedFile.setBase64Content(fileDTO.getBase64Content());
-        // storedFile.setBytes(fileDTO.getBytes());
 
-        return new MetadataFile(
-            fileDTO.getId(),
-            fileDTO.getFileName(),
-            storedFile, 
-            null, //! TODO: Add parent file to FileDTO
-            null, //! TODO: Add parent file to FileDTO
-            false //! TODO: Add parent file to FileDTO
-        );
+        MetadataFile metadataFile = new MetadataFile();
+        metadataFile.setId(fileDTO.getId());
+        metadataFile.setFileName(fileDTO.getFileName());
+        metadataFile.setFile(storedFile);
+
+        if(fileDTO.getParentId() != null) {
+            MetadataFile parent = new MetadataFile();
+            parent.setId(fileDTO.getParentId());
+            parent.setFileName(fileDTO.getParentFileName());
+            metadataFile.setParent(parent);
+        }
+        
+        metadataFile.setDir(fileDTO.isDir());
+        return metadataFile;
     }
 }

@@ -12,12 +12,10 @@ import lombok.NoArgsConstructor;
 public class FileDTO {
     Long id;
     String fileName;
-    String hash;
     String extension;
-    String filePath;
-    String originalFilename;
     String contentType;
     Long size;
-    String base64Content;
-    byte[] bytes;
+    Long parentId;
+    String parentFileName;
+    boolean isDir;
 }

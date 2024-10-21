@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.microecommerce.fileservice.mapper.FileMapper;
 import com.microecommerce.fileservice.models.MetadataFile;
 import com.microecommerce.fileservice.service.FileService;
 import com.microecommerce.utilitymodule.exceptions.EntityNotFoundException;
@@ -28,6 +29,9 @@ public class FileController {
     
     @Autowired
     private FileService fileService;
+
+    @Autowired
+    private FileMapper fileMapper;
 
     /**
      * Uploads a new file.
@@ -45,7 +49,7 @@ public class FileController {
         
         try {
             MetadataFile savedFile = fileService.createFile(file, name);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedFile);
+            return ResponseEntity.status(HttpStatus.CREATED).body(fileMapper.toDto(savedFile));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (IOException | NoSuchAlgorithmException e) {
@@ -67,7 +71,7 @@ public class FileController {
     public ResponseEntity<Object> updateFile(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
         try {
             MetadataFile savedFile = fileService.updateFile(id, file);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedFile);
+            return ResponseEntity.status(HttpStatus.CREATED).body(fileMapper.toDto(savedFile));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (IOException | NoSuchAlgorithmException e) {
@@ -89,7 +93,7 @@ public class FileController {
     public ResponseEntity<Object> uploadFile(@PathVariable Long id, @RequestBody Map<String, String> updatedFileInfo) {
         try {
             MetadataFile savedFile = fileService.renameFile(id, updatedFileInfo.get("name"));
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedFile);
+            return ResponseEntity.status(HttpStatus.CREATED).body(fileMapper.toDto(savedFile));
         } catch (EntityNotFoundException | InvalidEntityException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
@@ -105,7 +109,7 @@ public class FileController {
     @GetMapping("/{id}/metadata")
     public ResponseEntity<Object> getFileInfo(@PathVariable Long id)  {
         try {
-            return ResponseEntity.ok(fileService.getFileById(id));
+            return ResponseEntity.ok(fileMapper.toDto(fileService.getFileById(id)));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
