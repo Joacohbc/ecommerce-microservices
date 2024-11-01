@@ -10,10 +10,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 @Component
 public class AuthFilter implements GlobalFilter {
@@ -44,9 +41,9 @@ public class AuthFilter implements GlobalFilter {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
         // Exclude auth paths from authentication
-        boolean isWithoutAuth = freeAuthPaths.stream().anyMatch(authsPaths ->
-            exchange.getRequest().getURI().getPath().startsWith(authsPaths.path())
-                    && authsPaths.methods().contains(exchange.getRequest().getMethod())
+        boolean isWithoutAuth = freeAuthPaths.stream().anyMatch(authPaths ->
+            exchange.getRequest().getURI().getPath().startsWith(authPaths.path())
+                    && authPaths.methods().contains(exchange.getRequest().getMethod())
         );
 
         if(isWithoutAuth) {

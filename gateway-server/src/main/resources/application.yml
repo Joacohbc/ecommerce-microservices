@@ -29,3 +29,10 @@ spring:
             - Path=/api/user/**
           filters:
             - StripPrefix=2
+
+        - id: file-service
+          uri: lb://file-service
+          predicates:
+            - Path=/api/storage/**
+          filters:
+            - StripPrefix=2

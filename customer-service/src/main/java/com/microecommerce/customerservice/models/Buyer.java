@@ -1,17 +1,14 @@
 package com.microecommerce.customerservice.models;
 
-import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import lombok.*;
-
-import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
 public class Buyer extends Customer {
-    @ElementCollection(fetch = FetchType.LAZY)
-    private List<Address> address;
-
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private Boolean isActive;
 }

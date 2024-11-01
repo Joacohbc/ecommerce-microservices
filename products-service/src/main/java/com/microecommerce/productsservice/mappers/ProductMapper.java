@@ -1,7 +1,6 @@
 package com.microecommerce.productsservice.mappers;
 
 import com.microecommerce.dtoslibrary.products_service.ProductDTO;
-import com.microecommerce.dtoslibrary.products_service.TagDTO;
 import com.microecommerce.productsservice.models.Product;
 
 import java.util.List;

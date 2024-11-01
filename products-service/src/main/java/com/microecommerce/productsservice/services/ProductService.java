@@ -10,9 +10,7 @@ import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
 import com.microecommerce.utilitymodule.exceptions.RelatedEntityNotFoundException;
 import com.microecommerce.utilitymodule.interfaces.IGetId;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,18 +26,16 @@ public class ProductService implements IProductService {
 
     private final ProductRepository productRepository;
     private final ICategoryService categoryService;
-    private final IBrandService brandService;
+    // private final IBrandService brandService;
     private final ITagService tagService;
     private final IDetailService detailService;
     private final ProductServiceUtils productServiceUtils;
-    private final Logger logger = LoggerFactory.getLogger(ProductService.class);
     private final ProductDetailsRepository productDetailsRepository;
 
-    @Autowired
     public ProductService(ProductRepository productRepository, ICategoryService categoryService, IBrandService brandService, ITagService tagService, IDetailService detailService, ProductServiceUtils productServiceUtils, ProductDetailsRepository productDetailsRepository) {
         this.productRepository = productRepository;
         this.categoryService = categoryService;
-        this.brandService = brandService;
+        // this.brandService = brandService;
         this.tagService = tagService;
         this.detailService = detailService;
         this.productServiceUtils = productServiceUtils;

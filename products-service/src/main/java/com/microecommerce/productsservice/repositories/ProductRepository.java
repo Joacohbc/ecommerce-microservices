@@ -5,14 +5,14 @@ import com.microecommerce.productsservice.models.Brand;
 import com.microecommerce.productsservice.models.Category;
 import com.microecommerce.productsservice.models.Product;
 import com.microecommerce.productsservice.models.Tag;
+import com.microecommerce.utilitymodule.interfaces.CustomJPARepository;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.Collection;
 
-public interface ProductRepository extends JpaRepository<Product, Long>, PagingAndSortingRepository<Product, Long> {
+public interface ProductRepository extends CustomJPARepository<Product, Long> {
 
     Page<Product> findByCategoriesAndNameContainingIgnoreCase(Collection<Category> categories, String name, Pageable pageable);
     Collection<Product> findByBrandsAndNameContainingIgnoreCase(Collection<Brand> brands, String name);

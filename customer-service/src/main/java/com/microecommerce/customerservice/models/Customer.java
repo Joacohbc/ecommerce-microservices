@@ -1,7 +1,10 @@
 package com.microecommerce.customerservice.models;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.List;
@@ -11,7 +14,6 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Inheritance(strategy = InheritanceType.JOINED)
 public class Customer implements Serializable {
     @Id
@@ -19,10 +21,11 @@ public class Customer implements Serializable {
     private Long customerId;
 
     @Column(nullable = false, unique = true)
-    private Long credencialsId;
+    private Long credentialsId;
 
     @Column(nullable = false)
     private String firstName;
+
     private String middleName;
 
     @Column(nullable = false)
@@ -33,4 +36,7 @@ public class Customer implements Serializable {
 
     @ElementCollection(fetch = FetchType.LAZY)
     private List<Phone> phone;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    private List<Address> address;
 }

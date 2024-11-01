@@ -7,7 +7,6 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
@@ -18,13 +17,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CUserCredentials implements Serializable, UserDetails {
+public class CUserCredentials implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 256)
     private String username;
 
     @Embedded
@@ -83,16 +82,17 @@ public class CUserCredentials implements Serializable, UserDetails {
             throw new InvalidEntityException("Password is required");
         }
 
-        if(CUserCredentials.getUsername().length() < 4 || CUserCredentials.getUsername().length() > 50) {
-            throw new InvalidEntityException("Username must be between 4 and 50 characters long");
+        if(CUserCredentials.getUsername().length() < 4 || CUserCredentials.getUsername().length() > 256) {
+            throw new InvalidEntityException("Username must be between 4 and 256 characters long");
+        }
+
+        String regexPattern = "^(?:[a-zA-Z0-9!#$%&'*+\\-/=?^_`{|}~]|(?<=^|\\.)\"|\"(?=$|\\.|@)|(?<=\".*)[ .](?=.*\")|(?<!\\.)\\.){1,64}@(?:(?:[a-zA-Z0-9\\-])*(?:[a-zA-Z0-9])\\.(?:[a-zA-Z0-9]){2,})$";
+        if(!CUserCredentials.getUsername().matches(regexPattern)) {
+            throw new InvalidEntityException("Username must be a valid email address");
         }
 
         if(CUserCredentials.getPassword().length() < 8 || CUserCredentials.getPassword().length() > 50) {
             throw new InvalidEntityException("Password must be between 8 and 50 characters long");
-        }
-
-        if(!CUserCredentials.getUsername().matches("^[a-zA-Z0-9]*$")) {
-            throw new InvalidEntityException("Username must contain only letters and numbers");
         }
 
         if(!CUserCredentials.getPassword().matches("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$")) {
