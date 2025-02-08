@@ -334,16 +334,6 @@
 								{
 									"name": "Get All",
 									"request": {
-										"auth": {
-											"type": "bearer",
-											"bearer": [
-												{
-													"key": "token",
-													"value": "{{token}}",
-													"type": "string"
-												}
-											]
-										},
 										"method": "GET",
 										"header": [],
 										"url": {
@@ -363,16 +353,6 @@
 								{
 									"name": "Get By Id",
 									"request": {
-										"auth": {
-											"type": "bearer",
-											"bearer": [
-												{
-													"key": "token",
-													"value": "{{token}}",
-													"type": "string"
-												}
-											]
-										},
 										"method": "GET",
 										"header": [],
 										"url": {
@@ -399,16 +379,6 @@
 								{
 									"name": "Get All Page",
 									"request": {
-										"auth": {
-											"type": "bearer",
-											"bearer": [
-												{
-													"key": "token",
-													"value": "{{token}}",
-													"type": "string"
-												}
-											]
-										},
 										"method": "GET",
 										"header": [],
 										"url": {
@@ -465,7 +435,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"sku\": \"SKU100\",\n    \"name\": \"Product 0\",\n    \"description\": \"Product Description 0\",\n    \"originalPrice\": 129790,\n    \"categories\": [\n        { \"id\": 5 }\n    ],\n    \"brands\": [\n        { \"id\": 4 }\n    ],\n    \"tags\": [\n        { \"id\": 1 }\n    ],\n    \"productDetails\": [\n        { \"detailId\": 1, \"value\": \"Black\" },\n        { \"detailId\": 2, \"value\": \"8GB\" },\n        { \"detailId\": 3, \"value\": true },\n        { \"detailId\": 4, \"value\": \"1TB\" }\n    ]\n}",
+											"raw": "{\n    \"sku\": \"SKU100\",\n    \"name\": \"Product 0\",\n    \"description\": \"Product Description 0\",\n    \"originalPrice\": 129790,\n    \"categories\": [\n        { \"id\": 1 }\n    ],\n    \"brands\": [\n        { \"id\": 2 }\n    ],\n    \"tags\": [\n        { \"id\": 1 }\n    ],\n    \"productDetails\": [\n        { \"detailId\": 1, \"value\": \"Black\" },\n        { \"detailId\": 2, \"value\": \"8GB\" },\n        { \"detailId\": 3, \"value\": \"1TB\" },\n        { \"detailId\": 4, \"value\": true }\n    ]\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -643,7 +613,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "[\n    {\n        \"name\": \"Microsft\"\n    },\n    {\n        \"name\": \"Google\"\n    }\n]",
+									"raw": "[\n    {\n        \"name\": \"Smarthphone\",\n        \"description\": \"Smarthphone\"\n    },\n    {\n        \"name\": \"Laptops\",\n        \"description\": \"Laptops\"\n    }\n]",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1037,7 +1007,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "[\n    {\n        \"name\": \"Microsft\"\n    },\n    {\n        \"name\": \"Google\"\n    }\n]",
+									"raw": "[\n    {\n        \"name\": \"Technology\",\n        \"description\": \"Technology products\"\n    },\n    {\n        \"name\": \"Clothes\",\n        \"description\": \"T-Shirt, Shoes, Pants, etc\"\n    }\n]",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1234,7 +1204,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "[\n    {\n        \"id\": 1,\n        \"name\": \"Color\",\n        \"description\": \"Color of the Product\"\n    }\n]",
+									"raw": "[\n    {\n        \"name\": \"Color\",\n        \"description\": \"Color of the Product\"\n    },\n    {\n        \"name\": \"RAM\",\n        \"description\": \"Number of RAM in GB\"\n    },\n    {\n        \"name\": \"Disk\",\n        \"description\": \"Number of Space in GB\"\n    },\n    {\n        \"name\": \"SSD\",\n        \"description\": \"Have SSD or not\"\n    },\n    {\n        \"name\": \"WIFI\",\n        \"description\": \"Have WIFI or not\"\n    }\n]",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1406,7 +1376,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"items\": [\n        { \"productId\": 101085, \"quantity\": 3 }\n    ]\n}",
+							"raw": "{\n    \"items\": [\n        { \"productId\": 1, \"quantity\": 3 }\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1548,7 +1518,7 @@
 						"method": "PUT",
 						"header": [],
 						"url": {
-							"raw": "{{base}}/api/orders/orders/:orderId/finish?status=",
+							"raw": "{{base}}/api/orders/orders/:orderId/finish?status=INVOICE_ISSUED",
 							"host": [
 								"{{base}}"
 							],
@@ -1562,13 +1532,13 @@
 							"query": [
 								{
 									"key": "status",
-									"value": ""
+									"value": "INVOICE_ISSUED"
 								}
 							],
 							"variable": [
 								{
 									"key": "orderId",
-									"value": ""
+									"value": "663bdf94305c006b3dcd4a52"
 								}
 							]
 						}
@@ -1605,7 +1575,7 @@
 							"variable": [
 								{
 									"key": "orderId",
-									"value": "662d3caf91beb643e38deb05"
+									"value": "663bdf94305c006b3dcd4a52"
 								}
 							]
 						}
@@ -1679,7 +1649,7 @@
 							"variable": [
 								{
 									"key": "orderId",
-									"value": "662d3caf91beb643e38deb05"
+									"value": "66319f1f65e8c5245ed121fc"
 								}
 							]
 						}
@@ -1703,7 +1673,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "[\n    {\n        \"orderId\": \"662d3caf91beb643e38deb05\",\n        \"paymentId\": 0,\n        \"discountId\": null,\n        \"shippingId\": null,\n        \"message\": \"\"\n    }\n]",
+							"raw": "[\n    {\n        \"orderId\": \"663bdf94305c006b3dcd4a52\",\n        \"paymentId\": 100,\n        \"discountId\": null,\n        \"shippingId\": null,\n        \"message\": \"Testing propouse\"\n    }\n]",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1755,7 +1725,7 @@
 							"variable": [
 								{
 									"key": "orderId",
-									"value": ""
+									"value": "663bdf94305c006b3dcd4a52"
 								}
 							]
 						}
@@ -1770,11 +1740,14 @@
 				{
 					"name": "Login",
 					"request": {
+						"auth": {
+							"type": "noauth"
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"username\": \"joaco\",\n    \"password\": \"12345678Ab!\"\n}",
+							"raw": "{\n    \"username\": \"joaco@test.test\",\n    \"password\": \"12345678Ab!\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1803,7 +1776,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"username\": \"joaco\",\n    \"password\": \"12345678Ab!\"\n}",
+							"raw": "{\n    \"username\": \"joaco@test.test\",\n    \"password\": \"12345678Ab!\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1862,6 +1835,404 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Storage Service",
+			"item": [
+				{
+					"name": "Get File Metadata by Id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base}}/api/storage/files/:id/metadata",
+							"host": [
+								"{{base}}"
+							],
+							"path": [
+								"api",
+								"storage",
+								"files",
+								":id",
+								"metadata"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get File Binary by Id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base}}/api/storage/files/:id/binary",
+							"host": [
+								"{{base}}"
+							],
+							"path": [
+								"api",
+								"storage",
+								"files",
+								":id",
+								"binary"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get File Base64 by Id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base}}/api/storage/files/:id/base64",
+							"host": [
+								"{{base}}"
+							],
+							"path": [
+								"api",
+								"storage",
+								"files",
+								":id",
+								"base64"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload FIle",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "test.png",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/joaco/OneDrive/Imágenes/Capturas de pantalla/Screenshot 2025-02-06 005725.png"
+								},
+								{
+									"key": "parentId",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base}}/api/storage/files",
+							"host": [
+								"{{base}}"
+							],
+							"path": [
+								"api",
+								"storage",
+								"files"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update File Binary",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/joaco/OneDrive/Imágenes/Capturas de pantalla/Screenshot_20230222_101326.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base}}/api/storage/files/:id/binary",
+							"host": [
+								"{{base}}"
+							],
+							"path": [
+								"api",
+								"storage",
+								"files",
+								":id",
+								"binary"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update File Metadata",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"fileName\": \"test3.png\",\r\n    \"parentId\": 7\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base}}/api/storage/files/:id/metadata",
+							"host": [
+								"{{base}}"
+							],
+							"path": [
+								"api",
+								"storage",
+								"files",
+								":id",
+								"metadata"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete File or Directory",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base}}/api/storage/files/:id",
+							"host": [
+								"{{base}}"
+							],
+							"path": [
+								"api",
+								"storage",
+								"files",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Directory",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "dir",
+									"type": "text"
+								},
+								{
+									"key": "parentId",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base}}/api/storage/files/directory",
+							"host": [
+								"{{base}}"
+							],
+							"path": [
+								"api",
+								"storage",
+								"files",
+								"directory"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Testing",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"customerId\": 16,\n    \"credentialsId\": 1,\n    \"firstName\": \"Joaquin\",\n    \"lastName\": \"Genova\",\n    \"email\": \"joaco@test.test\",\n    \"phone\": [\n        {\n            \"number\": \"09031233123\",\n            \"countryCode\": \"+62\",\n            \"type\": \"MOBILE\"\n        }\n    ],\n    \"address\": [\n        {\n            \"address\": \"Test\",\n            \"city\": \"Test\",\n            \"postalCode\": \"1200\",\n            \"country\": \"Test\",\n            \"state\": \"Test\",\n            \"comment\": \"Test\"\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base}}/api/customers/buyers",
+					"host": [
+						"{{base}}"
+					],
+					"path": [
+						"api",
+						"customers",
+						"buyers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Testing Copy",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"credencialsId\": 1,\n    \"firstName\": \"Joaquin\",\n    \"lastName\": \"Genova\",\n    \"email\": \"joaco@test.test\",\n    \"phone\": [\n        {\n            \"number\": \"09031233123\",\n            \"countryCode\": \"+62\",\n            \"type\": \"MOBILE\"\n        }\n    ],\n    \"address\": [\n        {\n            \"address\": \"Test\",\n            \"city\": \"Test\",\n            \"postalCode\": \"1200\",\n            \"country\": \"Test\",\n            \"state\": \"Test\",\n            \"comment\": \"Test\"\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base}}/api/customers/store-owners",
+					"host": [
+						"{{base}}"
+					],
+					"path": [
+						"api",
+						"customers",
+						"store-owners"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"auth": {
