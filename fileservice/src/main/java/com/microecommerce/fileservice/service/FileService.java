@@ -3,6 +3,7 @@ package com.microecommerce.fileservice.service;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.util.Objects;
 import java.util.Optional;
 
 import com.microecommerce.fileservice.validations.FileValidations;
@@ -149,7 +150,7 @@ public class FileService {
      * @throws EntityNotFoundException If the file with the given ID is not found.
      * @throws InvalidEntityException If the file data is invalid or the file is empty.
      */
-    public MetadataFile updateFile(Long id, MultipartFile multipartFile) throws IOException, NoSuchAlgorithmException, EntityNotFoundException, InvalidEntityException {
+    public MetadataFile updateFileContent(Long id, MultipartFile multipartFile) throws IOException, NoSuchAlgorithmException, EntityNotFoundException, InvalidEntityException {
         if (multipartFile == null || multipartFile.isEmpty()) throw new InvalidEntityException("File cannot be empty");
         MetadataFile metadataFile = metadataFileRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("File not found"));
         metadataFile.setFile(createStoreFile(multipartFile));
@@ -201,7 +202,10 @@ public class FileService {
     public MetadataFile createDir(String name, Long parentId) throws EntityNotFoundException {
         MetadataFile metadata = new MetadataFile();
         metadata.setFileName(name);
-        metadata.setParent(metadataFileRepository.findById(parentId).orElseThrow(() -> new EntityNotFoundException("Parent file not found")));
+
+        if(parentId != null)
+            metadata.setParent(metadataFileRepository.findById(parentId).orElseThrow(() -> new EntityNotFoundException("Parent file not found")));
+
         metadata.setDir(true);
         return metadataFileRepository.save(metadata);
     }
@@ -219,14 +223,15 @@ public class FileService {
         MetadataFile file = metadataFileRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("File not found"));
         MetadataFile parent = metadataFileRepository.findById(parentId).orElseThrow(() -> new EntityNotFoundException("Parent not found"));
 
-        if(file.isDir()) {
-            throw new InvalidActionException("Cannot move a directory");
-        }
-
         if(!parent.isDir()) {
             throw new InvalidActionException("Parent must be a directory");
         }
 
+        if(Objects.equals(parentId, id)) {
+            throw new InvalidActionException("File cannot be its own parent");
+        }
+
+        file.setParent(parent);
         metadataFileRepository.save(file);
         return file;
     }

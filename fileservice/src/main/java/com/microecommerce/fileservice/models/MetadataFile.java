@@ -31,10 +31,10 @@ public class MetadataFile extends TimeStamped implements Serializable, Video, Im
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     private StoredFile file;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private MetadataFile parent;
 
-    @OneToMany(mappedBy = "parent")
+    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
     private List<MetadataFile> children;
 
     private boolean isDir;

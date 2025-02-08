@@ -11,6 +11,17 @@ import com.microecommerce.dtoslibrary.storage_service.FileDTO;
 public class FileMapper {
 
     public FileDTO toDto(MetadataFile file) {
+        if(file.isDir()) {
+            return FileDTO.builder()
+                .id(file.getId())
+                .fileName(file.getFileName())
+                .isDir(true)
+                .size(0L)
+                .extension(null)
+                .contentType(null)
+                .build();
+        }
+
         StoredFile storedFile = file.getFile();
         return FileDTO.builder()
             .id(file.getId())
@@ -20,7 +31,7 @@ public class FileMapper {
             .size(storedFile.getSize())
             .parentId(file.getParent() != null ? file.getParent().getId() : null)
             .parentFileName(file.getParent() != null ? file.getParent().getFileName() : null)
-            .isDir(file.isDir())
+            .isDir(false)
             .build();
     }
 
