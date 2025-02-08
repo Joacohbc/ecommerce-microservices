@@ -2,6 +2,7 @@ package com.microecommerce.fileservice.models;
 
 import java.io.Serializable;
 
+import com.microecommerce.utilitymodule.models.TimeStamped;
 import org.apache.http.entity.ContentType;
 
 import jakarta.persistence.Basic;
@@ -22,7 +23,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class StoredFile implements Serializable {
+public class StoredFile extends TimeStamped implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
