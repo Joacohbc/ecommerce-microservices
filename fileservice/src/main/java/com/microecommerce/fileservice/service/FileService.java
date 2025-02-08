@@ -7,7 +7,6 @@ import java.util.Optional;
 
 import com.microecommerce.fileservice.validations.FileValidations;
 import org.apache.http.entity.ContentType;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,17 +23,17 @@ import com.microecommerce.utilitymodule.exceptions.InvalidEntityException;
 @Service
 public class FileService {
 
-    @Autowired
-    private StoredFileRepository fileRepository;
+    private final StoredFileRepository fileRepository;
+    private final MetadataFileRepository metadataFileRepository;
+    private final HashService hashService;
+    private final FileValidations fileValidations;
 
-    @Autowired
-    private MetadataFileRepository metadataFileRepository;
-
-    @Autowired
-    private HashService hashService;
-
-    @Autowired
-    private FileValidations fileValidations;
+    public FileService(StoredFileRepository fileRepository, MetadataFileRepository metadataFileRepository, HashService hashService, FileValidations fileValidations) {
+        this.fileRepository = fileRepository;
+        this.metadataFileRepository = metadataFileRepository;
+        this.hashService = hashService;
+        this.fileValidations = fileValidations;
+    }
 
     /**
      * Loads file data from a MultipartFile into a StoredFile and return it.
