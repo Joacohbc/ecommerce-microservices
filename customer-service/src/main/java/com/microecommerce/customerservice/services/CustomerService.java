@@ -7,6 +7,7 @@ import com.microecommerce.customerservice.repositories.BuyerRepository;
 import com.microecommerce.customerservice.repositories.CustomerRepository;
 import com.microecommerce.customerservice.repositories.StoreOwnerRepository;
 import com.microecommerce.customerservice.services.interfaces.ICustomerService;
+import com.microecommerce.utilitymodule.exceptions.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -14,9 +15,9 @@ import java.util.Optional;
 @Service
 public class CustomerService implements ICustomerService {
 
-    private BuyerRepository buyerRepository;
-    private StoreOwnerRepository storeOwnerRepository;
-    private CustomerRepository customerRepository;
+    private final BuyerRepository buyerRepository;
+    private final StoreOwnerRepository storeOwnerRepository;
+    private final CustomerRepository customerRepository;
 
     public CustomerService(BuyerRepository buyerRepository, StoreOwnerRepository storeOwnerRepository, CustomerRepository customerRepository) {
         this.buyerRepository = buyerRepository;
@@ -41,20 +42,16 @@ public class CustomerService implements ICustomerService {
     }
 
     @Override
-    public Buyer updateBuyer(Long customerId, Buyer buyer) {
-        Optional<Buyer> existingBuyer = buyerRepository.findById(customerId);
-        if (existingBuyer.isPresent()) {
-            Buyer updatedBuyer = existingBuyer.get();
-            updatedBuyer.setFirstName(buyer.getFirstName());
-            updatedBuyer.setMiddleName(buyer.getMiddleName());
-            updatedBuyer.setLastName(buyer.getLastName());
-            updatedBuyer.setEmail(buyer.getEmail());
-            updatedBuyer.setPhone(buyer.getPhone());
-            updatedBuyer.setAddress(buyer.getAddress());
-            updatedBuyer.setIsActive(buyer.getIsActive());
-            return buyerRepository.save(updatedBuyer);
-        }
-        return null;
+    public Buyer updateBuyer(Long customerId, Buyer buyer) throws EntityNotFoundException {
+        Buyer existingBuyer = buyerRepository.findById(customerId).orElseThrow(() -> new EntityNotFoundException("Buyer not found"));
+        existingBuyer.setFirstName(buyer.getFirstName());
+        existingBuyer.setMiddleName(buyer.getMiddleName());
+        existingBuyer.setLastName(buyer.getLastName());
+        existingBuyer.setEmail(buyer.getEmail());
+        existingBuyer.setPhone(buyer.getPhone());
+        existingBuyer.setAddress(buyer.getAddress());
+        existingBuyer.setIsActive(buyer.getIsActive());
+        return buyerRepository.save(existingBuyer);
     }
 
     @Override
@@ -82,9 +79,6 @@ public class CustomerService implements ICustomerService {
         storeOwner.setIsActive(false);
         return storeOwnerRepository.save(storeOwner);
     }
-
-
-
 
     @Override
     public StoreOwner getStoreOwnerByEmail(String email) {

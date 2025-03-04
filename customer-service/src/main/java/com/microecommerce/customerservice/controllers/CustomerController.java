@@ -3,6 +3,7 @@ package com.microecommerce.customerservice.controllers;
 import com.microecommerce.customerservice.models.Buyer;
 import com.microecommerce.customerservice.models.StoreOwner;
 import com.microecommerce.customerservice.services.interfaces.ICustomerService;
+import com.microecommerce.utilitymodule.exceptions.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +33,7 @@ public class CustomerController {
     }
 
     @PutMapping("/buyer/{customerId}")
-    public ResponseEntity<Buyer> updateBuyer(@PathVariable Long customerId, @RequestBody Buyer buyer) {
+    public ResponseEntity<Buyer> updateBuyer(@PathVariable Long customerId, @RequestBody Buyer buyer) throws EntityNotFoundException {
         Buyer updatedBuyer = customerService.updateBuyer(customerId, buyer);
         return updatedBuyer != null ? new ResponseEntity<>(updatedBuyer, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
