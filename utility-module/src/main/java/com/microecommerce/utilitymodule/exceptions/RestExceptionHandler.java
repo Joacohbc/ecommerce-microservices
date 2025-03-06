@@ -110,6 +110,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
             return handleGeneric(responseStatusException, request);
         }
 
-        return createJsonResponse("An error occurred", null, ex, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
+        return createJsonResponse("An error unknown occurred", null, ex, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 }
