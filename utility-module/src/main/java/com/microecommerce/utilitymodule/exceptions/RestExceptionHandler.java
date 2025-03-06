@@ -14,11 +14,12 @@ import java.util.Map;
 
 // Handles exceptions and returns a response with the appropriate status code and message
 // Exception:
-// - DuplicatedRelationException (Custom)
-// - InvalidEntityException (Custom)
-// - EntityNotFoundException (Custom)
-// - RelatedEntityNotFoundException (Custom)
-// - ConstraintViolationException (Validation Errors)
+// - DuplicatedRelationException (Custom) - 400
+// - InvalidEntityException (Custom) - 400
+// - EntityNotFoundException (Custom) - 404
+// - RelatedEntityNotFoundException (Custom) - 400
+// - InvalidActionException (Custom) - 400
+// - ConstraintViolationException (Validation Errors) - 400
 // - ResponseStatusException (Generic)
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -49,6 +50,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     protected ResponseEntity<Object> handleRelatedEntityNotFound(RelatedEntityNotFoundException ex, WebRequest request) {
+        return createJsonResponse(ex.getMessage(), null, ex, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    protected ResponseEntity<Object> handleIInvalidAction(InvalidActionException ex, WebRequest request) {
         return createJsonResponse(ex.getMessage(), null, ex, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
@@ -91,6 +96,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
         if(ex instanceof RelatedEntityNotFoundException) {
             return handleRelatedEntityNotFound((RelatedEntityNotFoundException) ex, request);
+        }
+
+        if(ex instanceof InvalidActionException) {
+            return handleIInvalidAction((InvalidActionException) ex, request);
         }
 
         if(ex instanceof ConstraintViolationException notValidException) {

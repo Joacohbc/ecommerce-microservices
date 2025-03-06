@@ -3,6 +3,7 @@ package com.microecommerce.fileservice.models;
 import java.io.Serializable;
 import java.util.List;
 
+import com.microecommerce.utilitymodule.models.TimeStamped;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -20,7 +21,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MetadataFile implements Serializable, Video, Image, Document {
+public class MetadataFile extends TimeStamped implements Serializable, Video, Image, Document {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,10 +31,10 @@ public class MetadataFile implements Serializable, Video, Image, Document {
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     private StoredFile file;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private MetadataFile parent;
 
-    @OneToMany(mappedBy = "parent")
+    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
     private List<MetadataFile> children;
 
     private boolean isDir;
