@@ -24,31 +24,31 @@ public class StoreOwnerController {
     }
 
     @GetMapping("/store-owner/{customerId}")
-    public ResponseEntity<StoreOwner> getStoreOwnerById(@PathVariable Long customerId) {
+    public ResponseEntity<StoreOwner> getStoreOwnerById(@PathVariable Long customerId) throws EntityNotFoundException {
         StoreOwner storeOwner = customerService.getStoreOwnerById(customerId);
         return storeOwner != null ? new ResponseEntity<>(storeOwner, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @PutMapping("/store-owner/{customerId}")
-    public ResponseEntity<StoreOwner> updateStoreOwner(@PathVariable Long customerId, @RequestBody StoreOwner storeOwner) {
+    public ResponseEntity<StoreOwner> updateStoreOwner(@PathVariable Long customerId, @RequestBody StoreOwner storeOwner) throws EntityNotFoundException {
         StoreOwner updatedStoreOwner = customerService.updateStoreOwner(customerId, storeOwner);
         return updatedStoreOwner != null ? new ResponseEntity<>(updatedStoreOwner, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @PutMapping("/store-owner/{customerId}/activate")
-    public ResponseEntity<Void> activateStoreOwner(@PathVariable Long customerId) {
+    public ResponseEntity<Void> activateStoreOwner(@PathVariable Long customerId) throws EntityNotFoundException {
         customerService.activateStoreOwner(customerId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PutMapping("/store-owner/{customerId}/deactivate")
-    public ResponseEntity<Void> deactivateStoreOwner(@PathVariable Long customerId) {
+    public ResponseEntity<Void> deactivateStoreOwner(@PathVariable Long customerId) throws EntityNotFoundException {
         customerService.deactivateStoreOwner(customerId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/store-owner/create-from/{customerId}")
-    public ResponseEntity<StoreOwner> createExistingCustomerAsStoreOwner(@PathVariable Long customerId, @RequestBody StoreOwner storeOwner) {
+    public ResponseEntity<StoreOwner> createExistingCustomerAsStoreOwner(@PathVariable Long customerId, @RequestBody StoreOwner storeOwner) throws EntityNotFoundException {
         StoreOwner createdStoreOwner = customerService.createExistingCustomerAsStoreOwner(customerId, storeOwner);
         return new ResponseEntity<>(createdStoreOwner, HttpStatus.CREATED);
     }

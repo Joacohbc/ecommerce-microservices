@@ -26,7 +26,7 @@ public class BuyerController {
     }
 
     @GetMapping("/buyer/{customerId}")
-    public ResponseEntity<Buyer> getBuyerById(@PathVariable Long customerId) {
+    public ResponseEntity<Buyer> getBuyerById(@PathVariable Long customerId) throws EntityNotFoundException {
         Buyer buyer = customerService.getBuyerById(customerId);
         return buyer != null ? new ResponseEntity<>(buyer, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
@@ -40,13 +40,13 @@ public class BuyerController {
     // Customer Activation/Deactivation Endpoints
 
     @PutMapping("/buyer/{customerId}/activate")
-    public ResponseEntity<Void> activateBuyer(@PathVariable Long customerId) {
+    public ResponseEntity<Void> activateBuyer(@PathVariable Long customerId) throws EntityNotFoundException {
         customerService.activateBuyer(customerId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PutMapping("/buyer/{customerId}/deactivate")
-    public ResponseEntity<Void> deactivateBuyer(@PathVariable Long customerId) {
+    public ResponseEntity<Void> deactivateBuyer(@PathVariable Long customerId) throws EntityNotFoundException {
         customerService.deactivateBuyer(customerId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -54,7 +54,7 @@ public class BuyerController {
     // Existing Customer to Buyer/Store Owner Endpoints
 
     @PostMapping("/buyer/create-from/{customerId}")
-    public ResponseEntity<Buyer> createExistingCustomerAsBuyer(@PathVariable Long customerId, @RequestBody Buyer buyer) {
+    public ResponseEntity<Buyer> createExistingCustomerAsBuyer(@PathVariable Long customerId, @RequestBody Buyer buyer) throws EntityNotFoundException {
         Buyer createdBuyer = customerService.createExistingCustomerAsBuyer(customerId, buyer);
         return new ResponseEntity<>(createdBuyer, HttpStatus.CREATED);
     }

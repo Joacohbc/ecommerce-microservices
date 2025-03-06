@@ -6,6 +6,7 @@ import com.microecommerce.customerservice.repositories.BuyerRepository;
 import com.microecommerce.customerservice.repositories.CustomerRepository;
 import com.microecommerce.customerservice.services.interfaces.IBuyerService;
 import com.microecommerce.utilitymodule.exceptions.EntityNotFoundException;
+import com.microecommerce.utilitymodule.exceptions.InvalidActionException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -24,25 +25,27 @@ public class BuyerService implements IBuyerService {
     @Override
     public Buyer createBuyer(Buyer buyer) {
         buyer.setIsActive(false);
+
+        // TODO: Add Validations
         return buyerRepository.save(buyer);
     }
 
     @Override
-    public Buyer getBuyerByEmail(String email) {
-        return buyerRepository.findByEmail(email);
+    public Buyer getBuyerByEmail(String email) throws EntityNotFoundException {
+        return Optional.of(buyerRepository.findByEmail(email))
+                .orElseThrow(() -> new EntityNotFoundException("Buyer with Email " + email + " not found"));
     }
 
     @Override
-    public Buyer getBuyerById(Long customerId) {
-        return buyerRepository.findByCustomerId(customerId);
+    public Buyer getBuyerById(Long customerId) throws EntityNotFoundException {
+        return buyerRepository
+                .findById(customerId)
+                .orElseThrow(() -> new EntityNotFoundException("Buyer with the Id " + customerId + " not found"));
     }
 
     @Override
     public Buyer updateBuyer(Long customerId, Buyer buyer) throws EntityNotFoundException {
-        Buyer existingBuyer = buyerRepository
-                .findById(customerId)
-                .orElseThrow(() -> new EntityNotFoundException("Buyer not found"));
-
+        Buyer existingBuyer = getBuyerById(customerId);
         existingBuyer.setFirstName(buyer.getFirstName());
         existingBuyer.setMiddleName(buyer.getMiddleName());
         existingBuyer.setLastName(buyer.getLastName());
@@ -50,46 +53,57 @@ public class BuyerService implements IBuyerService {
         existingBuyer.setPhone(buyer.getPhone());
         existingBuyer.setAddress(buyer.getAddress());
         existingBuyer.setIsActive(buyer.getIsActive());
+
+        // TODO: Add Validations
         return buyerRepository.save(existingBuyer);
     }
 
     @Override
-    public void activateBuyer(Long customerId) {
-        Optional<Buyer> buyer = buyerRepository.findById(customerId);
-        if (buyer.isPresent()) {
-            buyer.get().setIsActive(true);
-            buyerRepository.save(buyer.get());
+    public void activateBuyer(Long customerId) throws EntityNotFoundException, InvalidActionException {
+        Buyer buyer = getBuyerById(customerId);
+        if(buyer.getIsActive()) {
+            throw new InvalidActionException("Buyer is already active");
         }
+
+        buyer.setIsActive(true);
+
+        // TODO: Add Validations
+        buyerRepository.save(buyer);
     }
 
     @Override
-    public void deactivateBuyer(Long customerId) {
-        Optional<Buyer> buyer = buyerRepository.findById(customerId);
-        if (buyer.isPresent()) {
-            buyer.get().setIsActive(false);
-            buyerRepository.save(buyer.get());
+    public void deactivateBuyer(Long customerId) throws EntityNotFoundException, InvalidActionException {
+        Buyer buyer = getBuyerById(customerId);
+        if(!buyer.getIsActive()) {
+            throw new InvalidActionException("Buyer is already inactive");
         }
+
+        buyer.setIsActive(false);
+
+        // TODO: Add Validations
+        buyerRepository.save(buyer);
     }
 
     @Override
-    public Buyer createExistingCustomerAsBuyer(Long customerId, Buyer buyer) {
-        Optional<Customer> existingCustomer = customerRepository.findById(customerId);
-        if (existingCustomer.isPresent()) {
-            Buyer newBuyer = new Buyer();
-            newBuyer.setCustomerId(existingCustomer.get().getCustomerId());
-            newBuyer.setCredentialsId(existingCustomer.get().getCredentialsId());
-            newBuyer.setFirstName(existingCustomer.get().getFirstName());
-            newBuyer.setMiddleName(existingCustomer.get().getMiddleName());
-            newBuyer.setLastName(existingCustomer.get().getLastName());
-            newBuyer.setEmail(existingCustomer.get().getEmail());
-            newBuyer.setPhone(existingCustomer.get().getPhone());
-            newBuyer.setAddress(existingCustomer.get().getAddress());
+    public Buyer createExistingCustomerAsBuyer(Long customerId, Buyer buyer) throws EntityNotFoundException {
+        Customer existingCustomer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new EntityNotFoundException("Customer with the Id " + customerId + " not found"));
 
-            // Specific fields of Buyer
-            newBuyer.setIsActive(true);
-            return buyerRepository.save(buyer);
-        }
-        return null;
+        Buyer newBuyer = new Buyer();
+        newBuyer.setCustomerId(existingCustomer.getCustomerId());
+        newBuyer.setCredentialsId(existingCustomer.getCredentialsId());
+        newBuyer.setFirstName(existingCustomer.getFirstName());
+        newBuyer.setMiddleName(existingCustomer.getMiddleName());
+        newBuyer.setLastName(existingCustomer.getLastName());
+        newBuyer.setEmail(existingCustomer.getEmail());
+        newBuyer.setPhone(existingCustomer.getPhone());
+        newBuyer.setAddress(existingCustomer.getAddress());
+
+        // Specific fields of Buyer
+        newBuyer.setIsActive(true);
+
+        // TODO: Add Validations
+        return buyerRepository.save(buyer);
     }
 
 }

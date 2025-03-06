@@ -6,6 +6,7 @@ import com.microecommerce.customerservice.repositories.CustomerRepository;
 import com.microecommerce.customerservice.repositories.StoreOwnerRepository;
 import com.microecommerce.customerservice.services.interfaces.IStoreOwnerService;
 import com.microecommerce.utilitymodule.exceptions.EntityNotFoundException;
+import com.microecommerce.utilitymodule.exceptions.InvalidActionException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -22,27 +23,29 @@ public class StoreOwnerService implements IStoreOwnerService {
     }
 
     @Override
+    public StoreOwner getStoreOwnerByEmail(String email) throws EntityNotFoundException {
+        return Optional.of(storeOwnerRepository.findByEmail(email))
+                .orElseThrow(() -> new EntityNotFoundException("StoreOwner with Email " + email + " not found"));
+    }
+
+    @Override
+    public StoreOwner getStoreOwnerById(Long customerId) throws EntityNotFoundException {
+        return storeOwnerRepository
+                .findById(customerId)
+                .orElseThrow(() -> new EntityNotFoundException("StoreOwner with the Id " + customerId + " not found"));
+    }
+
+    @Override
     public StoreOwner createStoreOwner(StoreOwner storeOwner) {
         storeOwner.setIsActive(false);
+
+        // TODO: Add Validations
         return storeOwnerRepository.save(storeOwner);
     }
 
     @Override
-    public StoreOwner getStoreOwnerByEmail(String email) {
-        return storeOwnerRepository.findByEmail(email);
-    }
-
-    @Override
-    public StoreOwner getStoreOwnerById(Long customerId) {
-        return storeOwnerRepository.findByCustomerId(customerId);
-    }
-
-    @Override
     public StoreOwner updateStoreOwner(Long customerId, StoreOwner storeOwner) throws EntityNotFoundException {
-        StoreOwner existingStoreOwner = storeOwnerRepository
-                .findById(customerId)
-                .orElseThrow(() -> new EntityNotFoundException("StoreOwner not found"));
-
+        StoreOwner existingStoreOwner = getStoreOwnerById(customerId);
         existingStoreOwner.setFirstName(storeOwner.getFirstName());
         existingStoreOwner.setMiddleName(storeOwner.getMiddleName());
         existingStoreOwner.setLastName(storeOwner.getLastName());
@@ -50,45 +53,57 @@ public class StoreOwnerService implements IStoreOwnerService {
         existingStoreOwner.setPhone(storeOwner.getPhone());
         existingStoreOwner.setAddress(storeOwner.getAddress());
         existingStoreOwner.setIsActive(storeOwner.getIsActive());
+
+        // TODO: Add Validations
         return storeOwnerRepository.save(existingStoreOwner);
     }
 
     @Override
-    public void activateStoreOwner(Long customerId) {
-        Optional<StoreOwner> buyer = storeOwnerRepository.findById(customerId);
-        if (buyer.isPresent()) {
-            buyer.get().setIsActive(true);
-            storeOwnerRepository.save(buyer.get());
+    public void activateStoreOwner(Long customerId) throws EntityNotFoundException, InvalidActionException {
+        StoreOwner owner = getStoreOwnerById(customerId);
+        if(owner.getIsActive()) {
+            throw new InvalidActionException("StoreOwner is already active");
         }
+
+        owner.setIsActive(true);
+
+        // TODO: Add Validations
+        storeOwnerRepository.save(owner);
     }
 
     @Override
-    public void deactivateStoreOwner(Long customerId) {
-        Optional<StoreOwner> buyer = storeOwnerRepository.findById(customerId);
-        if (buyer.isPresent()) {
-            buyer.get().setIsActive(false);
-            storeOwnerRepository.save(buyer.get());
+    public void deactivateStoreOwner(Long customerId) throws EntityNotFoundException, InvalidActionException {
+        StoreOwner owner = getStoreOwnerById(customerId);
+        if(!owner.getIsActive()) {
+            throw new InvalidActionException("StoreOwner is already inactive");
         }
+
+        owner.setIsActive(false);
+
+        // TODO: Add Validations
+        storeOwnerRepository.save(owner);
     }
 
     @Override
-    public StoreOwner createExistingCustomerAsStoreOwner(Long customerId, StoreOwner storeOwner) {
-        Optional<Customer> existingCustomer = customerRepository.findById(customerId);
-        if (existingCustomer.isPresent()) {
-            StoreOwner newStoreOwner = new StoreOwner();
-            newStoreOwner.setCustomerId(existingCustomer.get().getCustomerId());
-            newStoreOwner.setCredentialsId(existingCustomer.get().getCredentialsId());
-            newStoreOwner.setFirstName(existingCustomer.get().getFirstName());
-            newStoreOwner.setMiddleName(existingCustomer.get().getMiddleName());
-            newStoreOwner.setLastName(existingCustomer.get().getLastName());
-            newStoreOwner.setEmail(existingCustomer.get().getEmail());
-            newStoreOwner.setPhone(existingCustomer.get().getPhone());
-            newStoreOwner.setAddress(existingCustomer.get().getAddress());
+    public StoreOwner createExistingCustomerAsStoreOwner(Long customerId, StoreOwner storeOwner) throws EntityNotFoundException {
+        Customer existingCustomer = customerRepository
+                .findById(customerId)
+                .orElseThrow(() -> new EntityNotFoundException("Customer with the Id " + customerId + " not found"));
 
-            // Specific fields of StoreOwner
-            newStoreOwner.setIsActive(true);
-            return storeOwnerRepository.save(storeOwner);
-        }
-        return null;
+        StoreOwner newStoreOwner = new StoreOwner();
+        newStoreOwner.setCustomerId(existingCustomer.getCustomerId());
+        newStoreOwner.setCredentialsId(existingCustomer.getCredentialsId());
+        newStoreOwner.setFirstName(existingCustomer.getFirstName());
+        newStoreOwner.setMiddleName(existingCustomer.getMiddleName());
+        newStoreOwner.setLastName(existingCustomer.getLastName());
+        newStoreOwner.setEmail(existingCustomer.getEmail());
+        newStoreOwner.setPhone(existingCustomer.getPhone());
+        newStoreOwner.setAddress(existingCustomer.getAddress());;
+
+        // Specific fields of StoreOwner
+        newStoreOwner.setIsActive(true);
+
+        // TODO: Add Validations
+        return storeOwnerRepository.save(storeOwner);
     }
 }
