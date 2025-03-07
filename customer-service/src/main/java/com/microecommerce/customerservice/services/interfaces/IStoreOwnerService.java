@@ -14,6 +14,4 @@ public interface IStoreOwnerService {
 
     void deactivateStoreOwner(Long customerId) throws EntityNotFoundException, InvalidActionException;
     void activateStoreOwner(Long customerId) throws EntityNotFoundException, InvalidActionException;
-
-    StoreOwner createExistingCustomerAsStoreOwner(Long customerId, StoreOwner storeOwnerInfo) throws EntityNotFoundException;
 }

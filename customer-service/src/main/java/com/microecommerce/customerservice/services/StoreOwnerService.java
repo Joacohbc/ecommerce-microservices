@@ -83,27 +83,4 @@ public class StoreOwnerService implements IStoreOwnerService {
         // TODO: Add Validations
         storeOwnerRepository.save(owner);
     }
-
-    @Override
-    public StoreOwner createExistingCustomerAsStoreOwner(Long customerId, StoreOwner storeOwner) throws EntityNotFoundException {
-        Customer existingCustomer = customerRepository
-                .findById(customerId)
-                .orElseThrow(() -> new EntityNotFoundException("Customer with the Id " + customerId + " not found"));
-
-        StoreOwner newStoreOwner = new StoreOwner();
-        newStoreOwner.setCustomerId(existingCustomer.getCustomerId());
-        newStoreOwner.setCredentialsId(existingCustomer.getCredentialsId());
-        newStoreOwner.setFirstName(existingCustomer.getFirstName());
-        newStoreOwner.setMiddleName(existingCustomer.getMiddleName());
-        newStoreOwner.setLastName(existingCustomer.getLastName());
-        newStoreOwner.setEmail(existingCustomer.getEmail());
-        newStoreOwner.setPhone(existingCustomer.getPhone());
-        newStoreOwner.setAddress(existingCustomer.getAddress());;
-
-        // Specific fields of StoreOwner
-        newStoreOwner.setIsActive(true);
-
-        // TODO: Add Validations
-        return storeOwnerRepository.save(storeOwner);
-    }
 }

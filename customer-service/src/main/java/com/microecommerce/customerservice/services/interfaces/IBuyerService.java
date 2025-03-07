@@ -13,6 +13,4 @@ public interface IBuyerService {
 
     void activateBuyer(Long customerId) throws EntityNotFoundException, InvalidActionException;
     void deactivateBuyer(Long customerId) throws EntityNotFoundException, InvalidActionException;
-
-    Buyer createExistingCustomerAsBuyer(Long customerId, Buyer buyerInfo) throws EntityNotFoundException;
 }

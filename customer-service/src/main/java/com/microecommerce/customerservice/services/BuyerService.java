@@ -83,27 +83,4 @@ public class BuyerService implements IBuyerService {
         // TODO: Add Validations
         buyerRepository.save(buyer);
     }
-
-    @Override
-    public Buyer createExistingCustomerAsBuyer(Long customerId, Buyer buyer) throws EntityNotFoundException {
-        Customer existingCustomer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new EntityNotFoundException("Customer with the Id " + customerId + " not found"));
-
-        Buyer newBuyer = new Buyer();
-        newBuyer.setCustomerId(existingCustomer.getCustomerId());
-        newBuyer.setCredentialsId(existingCustomer.getCredentialsId());
-        newBuyer.setFirstName(existingCustomer.getFirstName());
-        newBuyer.setMiddleName(existingCustomer.getMiddleName());
-        newBuyer.setLastName(existingCustomer.getLastName());
-        newBuyer.setEmail(existingCustomer.getEmail());
-        newBuyer.setPhone(existingCustomer.getPhone());
-        newBuyer.setAddress(existingCustomer.getAddress());
-
-        // Specific fields of Buyer
-        newBuyer.setIsActive(true);
-
-        // TODO: Add Validations
-        return buyerRepository.save(buyer);
-    }
-
 }

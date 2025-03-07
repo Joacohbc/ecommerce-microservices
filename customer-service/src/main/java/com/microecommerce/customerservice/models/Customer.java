@@ -20,7 +20,10 @@ public class Customer implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long customerId;
 
-    @Column(nullable = false, unique = true)
+    // This file is mandatory for the Customer Service to work
+    // It is not unique because the same credentials can be used by multiple customers (same person as Buyers and StoreOwners, or even multiple StoreOwners
+    // for the same store)
+    @Column(nullable = false)
     private Long credentialsId;
 
     @Column(nullable = false)
